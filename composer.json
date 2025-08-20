@@ -1,0 +1,56 @@
+{
+  "authors": [
+    {
+      "name": "Arbi Kullakshi",
+      "email": "arbikullakshi0@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Arbi\\Notifyre\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "description": "A Notifyre wrapper for laravel",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "name": "arbi/notifyre-laravel",
+  "repositories": [
+    {
+      "type": "github",
+      "url": ""
+    }
+  ],
+  "require": {
+    "php": "^8.4",
+    "laravel/framework": "^12.20.0"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.24.0",
+    "pestphp/pest": "4.x-dev"
+  },
+  "scripts": {
+    "version-patch": [
+      "php -f scripts/version.php patch"
+    ],
+    "version-minor": [
+      "php -f scripts/version.php minor"
+    ],
+    "version-major": [
+      "php -f scripts/version.php major"
+    ],
+    "pint": [
+      "vendor/bin/pint"
+    ]
+  },
+  "type": "library",
+  "version": "0.0.0"
+}
