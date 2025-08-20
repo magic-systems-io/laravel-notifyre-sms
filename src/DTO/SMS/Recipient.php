@@ -13,7 +13,7 @@ readonly class Recipient
     ];
 
     public function __construct(
-        public string $type = 'mobile_number',
+        public string $type,
         public string $value,
     ) {
         if (!in_array($type, self::VALID_TYPES)) {

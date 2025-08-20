@@ -1,10 +1,10 @@
 <?php
 
-use Arbi\Notifyre\Services\NotifyreService;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
+use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\Services\NotifyreService;
 
 describe('NotifyreService', function () {
     it('sends message through driver factory', function () {
@@ -13,7 +13,7 @@ describe('NotifyreService', function () {
             ->once()
             ->with(Mockery::type(RequestBodyDTO::class));
 
-        $mockFactory = Mockery::mock(DriverFactory::class);
+        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
         $mockFactory->shouldReceive('create')
             ->once()
             ->andReturn($mockDriver);
@@ -34,11 +34,10 @@ describe('NotifyreService', function () {
     });
 
     it('is readonly', function () {
-        $mockFactory = Mockery::mock(DriverFactory::class);
+        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
         $service = new NotifyreService($mockFactory);
 
-        // This should cause an error if the class is not readonly
-        expect(fn() => $service->driverFactory = null)->toThrow(Error::class);
+        expect(fn () => $service->driverFactory = null)->toThrow(Error::class);
 
         Mockery::close();
     });
@@ -47,7 +46,7 @@ describe('NotifyreService', function () {
         $mockDriver = Mockery::mock(NotifyreDriverInterface::class);
         $mockDriver->shouldReceive('send')->once();
 
-        $mockFactory = Mockery::mock(DriverFactory::class);
+        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
         $mockFactory->shouldReceive('create')
             ->once()
             ->andReturn($mockDriver);

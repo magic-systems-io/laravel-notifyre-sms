@@ -1,10 +1,10 @@
 <?php
 
 
-use Arbi\Notifyre\Services\NotifyreService;
+use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 
 if (!function_exists('notifyre')) {
-    function notifyre(): NotifyreService
+    function notifyre(): NotifyreServiceInterface
     {
         return app('notifyre');
     }

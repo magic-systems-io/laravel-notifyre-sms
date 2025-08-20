@@ -2,7 +2,7 @@
 
 namespace Arbi\Notifyre\DTO\SMS;
 
-class ResponsePayload
+readonly class ResponsePayload
 {
     public function __construct(
         public string $smsMessageID,

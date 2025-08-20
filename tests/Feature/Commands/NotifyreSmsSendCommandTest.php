@@ -1,22 +1,20 @@
 <?php
 
 use Arbi\Notifyre\Commands\NotifyreSmsSendCommand;
+use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\BufferedWriter;
 
 describe('NotifyreSmsSendCommand', function () {
     beforeEach(function () {
-        // Set up default test configuration
         Config::set('notifyre.default_sender', 'DefaultApp');
         Config::set('notifyre.default_recipient', '+1234567890');
     });
 
     it('sends SMS with all arguments provided', function () {
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldReceive('send')
             ->once()
             ->with(Mockery::on(function (RequestBodyDTO $dto) {
@@ -49,7 +47,7 @@ describe('NotifyreSmsSendCommand', function () {
     });
 
     it('uses default sender when only recipient and message provided', function () {
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldReceive('send')
             ->once()
             ->with(Mockery::on(function (RequestBodyDTO $dto) {
@@ -76,7 +74,7 @@ describe('NotifyreSmsSendCommand', function () {
     });
 
     it('uses default recipient when only sender and message provided', function () {
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldReceive('send')
             ->once()
             ->with(Mockery::on(function (RequestBodyDTO $dto) {
@@ -103,7 +101,7 @@ describe('NotifyreSmsSendCommand', function () {
     });
 
     it('uses both defaults when only message provided', function () {
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldReceive('send')
             ->once()
             ->with(Mockery::on(function (RequestBodyDTO $dto) {
@@ -122,16 +120,14 @@ describe('NotifyreSmsSendCommand', function () {
             new ArrayInput([
                 'message' => 'Test message',
             ]),
-            new BufferedWriter(
-                new BufferedOutput()
-            )
+            new BufferedOutput()
         );
 
         Mockery::close();
     });
 
     it('returns early when no message provided', function () {
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldNotReceive('send');
 
         $command = new NotifyreSmsSendCommand($mockService);
@@ -154,10 +150,10 @@ describe('NotifyreSmsSendCommand', function () {
     });
 
     it('returns early when sender and recipient cannot be determined', function () {
-        Config::set('notifyre.default_sender', null);
-        Config::set('notifyre.default_recipient', null);
+        Config::set('notifyre.default_sender');
+        Config::set('notifyre.default_recipient');
 
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldNotReceive('send');
 
         $command = new NotifyreSmsSendCommand($mockService);
@@ -178,7 +174,7 @@ describe('NotifyreSmsSendCommand', function () {
     });
 
     it('handles service exceptions gracefully', function () {
-        $mockService = Mockery::mock(NotifyreService::class);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldReceive('send')
             ->once()
             ->andThrow(new Exception('Service error'));
@@ -209,14 +205,14 @@ describe('NotifyreSmsSendCommand', function () {
     });
 
     it('has correct signature', function () {
-        $command = new NotifyreSmsSendCommand(Mockery::mock(NotifyreService::class));
+        $command = new NotifyreSmsSendCommand(Mockery::mock(NotifyreServiceInterface::class));
 
-        expect($command->getSignature())->toBe('sms:send {sender? : The number the SMS will be sent from} {recipient? : The number the SMS will be sent to} {message? : The message that will be sent}');
+        expect($command->signature)->toBe('sms:send {sender? : The number the SMS will be sent from} {recipient? : The number the SMS will be sent to} {message? : The message that will be sent}');
     });
 
     it('has correct description', function () {
-        $command = new NotifyreSmsSendCommand(Mockery::mock(NotifyreService::class));
+        $command = new NotifyreSmsSendCommand(Mockery::mock(NotifyreServiceInterface::class));
 
-        expect($command->getDescription())->toBe('Send an SMS to a specified phone number using Notifyre');
+        expect($command->description)->toBe('Send an SMS to a specified phone number using Notifyre');
     });
 });

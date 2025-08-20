@@ -3,12 +3,13 @@
 namespace Arbi\Notifyre\Services;
 
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
+use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Enums\NotifyreDriver;
 use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
 use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
 
-class DriverFactory
+readonly class DriverFactory implements NotifyreDriverFactoryInterface
 {
     /**
      * @throws InvalidConfigurationException

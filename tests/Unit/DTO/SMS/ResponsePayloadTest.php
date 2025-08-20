@@ -10,9 +10,9 @@ describe('ResponsePayload', function () {
             invalidToNumbers: []
         );
 
-        expect($payload->smsMessageID)->toBe('msg_123456');
-        expect($payload->friendlyID)->toBe('friendly_789');
-        expect($payload->invalidToNumbers)->toBe([]);
+        expect($payload->smsMessageID)->toBe('msg_123456')
+            ->and($payload->friendlyID)->toBe('friendly_789')
+            ->and($payload->invalidToNumbers)->toBe([]);
     });
 
     it('creates a ResponsePayload with invalid numbers', function () {
@@ -22,10 +22,10 @@ describe('ResponsePayload', function () {
             invalidToNumbers: ['+1234567890', '+0987654321']
         );
 
-        expect($payload->smsMessageID)->toBe('msg_123');
-        expect($payload->friendlyID)->toBe('friendly_456');
-        expect($payload->invalidToNumbers)->toBe(['+1234567890', '+0987654321']);
-        expect($payload->invalidToNumbers)->toHaveCount(2);
+        expect($payload->smsMessageID)->toBe('msg_123')
+            ->and($payload->friendlyID)->toBe('friendly_456')
+            ->and($payload->invalidToNumbers)->toBe(['+1234567890', '+0987654321'])
+            ->and($payload->invalidToNumbers)->toHaveCount(2);
     });
 
     it('creates a ResponsePayload with empty values', function () {
@@ -35,9 +35,9 @@ describe('ResponsePayload', function () {
             invalidToNumbers: []
         );
 
-        expect($payload->smsMessageID)->toBe('');
-        expect($payload->friendlyID)->toBe('');
-        expect($payload->invalidToNumbers)->toBe([]);
+        expect($payload->smsMessageID)->toBe('')
+            ->and($payload->friendlyID)->toBe('')
+            ->and($payload->invalidToNumbers)->toBe([]);
     });
 
     it('creates a ResponsePayload with long IDs', function () {
@@ -50,8 +50,8 @@ describe('ResponsePayload', function () {
             invalidToNumbers: []
         );
 
-        expect($payload->smsMessageID)->toBe($longMessageID);
-        expect($payload->friendlyID)->toBe($longFriendlyID);
+        expect($payload->smsMessageID)->toBe($longMessageID)
+            ->and($payload->friendlyID)->toBe($longFriendlyID);
     });
 
     it('creates a ResponsePayload with special characters in IDs', function () {
@@ -61,7 +61,18 @@ describe('ResponsePayload', function () {
             invalidToNumbers: []
         );
 
-        expect($payload->smsMessageID)->toBe('msg_123-456_789');
-        expect($payload->friendlyID)->toBe('friendly@456#789');
+        expect($payload->smsMessageID)->toBe('msg_123-456_789')
+            ->and($payload->friendlyID)->toBe('friendly@456#789');
+    });
+
+
+    it('is readonly', function () {
+        $payload = new ResponsePayload(
+            smsMessageID: '18a0c628-6a5d-4a6b-816c-3962b7ce5e33',
+            friendlyID: 'df863968-2e31-4138-94c5-f225156659ec',
+            invalidToNumbers: []
+        );
+
+        expect(fn () => $payload->friendlyID = '')->toThrow(Error::class);
     });
 });

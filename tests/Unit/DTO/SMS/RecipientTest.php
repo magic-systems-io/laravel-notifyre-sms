@@ -6,43 +6,43 @@ describe('Recipient', function () {
     it('creates a valid recipient with mobile_number type', function () {
         $recipient = new Recipient('mobile_number', '+1234567890');
 
-        expect($recipient->type)->toBe('mobile_number');
-        expect($recipient->value)->toBe('+1234567890');
+        expect($recipient->type)->toBe('mobile_number')
+            ->and($recipient->value)->toBe('+1234567890');
     });
 
     it('creates a valid recipient with contact type', function () {
         $recipient = new Recipient('contact', 'contact123');
 
-        expect($recipient->type)->toBe('contact');
-        expect($recipient->value)->toBe('contact123');
+        expect($recipient->type)->toBe('contact')
+            ->and($recipient->value)->toBe('contact123');
     });
 
     it('creates a valid recipient with group type', function () {
         $recipient = new Recipient('group', 'group456');
 
-        expect($recipient->type)->toBe('group');
-        expect($recipient->value)->toBe('group456');
+        expect($recipient->type)->toBe('group')
+            ->and($recipient->value)->toBe('group456');
     });
 
     it('uses mobile_number as default type', function () {
         $recipient = new Recipient('mobile_number', '+1234567890');
 
-        expect($recipient->type)->toBe('mobile_number');
-        expect($recipient->value)->toBe('+1234567890');
+        expect($recipient->type)->toBe('mobile_number')
+            ->and($recipient->value)->toBe('+1234567890');
     });
 
     it('throws exception for invalid type', function () {
-        expect(fn() => new Recipient('invalid_type', 'value123'))
+        expect(fn () => new Recipient('invalid_type', 'value123'))
             ->toThrow(Symfony\Component\Mime\Exception\InvalidArgumentException::class, "Invalid type 'invalid_type'. Valid types are: mobile_number, contact, group");
     });
 
     it('throws exception for empty value', function () {
-        expect(fn() => new Recipient('mobile_number', ''))
+        expect(fn () => new Recipient('mobile_number', ''))
             ->toThrow(Symfony\Component\Mime\Exception\InvalidArgumentException::class, 'Value cannot be empty');
     });
 
     it('throws exception for whitespace-only value', function () {
-        expect(fn() => new Recipient('mobile_number', '   '))
+        expect(fn () => new Recipient('mobile_number', '   '))
             ->toThrow(Symfony\Component\Mime\Exception\InvalidArgumentException::class, 'Value cannot be empty');
     });
 
@@ -100,7 +100,6 @@ describe('Recipient', function () {
     it('is readonly', function () {
         $recipient = new Recipient('mobile_number', '+1234567890');
 
-        // This should cause an error if the class is not readonly
-        expect(fn() => $recipient->type = 'contact')->toThrow(Error::class);
+        expect(fn () => $recipient->type = 'contact')->toThrow(Error::class);
     });
 });

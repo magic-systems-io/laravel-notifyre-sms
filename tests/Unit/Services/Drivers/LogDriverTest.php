@@ -1,8 +1,8 @@
 <?php
 
-use Arbi\Notifyre\Services\Drivers\LogDriver;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Illuminate\Support\Facades\Log;
 
 describe('LogDriver', function () {

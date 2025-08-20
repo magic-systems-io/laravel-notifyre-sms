@@ -1,10 +1,11 @@
 <?php
 
+use Arbi\Notifyre\Channels\NotifyreChannel;
+use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\Providers\NotifyreServiceProvider;
 use Arbi\Notifyre\Services\NotifyreService;
-use Arbi\Notifyre\Channels\NotifyreChannel;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\ServiceProvider;
 
 describe('NotifyreServiceProvider', function () {
     it('registers NotifyreService in container', function () {
@@ -13,8 +14,8 @@ describe('NotifyreServiceProvider', function () {
 
         $provider->register();
 
-        expect($app->bound('notifyre'))->toBeTrue();
-        expect($app->make('notifyre'))->toBeInstanceOf(NotifyreService::class);
+        expect($app->bound('notifyre'))->toBeTrue()
+            ->and($app->make('notifyre'))->toBeInstanceOf(NotifyreServiceInterface::class);
     });
 
     it('registers NotifyreChannel in container', function () {
@@ -23,8 +24,8 @@ describe('NotifyreServiceProvider', function () {
 
         $provider->register();
 
-        expect($app->bound(NotifyreChannel::class))->toBeTrue();
-        expect($app->make(NotifyreChannel::class))->toBeInstanceOf(NotifyreChannel::class);
+        expect($app->bound(NotifyreChannel::class))->toBeTrue()
+            ->and($app->make(NotifyreChannel::class))->toBeInstanceOf(NotifyreChannel::class);
     });
 
     it('registers NotifyreService as singleton', function () {
@@ -57,7 +58,7 @@ describe('NotifyreServiceProvider', function () {
 
         $provider->register();
 
-        expect($app->make('notifyre'))->toBeInstanceOf(NotifyreService::class);
+        expect($app->make('notifyre'))->toBeInstanceOf(NotifyreServiceInterface::class);
     });
 
     it('registers NotifyreChannel with correct class binding', function () {
@@ -80,6 +81,6 @@ describe('NotifyreServiceProvider', function () {
         $app = new Application();
         $provider = new NotifyreServiceProvider($app);
 
-        expect($provider)->toBeInstanceOf(\Illuminate\Support\ServiceProvider::class);
+        expect($provider)->toBeInstanceOf(ServiceProvider::class);
     });
 });

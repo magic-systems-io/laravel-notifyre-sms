@@ -1,7 +1,7 @@
 <?php
 
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 
 describe('RequestBodyDTO', function () {
     it('creates a valid RequestBodyDTO with all parameters', function () {
@@ -15,9 +15,9 @@ describe('RequestBodyDTO', function () {
             recipients: $recipients
         );
 
-        expect($dto->body)->toBe('Test message');
-        expect($dto->sender)->toBe('TestApp');
-        expect($dto->recipients)->toBe($recipients);
+        expect($dto->body)->toBe('Test message')
+            ->and($dto->sender)->toBe('TestApp')
+            ->and($dto->recipients)->toBe($recipients);
     });
 
     it('creates a valid RequestBodyDTO without sender', function () {
@@ -31,9 +31,9 @@ describe('RequestBodyDTO', function () {
             recipients: $recipients
         );
 
-        expect($dto->body)->toBe('Test message');
-        expect($dto->sender)->toBeNull();
-        expect($dto->recipients)->toBe($recipients);
+        expect($dto->body)->toBe('Test message')
+            ->and($dto->sender)->toBeNull()
+            ->and($dto->recipients)->toBe($recipients);
     });
 
     it('throws exception when body is empty', function () {
@@ -41,7 +41,7 @@ describe('RequestBodyDTO', function () {
             new Recipient('mobile_number', '+1234567890'),
         ];
 
-        expect(fn() => new RequestBodyDTO(
+        expect(fn () => new RequestBodyDTO(
             body: '',
             sender: 'TestApp',
             recipients: $recipients
@@ -53,7 +53,7 @@ describe('RequestBodyDTO', function () {
             new Recipient('mobile_number', '+1234567890'),
         ];
 
-        expect(fn() => new RequestBodyDTO(
+        expect(fn () => new RequestBodyDTO(
             body: '   ',
             sender: 'TestApp',
             recipients: $recipients
@@ -61,7 +61,7 @@ describe('RequestBodyDTO', function () {
     });
 
     it('throws exception when recipients array is empty', function () {
-        expect(fn() => new RequestBodyDTO(
+        expect(fn () => new RequestBodyDTO(
             body: 'Test message',
             sender: 'TestApp',
             recipients: []
@@ -113,7 +113,20 @@ describe('RequestBodyDTO', function () {
             recipients: $recipients
         );
 
-        expect($dto->recipients)->toHaveCount(3);
-        expect($dto->recipients)->toBe($recipients);
+        expect($dto->recipients)->toHaveCount(3)
+            ->and($dto->recipients)->toBe($recipients);
     });
+
+    it('is readonly', function () {
+        $dto = new RequestBodyDTO(
+            body: 'Test message',
+            sender: 'TestApp',
+            recipients: [
+                new Recipient('mobile_number', '+1234567890'),
+            ]
+        );
+
+        expect(fn () => $dto->body = 'Other')->toThrow(Error::class);
+    });
+
 });

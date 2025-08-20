@@ -2,6 +2,6 @@
 
 namespace Arbi\Notifyre\Services;
 
-class NotifyreApiClient
+readonly class NotifyreApiClient
 {
 }

@@ -1,16 +1,15 @@
 <?php
 
-use Arbi\Notifyre\Services\Drivers\SMSDriver;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
+use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 
 describe('SMSDriver', function () {
     beforeEach(function () {
-        // Set up default test configuration
         Config::set('notifyre.base_url', 'https://api.notifyre.com');
         Config::set('services.notifyre.api_key', 'test-api-key');
         Config::set('notifyre.timeout', 30);
@@ -41,7 +40,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();
@@ -87,7 +86,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();
@@ -173,7 +172,7 @@ describe('SMSDriver', function () {
     });
 
     it('throws exception when base URL is not configured', function () {
-        Config::set('notifyre.base_url', null);
+        Config::set('notifyre.base_url');
 
         $recipients = [
             new Recipient('mobile_number', '+1234567890'),
@@ -187,13 +186,13 @@ describe('SMSDriver', function () {
 
         $driver = new SMSDriver();
 
-        expect(fn() => $driver->send($message))
+        expect(fn () => $driver->send($message))
             ->toThrow(InvalidConfigurationException::class, 'Notifyre base URL is not configured.');
     });
 
     it('throws exception when API key is not configured', function () {
-        Config::set('services.notifyre.api_key', null);
-        Config::set('notifyre.api_key', null);
+        Config::set('services.notifyre.api_key');
+        Config::set('notifyre.api_key');
 
         $recipients = [
             new Recipient('mobile_number', '+1234567890'),
@@ -207,7 +206,7 @@ describe('SMSDriver', function () {
 
         $driver = new SMSDriver();
 
-        expect(fn() => $driver->send($message))
+        expect(fn () => $driver->send($message))
             ->toThrow(InvalidConfigurationException::class, 'Notifyre API key is not configured.');
     });
 
@@ -269,7 +268,7 @@ describe('SMSDriver', function () {
 
         $driver = new SMSDriver();
 
-        expect(fn() => $driver->send($message))
+        expect(fn () => $driver->send($message))
             ->toThrow(ConnectionException::class, 'Failed to send SMS: {"success":false,"statusCode":400,"message":"Bad Request","errors":["Invalid phone number"]}');
     });
 
@@ -299,7 +298,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();
@@ -307,9 +306,9 @@ describe('SMSDriver', function () {
 
         // Note: We can't directly test timeout and retry settings with Http::fake
         // but we can verify the configuration is used in the actual implementation
-        expect(Config::get('notifyre.timeout'))->toBe(60);
-        expect(Config::get('notifyre.retry.times'))->toBe(5);
-        expect(Config::get('notifyre.retry.sleep'))->toBe(2000);
+        expect(Config::get('notifyre.timeout'))->toBe(60)
+            ->and(Config::get('notifyre.retry.times'))->toBe(5)
+            ->and(Config::get('notifyre.retry.sleep'))->toBe(2000);
     });
 
     it('trims trailing slash from base URL', function () {
@@ -336,7 +335,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();

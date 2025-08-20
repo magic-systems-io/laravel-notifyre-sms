@@ -2,7 +2,7 @@
 
 namespace Arbi\Notifyre\DTO\SMS;
 
-class ResponseBodyDTO
+readonly class ResponseBodyDTO
 {
     public function __construct(
         public bool $success,

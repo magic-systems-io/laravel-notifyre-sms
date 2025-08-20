@@ -117,30 +117,35 @@ The test suite covers:
 ## Test Scenarios
 
 ### DTO Tests
+
 - Valid data creation
 - Validation errors
 - Edge cases (empty values, special characters)
 - Multiple recipients
 
 ### Service Tests
+
 - Driver factory creation
 - Service delegation
 - Configuration handling
 - Error scenarios
 
 ### Driver Tests
+
 - SMS driver HTTP requests
 - Log driver logging
 - Configuration validation
 - Error handling
 
 ### Channel Tests
+
 - Notification sending
 - Method validation
 - Error handling
 - Multiple recipients
 
 ### Command Tests
+
 - Argument handling
 - Default value usage
 - Error handling

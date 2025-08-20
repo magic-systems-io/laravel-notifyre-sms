@@ -4,7 +4,7 @@ namespace Arbi\Notifyre\DTO\SMS;
 
 use InvalidArgumentException;
 
-class RequestBodyDTO
+readonly class RequestBodyDTO
 {
     /**
      * @param string $body

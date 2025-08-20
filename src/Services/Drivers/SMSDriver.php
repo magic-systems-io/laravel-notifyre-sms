@@ -11,7 +11,7 @@ use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
-class SMSDriver implements NotifyreDriverInterface
+readonly class SMSDriver implements NotifyreDriverInterface
 {
     /**
      * @throws InvalidConfigurationException

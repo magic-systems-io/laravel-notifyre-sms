@@ -19,11 +19,11 @@ describe('ResponseBodyDTO', function () {
             errors: []
         );
 
-        expect($dto->success)->toBeTrue();
-        expect($dto->statusCode)->toBe(200);
-        expect($dto->message)->toBe('SMS sent successfully');
-        expect($dto->payload)->toBe($payload);
-        expect($dto->errors)->toBe([]);
+        expect($dto->success)->toBeTrue()
+            ->and($dto->statusCode)->toBe(200)
+            ->and($dto->message)->toBe('SMS sent successfully')
+            ->and($dto->payload)->toBe($payload)
+            ->and($dto->errors)->toBe([]);
     });
 
     it('creates a ResponseBodyDTO with failure response', function () {
@@ -41,11 +41,11 @@ describe('ResponseBodyDTO', function () {
             errors: ['Invalid recipient']
         );
 
-        expect($dto->success)->toBeFalse();
-        expect($dto->statusCode)->toBe(400);
-        expect($dto->message)->toBe('Invalid phone number');
-        expect($dto->payload)->toBe($payload);
-        expect($dto->errors)->toBe(['Invalid recipient']);
+        expect($dto->success)->toBeFalse()
+            ->and($dto->statusCode)->toBe(400)
+            ->and($dto->message)->toBe('Invalid phone number')
+            ->and($dto->payload)->toBe($payload)
+            ->and($dto->errors)->toBe(['Invalid recipient']);
     });
 
     it('creates a ResponseBodyDTO with minimal parameters', function () {
@@ -63,10 +63,23 @@ describe('ResponseBodyDTO', function () {
             errors: []
         );
 
-        expect($dto->success)->toBeFalse();
-        expect($dto->statusCode)->toBe(500);
-        expect($dto->message)->toBe('');
-        expect($dto->payload)->toBe($payload);
-        expect($dto->errors)->toBe([]);
+        expect($dto->success)->toBeFalse()
+            ->and($dto->statusCode)->toBe(500)
+            ->and($dto->message)->toBe('')
+            ->and($dto->payload)->toBe($payload)
+            ->and($dto->errors)->toBe([]);
+    });
+
+
+    it('is readonly', function () {
+        $dto = new ResponseBodyDTO(
+            success: true,
+            statusCode: 200,
+            message: 'Test',
+            payload: new ResponsePayload('msg_123', 'friendly_456', []),
+            errors: []
+        );
+
+        expect(fn () => $dto->success = false)->toThrow(Error::class);
     });
 });

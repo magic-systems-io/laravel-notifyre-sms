@@ -2,14 +2,14 @@
 
 namespace Arbi\Notifyre\Channels;
 
+use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
-use Arbi\Notifyre\Services\DriverFactory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notification;
 
 readonly class NotifyreChannel
 {
-    public function __construct(private DriverFactory $driverFactory)
+    public function __construct(private NotifyreDriverFactoryInterface $driverFactory)
     {
     }
 

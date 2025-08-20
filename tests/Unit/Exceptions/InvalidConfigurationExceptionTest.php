@@ -23,7 +23,7 @@ describe('InvalidConfigurationException', function () {
     });
 
     it('can be thrown and caught', function () {
-        expect(fn() => throw new InvalidConfigurationException('Test error'))
+        expect(fn () => throw new InvalidConfigurationException('Test error'))
             ->toThrow(InvalidConfigurationException::class, 'Test error');
     });
 
@@ -31,8 +31,8 @@ describe('InvalidConfigurationException', function () {
         try {
             throw new InvalidConfigurationException('Configuration is invalid');
         } catch (InvalidConfigurationException $e) {
-            expect($e->getMessage())->toBe('Configuration is invalid');
-            expect($e->getCode())->toBe(500);
+            expect($e->getMessage())->toBe('Configuration is invalid')
+                ->and($e->getCode())->toBe(500);
         }
     });
 
@@ -46,15 +46,15 @@ describe('InvalidConfigurationException', function () {
     it('can be used with empty message', function () {
         $exception = new InvalidConfigurationException('');
 
-        expect($exception->getMessage())->toBe('');
-        expect($exception->getCode())->toBe(500);
+        expect($exception->getMessage())->toBe('')
+            ->and($exception->getCode())->toBe(500);
     });
 
     it('can be used with long error messages', function () {
         $longMessage = str_repeat('This is a very long error message. ', 100);
         $exception = new InvalidConfigurationException($longMessage);
 
-        expect($exception->getMessage())->toBe($longMessage);
-        expect($exception->getCode())->toBe(500);
+        expect($exception->getMessage())->toBe($longMessage)
+            ->and($exception->getCode())->toBe(500);
     });
 });

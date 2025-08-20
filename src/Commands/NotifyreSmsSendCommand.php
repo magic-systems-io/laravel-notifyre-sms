@@ -2,20 +2,28 @@
 
 namespace Arbi\Notifyre\Commands;
 
+use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Services\NotifyreService;
 use Exception;
 use Illuminate\Console\Command;
 
 class NotifyreSmsSendCommand extends Command
 {
-    protected $signature = 'sms:send {sender? : The number the SMS will be sent from} {recipient? : The number the SMS will be sent to} {message? : The message that will be sent}'; //this name may conflict with other packages, consider renaming it
+    public $signature = 'sms:send {sender? : The number the SMS will be sent from} {recipient? : The number the SMS will be sent to} {message? : The message that will be sent}' {
+        get {
+            return $this->signature;
+        }
+    } //this name may conflict with other packages, consider renaming it
 
-    protected $description = 'Send an SMS to a specified phone number using Notifyre';
+    public $description = 'Send an SMS to a specified phone number using Notifyre' {
+        get {
+            return $this->description;
+        }
+    }
 
     public function __construct(
-        private readonly NotifyreService $notifyreService
+        private readonly NotifyreServiceInterface $notifyreService
     ) {
         parent::__construct();
     }

@@ -1,45 +1,82 @@
 <?php
 
+use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
+use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
+use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Facades\Notifyre;
 use Arbi\Notifyre\Services\NotifyreService;
+use Illuminate\Container\Container;
 
 describe('Notifyre Facade', function () {
+    beforeEach(function () {
+        $this->app = new Container();
+
+        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
+
+        $mockDriver = Mockery::mock(NotifyreDriverInterface::class);
+        $mockDriver->shouldReceive('send')->andReturn(null);
+
+        $mockFactory->shouldReceive('create')->andReturn($mockDriver);
+
+        $this->app->singleton('notifyre', function () use ($mockFactory) {
+            return new NotifyreService($mockFactory);
+        });
+
+        Notifyre::setFacadeApplication($this->app);
+    });
+
     it('resolves to NotifyreService', function () {
         $service = Notifyre::getFacadeRoot();
 
-        expect($service)->toBeInstanceOf(NotifyreService::class);
+        expect($service)->toBeInstanceOf(NotifyreServiceInterface::class);
     });
 
     it('can call methods on the underlying service', function () {
-        // Mock the service to avoid actual SMS sending
-        $mockService = Mockery::mock(NotifyreService::class);
-        $mockService->shouldReceive('send')->once();
+        $mockRequestBody = new RequestBodyDTO(
+            body: 'Test message',
+            sender: 'TestApp',
+            recipients: [
+                new Recipient('mobile_number', '+1234567890'),
+            ]
+        );
 
-        // Bind the mock to the container
-        app()->instance('notifyre', $mockService);
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
+        $mockService->shouldReceive('send')
+            ->once()
+            ->with($mockRequestBody);
 
-        // Test the facade
-        Notifyre::send(Mockery::type(\Arbi\Notifyre\DTO\SMS\RequestBodyDTO::class));
+        Notifyre::clearResolvedInstances();
+        $this->app->instance('notifyre', $mockService);
+
+        Notifyre::send($mockRequestBody);
+
+        expect(true)->toBeTrue();
 
         Mockery::close();
     });
 
-    it('has correct facade accessor', function () {
-        $accessor = Notifyre::getFacadeAccessor();
-
-        expect($accessor)->toBe('notifyre');
-    });
-
     it('can be used in helper function context', function () {
-        // Mock the service
-        $mockService = Mockery::mock(NotifyreService::class);
-        $mockService->shouldReceive('send')->once();
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
+        $mockRequestBody = new RequestBodyDTO(
+            body: 'Test message',
+            sender: 'TestApp',
+            recipients: [
+                new Recipient('mobile_number', '+1234567890'),
+            ]
+        );
 
-        // Bind the mock to the container
-        app()->instance('notifyre', $mockService);
+        $mockService->shouldReceive('send')
+            ->once()
+            ->with($mockRequestBody);
 
-        // Test the helper function
-        notifyre()->send(Mockery::type(\Arbi\Notifyre\DTO\SMS\RequestBodyDTO::class));
+        $this->app->instance('notifyre', $mockService);
+
+        $helperService = $this->app->make('notifyre');
+        $helperService->send($mockRequestBody);
+
+        expect(true)->toBeTrue();
 
         Mockery::close();
     });

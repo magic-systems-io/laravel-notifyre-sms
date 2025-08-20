@@ -5,9 +5,8 @@ namespace Arbi\Notifyre\Services\Drivers;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Illuminate\Notifications\Notification;
 
-class LogDriver implements NotifyreDriverInterface
+readonly class LogDriver implements NotifyreDriverInterface
 {
     public function send(RequestBodyDTO $requestBody): void
     {

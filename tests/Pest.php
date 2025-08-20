@@ -1,5 +1,7 @@
 <?php
 
+use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Pest\Expectation;
 
 /*
@@ -57,14 +59,14 @@ function createTestMessage(
     string $body = 'Test message',
     ?string $sender = 'TestApp',
     array $recipients = null
-): \Arbi\Notifyre\DTO\SMS\RequestBodyDTO {
+): RequestBodyDTO {
     if ($recipients === null) {
         $recipients = [
-            new \Arbi\Notifyre\DTO\SMS\Recipient('mobile_number', '+1234567890'),
+            new Recipient(type: 'mobile_number', value: '+1234567890'),
         ];
     }
 
-    return new \Arbi\Notifyre\DTO\SMS\RequestBodyDTO(
+    return new RequestBodyDTO(
         body: $body,
         sender: $sender,
         recipients: $recipients
@@ -77,6 +79,6 @@ function createTestMessage(
 function createTestRecipient(
     string $type = 'mobile_number',
     string $value = '+1234567890'
-): \Arbi\Notifyre\DTO\SMS\Recipient {
-    return new \Arbi\Notifyre\DTO\SMS\Recipient($type, $value);
+): Recipient {
+    return new Recipient($type, $value);
 }

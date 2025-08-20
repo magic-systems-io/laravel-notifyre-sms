@@ -8,6 +8,8 @@ interface NotifyreServiceInterface
 {
     /**
      * Send SMS directly using the service
+     *
+     * @throws \Arbi\Notifyre\Exceptions\InvalidConfigurationException
      */
     public function send(RequestBodyDTO $message): void;
 }

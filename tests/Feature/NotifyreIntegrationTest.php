@@ -1,15 +1,19 @@
 <?php
 
-use Arbi\Notifyre\Services\NotifyreService;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Enums\NotifyreDriver;
+use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
+use Arbi\Notifyre\Services\DriverFactory;
+use Arbi\Notifyre\Services\Drivers\LogDriver;
+use Arbi\Notifyre\Services\Drivers\SMSDriver;
+use Arbi\Notifyre\Services\NotifyreService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 
 describe('Notifyre Integration', function () {
     beforeEach(function () {
-        // Set up test configuration
         Config::set('notifyre.driver', 'log');
         Config::set('notifyre.base_url', 'https://api.notifyre.com');
         Config::set('services.notifyre.api_key', 'test-api-key');
@@ -31,10 +35,8 @@ describe('Notifyre Integration', function () {
             ]
         );
 
-        // This should log to Laravel logs instead of sending actual SMS
         $service->send($message);
 
-        // If we get here without exceptions, the flow worked
         expect(true)->toBeTrue();
     });
 
@@ -52,9 +54,7 @@ describe('Notifyre Integration', function () {
             ]
         );
 
-        // This should attempt to send via HTTP (will fail in test environment)
-        expect(fn() => $service->send($message))
-            ->toThrow(\Illuminate\Http\Client\ConnectionException::class);
+        expect(fn () => $service->send($message))->toThrow(ConnectionException::class);
     });
 
     it('uses helper function to send SMS', function () {
@@ -66,11 +66,9 @@ describe('Notifyre Integration', function () {
             ]
         );
 
-        // Test the helper function
         $service = notifyre();
-        expect($service)->toBeInstanceOf(NotifyreService::class);
+        expect($service)->toBeInstanceOf(NotifyreServiceInterface::class);
 
-        // This should work with log driver
         $service->send($message);
 
         expect(true)->toBeTrue();
@@ -117,8 +115,7 @@ describe('Notifyre Integration', function () {
 
         $factory = new DriverFactory();
 
-        expect(fn() => $factory->create())
-            ->toThrow(\Arbi\Notifyre\Exceptions\InvalidConfigurationException::class);
+        expect(fn () => $factory->create())->toThrow(InvalidConfigurationException::class);
     });
 
     it('handles configuration priority correctly', function () {
@@ -128,29 +125,26 @@ describe('Notifyre Integration', function () {
         $factory = new DriverFactory();
         $driver = $factory->create();
 
-        // Should use services.notifyre.driver (log) instead of notifyre.driver (sms)
-        expect($driver)->toBeInstanceOf(\Arbi\Notifyre\Services\Drivers\LogDriver::class);
+        expect($driver)->toBeInstanceOf(LogDriver::class);
     });
 
     it('creates different drivers based on configuration', function () {
-        // Test log driver
         Config::set('notifyre.driver', 'log');
         $factory = new DriverFactory();
         $logDriver = $factory->create();
-        expect($logDriver)->toBeInstanceOf(\Arbi\Notifyre\Services\Drivers\LogDriver::class);
+        expect($logDriver)->toBeInstanceOf(LogDriver::class);
 
-        // Test SMS driver
         Config::set('notifyre.driver', 'sms');
         $smsDriver = $factory->create();
-        expect($smsDriver)->toBeInstanceOf(\Arbi\Notifyre\Services\Drivers\SMSDriver::class);
+        expect($smsDriver)->toBeInstanceOf(SMSDriver::class);
     });
 
     it('handles enum values correctly', function () {
-        expect(NotifyreDriver::LOG->value)->toBe('log');
-        expect(NotifyreDriver::SMS->value)->toBe('sms');
-        expect(NotifyreDriver::values())->toBe(['sms', 'log']);
-        expect(NotifyreDriver::isValid('log'))->toBeTrue();
-        expect(NotifyreDriver::isValid('sms'))->toBeTrue();
-        expect(NotifyreDriver::isValid('invalid'))->toBeFalse();
+        expect(NotifyreDriver::LOG->value)->toBe('log')
+            ->and(NotifyreDriver::SMS->value)->toBe('sms')
+            ->and(NotifyreDriver::values())->toBe(['sms', 'log'])
+            ->and(NotifyreDriver::isValid('log'))->toBeTrue()
+            ->and(NotifyreDriver::isValid('sms'))->toBeTrue()
+            ->and(NotifyreDriver::isValid('invalid'))->toBeFalse();
     });
 });
