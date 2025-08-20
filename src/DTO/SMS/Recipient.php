@@ -20,7 +20,7 @@ readonly class Recipient
             throw new InvalidArgumentException("Invalid type '$type'. Valid types are: " . implode(', ', self::VALID_TYPES));
         }
 
-        if (empty($value)) {
+        if (empty(trim($value))) {
             throw new InvalidArgumentException('Value cannot be empty');
         }
     }

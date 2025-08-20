@@ -23,12 +23,6 @@
   "license": "MIT",
   "minimum-stability": "dev",
   "name": "arbi/notifyre-laravel",
-  "repositories": [
-    {
-      "type": "github",
-      "url": ""
-    }
-  ],
   "require": {
     "php": "^8.4",
     "laravel/framework": "^12.20.0"
@@ -37,6 +31,12 @@
     "laravel/pint": "^1.24.0",
     "pestphp/pest": "4.x-dev"
   },
+  "repositories": [
+    {
+      "type": "github",
+      "url": ""
+    }
+  ],
   "scripts": {
     "version-patch": [
       "php -f scripts/version.php patch"

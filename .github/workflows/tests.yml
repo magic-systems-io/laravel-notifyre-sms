@@ -1,0 +1,195 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [8.4]
+        laravel: [12.*]
+        dependency-version: [prefer-stable]
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
+        tools: composer:v2
+        coverage: xdebug
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: composer install --${{ matrix.dependency-version }} --prefer-dist --no-progress
+
+    - name: Copy environment file
+      run: cp .env.example .env
+
+    - name: Generate application key
+      run: php artisan key:generate
+
+    - name: Directory permissions
+      run: chmod -R 777 storage bootstrap/cache
+
+    - name: Create database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Execute tests (Unit and Feature) via Pest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: vendor/bin/pest --coverage-clover=coverage.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        verbose: true
+
+  tests-parallel:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+        php: [8.4]
+        laravel: [12.*]
+        dependency-version: [prefer-stable]
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - Shard ${{ matrix.shard }}/4
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --${{ matrix.dependency-version }} --prefer-dist --no-progress
+
+    - name: Copy environment file
+      run: cp .env.example .env
+
+    - name: Generate application key
+      run: php artisan key:generate
+
+    - name: Directory permissions
+      run: chmod -R 777 storage bootstrap/cache
+
+    - name: Create database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Execute tests in parallel via Pest
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: vendor/bin/pest --parallel --shard=${{ matrix.shard }}/4
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    name: Static Analysis
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse src --level=8
+
+    - name: Run PHP CS Fixer
+      run: vendor/bin/pint --test
+
+  mutation-testing:
+    runs-on: ubuntu-latest
+    name: Mutation Testing
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Copy environment file
+      run: cp .env.example .env
+
+    - name: Generate application key
+      run: php artisan key:generate
+
+    - name: Directory permissions
+      run: chmod -R 777 storage bootstrap/cache
+
+    - name: Create database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+
+    - name: Run Infection
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: vendor/bin/infection --min-msi=80 --min-covered-msi=80
+
+  type-coverage:
+    runs-on: ubuntu-latest
+    name: Type Coverage
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run Type Coverage
+      run: vendor/bin/pest --type-coverage --min=80

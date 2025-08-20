@@ -16,7 +16,7 @@ class RequestBodyDTO
         public ?string $sender,
         public array $recipients,
     ) {
-        if (empty($body)) {
+        if (empty(trim($body))) {
             throw new InvalidArgumentException('Body cannot be empty');
         }
         if (empty($recipients)) {

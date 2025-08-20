@@ -94,7 +94,7 @@ return [
      | ---------------------------------------------------------------------------
      |
      | This section contains configuration options for caching SMS requests.
-     | Use this if you want to cache SMS responses to avoid calling the GET SMS API
+     | Use this if you want to store SMS responses to avoid calling the GET SMS API
      | repeatedly for the same request.
      |
      */
