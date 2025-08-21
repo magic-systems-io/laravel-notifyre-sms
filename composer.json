@@ -26,7 +26,7 @@
   },
   "description": "A Notifyre wrapper for laravel",
   "license": "MIT",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "name": "arbi/notifyre-laravel",
   "require": {
     "php": "^8.4",
@@ -34,15 +34,9 @@
   },
   "require-dev": {
     "laravel/pint": "^1.24.0",
-    "mockery/mockery": "2.0.x-dev",
+    "mockery/mockery": "^1.6",
     "pestphp/pest": "^3.8"
   },
-  "repositories": [
-    {
-      "type": "github",
-      "url": ""
-    }
-  ],
   "scripts": {
     "version-patch": [
       "php -f scripts/version.php patch"
