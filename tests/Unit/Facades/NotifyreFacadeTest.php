@@ -1,32 +1,14 @@
 <?php
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
+namespace Arbi\Notifyre\Tests\Unit\Facades;
+
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Facades\Notifyre;
-use Arbi\Notifyre\Services\NotifyreService;
-use Illuminate\Container\Container;
+use Mockery;
 
 describe('Notifyre Facade', function () {
-    beforeEach(function () {
-        $this->app = new Container();
-
-        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
-
-        $mockDriver = Mockery::mock(NotifyreDriverInterface::class);
-        $mockDriver->shouldReceive('send')->andReturn(null);
-
-        $mockFactory->shouldReceive('create')->andReturn($mockDriver);
-
-        $this->app->singleton('notifyre', function () use ($mockFactory) {
-            return new NotifyreService($mockFactory);
-        });
-
-        Notifyre::setFacadeApplication($this->app);
-    });
-
     it('resolves to NotifyreService', function () {
         $service = Notifyre::getFacadeRoot();
 
@@ -45,17 +27,16 @@ describe('Notifyre Facade', function () {
         $mockService = Mockery::mock(NotifyreServiceInterface::class);
         $mockService->shouldReceive('send')
             ->once()
-            ->with($mockRequestBody);
+            ->with($mockRequestBody)
+            ->andReturnNull();
 
         Notifyre::clearResolvedInstances();
+
         $this->app->instance('notifyre', $mockService);
 
         Notifyre::send($mockRequestBody);
-
-        expect(true)->toBeTrue();
-
-        Mockery::close();
     });
+
 
     it('can be used in helper function context', function () {
         $mockService = Mockery::mock(NotifyreServiceInterface::class);

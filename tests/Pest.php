@@ -1,8 +1,6 @@
 <?php
 
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Pest\Expectation;
+namespace Arbi\Notifyre\Tests;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,55 +28,5 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-/**
- * Create a test configuration for Notifyre
- */
-function notifyreTestConfig(array $overrides = []): array
-{
-    return array_merge([
-        'driver' => 'log',
-        'api_key' => 'test-api-key',
-        'base_url' => 'https://api.notifyre.com',
-        'timeout' => 30,
-        'retry' => [
-            'times' => 3,
-            'sleep' => 1000,
-        ],
-        'cache' => [
-            'enabled' => false,
-        ],
-        'default_sender' => 'TestApp',
-        'default_recipient' => '+1234567890',
-    ], $overrides);
-}
-
-/**
- * Create a test RequestBodyDTO
- */
-function createTestMessage(
-    string $body = 'Test message',
-    ?string $sender = 'TestApp',
-    array $recipients = null
-): RequestBodyDTO {
-    if ($recipients === null) {
-        $recipients = [
-            new Recipient(type: 'mobile_number', value: '+1234567890'),
-        ];
-    }
-
-    return new RequestBodyDTO(
-        body: $body,
-        sender: $sender,
-        recipients: $recipients
-    );
-}
-
-/**
- * Create a test Recipient
- */
-function createTestRecipient(
-    string $type = 'mobile_number',
-    string $value = '+1234567890'
-): Recipient {
-    return new Recipient($type, $value);
-}
+uses(TestCase::class)->in('Feature');
+uses(TestCase::class)->in('Unit');

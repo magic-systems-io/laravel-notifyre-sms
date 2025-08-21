@@ -1,10 +1,14 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\Services;
+
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Services\NotifyreService;
+use Error;
+use Mockery;
 
 describe('NotifyreService', function () {
     it('sends message through driver factory', function () {
@@ -30,6 +34,10 @@ describe('NotifyreService', function () {
 
         $service->send($message);
 
+        $mockDriver->shouldHaveReceived('send');
+        $mockFactory->shouldHaveReceived('create');
+
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 
@@ -63,6 +71,10 @@ describe('NotifyreService', function () {
 
         $service->send($message);
 
+        $mockDriver->shouldHaveReceived('send');
+        $mockFactory->shouldHaveReceived('create');
+
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 });

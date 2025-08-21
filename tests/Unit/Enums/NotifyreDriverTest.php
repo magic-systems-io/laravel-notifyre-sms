@@ -1,5 +1,7 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\Enums;
+
 use Arbi\Notifyre\Enums\NotifyreDriver;
 
 describe('NotifyreDriver', function () {

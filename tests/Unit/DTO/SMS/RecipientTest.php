@@ -1,6 +1,10 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+
 use Arbi\Notifyre\DTO\SMS\Recipient;
+use Error;
+use InvalidArgumentException;
 
 describe('Recipient', function () {
     it('creates a valid recipient with mobile_number type', function () {
@@ -33,17 +37,17 @@ describe('Recipient', function () {
 
     it('throws exception for invalid type', function () {
         expect(fn () => new Recipient('invalid_type', 'value123'))
-            ->toThrow(Symfony\Component\Mime\Exception\InvalidArgumentException::class, "Invalid type 'invalid_type'. Valid types are: mobile_number, contact, group");
+            ->toThrow(InvalidArgumentException::class, "Invalid type 'invalid_type'. Valid types are: mobile_number, contact, group");
     });
 
     it('throws exception for empty value', function () {
         expect(fn () => new Recipient('mobile_number', ''))
-            ->toThrow(Symfony\Component\Mime\Exception\InvalidArgumentException::class, 'Value cannot be empty');
+            ->toThrow(InvalidArgumentException::class, 'Value cannot be empty');
     });
 
     it('throws exception for whitespace-only value', function () {
         expect(fn () => new Recipient('mobile_number', '   '))
-            ->toThrow(Symfony\Component\Mime\Exception\InvalidArgumentException::class, 'Value cannot be empty');
+            ->toThrow(InvalidArgumentException::class, 'Value cannot be empty');
     });
 
     it('accepts phone numbers with various formats', function () {

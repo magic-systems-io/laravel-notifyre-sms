@@ -5,7 +5,7 @@ namespace Arbi\Notifyre\Services;
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
+use InvalidArgumentException;
 
 readonly class NotifyreService implements NotifyreServiceInterface
 {
@@ -16,7 +16,7 @@ readonly class NotifyreService implements NotifyreServiceInterface
     /**
      * Send SMS directly using the service
      *
-     * @throws InvalidConfigurationException
+     * @throws InvalidArgumentException
      */
     public function send(RequestBodyDTO $message): void
     {

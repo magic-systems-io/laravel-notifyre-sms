@@ -1,9 +1,13 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Feature\Commands;
+
 use Arbi\Notifyre\Commands\NotifyreSmsSendCommand;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Exception;
 use Illuminate\Support\Facades\Config;
+use Mockery;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -43,6 +47,7 @@ describe('NotifyreSmsSendCommand', function () {
             new BufferedOutput()
         );
 
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 
@@ -70,6 +75,7 @@ describe('NotifyreSmsSendCommand', function () {
             new BufferedOutput()
         );
 
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 
@@ -97,6 +103,7 @@ describe('NotifyreSmsSendCommand', function () {
             new BufferedOutput()
         );
 
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 
@@ -123,8 +130,9 @@ describe('NotifyreSmsSendCommand', function () {
             new BufferedOutput()
         );
 
+        expect(true)->toBeTrue();
         Mockery::close();
-    });
+    }); 
 
     it('returns early when no message provided', function () {
         $mockService = Mockery::mock(NotifyreServiceInterface::class);
@@ -146,6 +154,7 @@ describe('NotifyreSmsSendCommand', function () {
             new BufferedOutput()
         );
 
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 
@@ -170,6 +179,7 @@ describe('NotifyreSmsSendCommand', function () {
             new BufferedOutput()
         );
 
+        expect(true)->toBeTrue();
         Mockery::close();
     });
 

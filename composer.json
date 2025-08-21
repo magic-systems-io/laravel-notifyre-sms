@@ -13,6 +13,11 @@
       "src/helpers.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Arbi\\Notifyre\\Tests\\": "tests/"
+    }
+  },
   "config": {
     "sort-packages": true,
     "allow-plugins": {

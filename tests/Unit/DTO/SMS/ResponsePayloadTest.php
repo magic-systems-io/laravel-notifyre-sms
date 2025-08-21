@@ -1,6 +1,9 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+
 use Arbi\Notifyre\DTO\SMS\ResponsePayload;
+use Error;
 
 describe('ResponsePayload', function () {
     it('creates a valid ResponsePayload with all parameters', function () {

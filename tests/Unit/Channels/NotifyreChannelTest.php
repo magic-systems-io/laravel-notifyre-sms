@@ -1,13 +1,17 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\Channels;
+
 use Arbi\Notifyre\Channels\NotifyreChannel;
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
+use Error;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
+use InvalidArgumentException;
+use Mockery;
 
 describe('NotifyreChannel', function () {
     it('sends notification through driver when toNotifyre method exists', function () {
@@ -64,7 +68,7 @@ describe('NotifyreChannel', function () {
         };
 
         expect(fn () => $channel->send($notifiable, $notification))
-            ->toThrow(InvalidConfigurationException::class, 'Notification does not have a toNotifyre method.');
+            ->toThrow(InvalidArgumentException::class, 'Notification does not have a toNotifyre method.');
 
         Mockery::close();
     });

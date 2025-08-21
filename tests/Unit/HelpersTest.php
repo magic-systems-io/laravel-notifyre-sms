@@ -1,5 +1,7 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit;
+
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
@@ -7,18 +9,19 @@ use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Container\Container;
+use Mockery;
 
 describe('Helper Functions', function () {
     beforeEach(function () {
         $app = new Container();
-        
+
         $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
 
         $mockDriver = Mockery::mock(NotifyreDriverInterface::class);
         $mockDriver->shouldReceive('send')->andReturn(null);
-        
+
         $mockFactory->shouldReceive('create')->andReturn($mockDriver);
-        
+
         $app->singleton('notifyre', function () use ($mockFactory) {
             return new NotifyreService($mockFactory);
         });

@@ -5,12 +5,13 @@ namespace Arbi\Notifyre\Services\Drivers;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Illuminate\Support\Facades\Log;
 
 readonly class LogDriver implements NotifyreDriverInterface
 {
     public function send(RequestBodyDTO $requestBody): void
     {
-        logger('SMS would be sent via Notifyre', [
+        Log::info('SMS would be sent via Notifyre', [
             'body' => $requestBody->body,
             'sender' => $requestBody->sender ?: '(auto-assigned by token)',
             'recipients' => array_map(function (Recipient $recipient) {

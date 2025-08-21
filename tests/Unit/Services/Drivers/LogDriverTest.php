@@ -1,27 +1,23 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\Services\Drivers;
+
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Illuminate\Support\Facades\Log;
 
 describe('LogDriver', function () {
-    beforeEach(function () {
-        Log::shouldReceive('info')->andReturnSelf();
-    });
-
     it('logs SMS message with all parameters', function () {
         $recipients = [
             new Recipient('mobile_number', '+1234567890'),
         ];
 
         $message = new RequestBodyDTO(
-            body: 'Test message',
-            sender: 'TestApp',
+            body:       'Test message',
+            sender:     'TestApp',
             recipients: $recipients
         );
-
-        $driver = new LogDriver();
 
         Log::shouldReceive('info')
             ->once()
@@ -36,6 +32,7 @@ describe('LogDriver', function () {
                 ],
             ]);
 
+        $driver = new LogDriver();
         $driver->send($message);
     });
 
@@ -45,12 +42,10 @@ describe('LogDriver', function () {
         ];
 
         $message = new RequestBodyDTO(
-            body: 'Test message',
-            sender: null,
+            body:       'Test message',
+            sender:     null,
             recipients: $recipients
         );
-
-        $driver = new LogDriver();
 
         Log::shouldReceive('info')
             ->once()
@@ -65,6 +60,7 @@ describe('LogDriver', function () {
                 ],
             ]);
 
+        $driver = new LogDriver();
         $driver->send($message);
     });
 
@@ -76,12 +72,10 @@ describe('LogDriver', function () {
         ];
 
         $message = new RequestBodyDTO(
-            body: 'Test message',
-            sender: 'TestApp',
+            body:       'Test message',
+            sender:     'TestApp',
             recipients: $recipients
         );
-
-        $driver = new LogDriver();
 
         Log::shouldReceive('info')
             ->once()
@@ -104,6 +98,7 @@ describe('LogDriver', function () {
                 ],
             ]);
 
+        $driver = new LogDriver();
         $driver->send($message);
     });
 
@@ -113,12 +108,10 @@ describe('LogDriver', function () {
         ];
 
         $message = new RequestBodyDTO(
-            body: 'Test message',
-            sender: '',
+            body:       'Test message',
+            sender:     '',
             recipients: $recipients
         );
-
-        $driver = new LogDriver();
 
         Log::shouldReceive('info')
             ->once()
@@ -133,6 +126,7 @@ describe('LogDriver', function () {
                 ],
             ]);
 
+        $driver = new LogDriver();
         $driver->send($message);
     });
 
@@ -144,12 +138,10 @@ describe('LogDriver', function () {
         $specialBody = 'Hello! This is a test message with special chars: @#$%^&*()_+-=[]{}|;:,.<>?';
 
         $message = new RequestBodyDTO(
-            body: $specialBody,
-            sender: 'TestApp',
+            body:       $specialBody,
+            sender:     'TestApp',
             recipients: $recipients
         );
-
-        $driver = new LogDriver();
 
         Log::shouldReceive('info')
             ->once()
@@ -164,6 +156,7 @@ describe('LogDriver', function () {
                 ],
             ]);
 
+        $driver = new LogDriver();
         $driver->send($message);
     });
 });

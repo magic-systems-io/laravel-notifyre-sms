@@ -7,14 +7,14 @@ use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use Arbi\Notifyre\DTO\SMS\ResponsePayload;
-use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use InvalidArgumentException;
 
 readonly class SMSDriver implements NotifyreDriverInterface
 {
     /**
-     * @throws InvalidConfigurationException
+     * @throws InvalidArgumentException
      * @throws ConnectionException
      */
     public function send(RequestBodyDTO $requestBody): void
@@ -57,26 +57,26 @@ readonly class SMSDriver implements NotifyreDriverInterface
     }
 
     /**
-     * @throws InvalidConfigurationException
+     * @throws InvalidArgumentException
      */
     private function getApiUrl(): string
     {
         $url = config('notifyre.base_url');
         if (empty($url)) {
-            throw new InvalidConfigurationException('Notifyre base URL is not configured.');
+            throw new InvalidArgumentException('Notifyre base URL is not configured.');
         }
 
         return rtrim($url, '/') . '/sms/send';
     }
 
     /**
-     * @throws InvalidConfigurationException
+     * @throws InvalidArgumentException
      */
     private function getApiKey(): string
     {
         $apiKey = config('services.notifyre.api_key') ?? config('notifyre.api_key');
         if (empty($apiKey)) {
-            throw new InvalidConfigurationException('Notifyre API key is not configured.');
+            throw new InvalidArgumentException('Notifyre API key is not configured.');
         }
 
         return $apiKey;

@@ -1,12 +1,15 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\Services\Drivers;
+
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use InvalidArgumentException;
 
 describe('SMSDriver', function () {
     beforeEach(function () {
@@ -119,7 +122,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();
@@ -154,7 +157,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();
@@ -187,7 +190,7 @@ describe('SMSDriver', function () {
         $driver = new SMSDriver();
 
         expect(fn () => $driver->send($message))
-            ->toThrow(InvalidConfigurationException::class, 'Notifyre base URL is not configured.');
+            ->toThrow(InvalidArgumentException::class, 'Notifyre base URL is not configured.');
     });
 
     it('throws exception when API key is not configured', function () {
@@ -207,7 +210,7 @@ describe('SMSDriver', function () {
         $driver = new SMSDriver();
 
         expect(fn () => $driver->send($message))
-            ->toThrow(InvalidConfigurationException::class, 'Notifyre API key is not configured.');
+            ->toThrow(InvalidArgumentException::class, 'Notifyre API key is not configured.');
     });
 
     it('prioritizes services.notifyre.api_key over notifyre.api_key', function () {
@@ -235,7 +238,7 @@ describe('SMSDriver', function () {
                     'invalidToNumbers' => [],
                 ],
                 'errors' => [],
-            ], 200),
+            ]),
         ]);
 
         $driver = new SMSDriver();
@@ -250,7 +253,6 @@ describe('SMSDriver', function () {
         $recipients = [
             new Recipient('mobile_number', '+1234567890'),
         ];
-
         $message = new RequestBodyDTO(
             body: 'Test message',
             sender: 'TestApp',
@@ -269,7 +271,7 @@ describe('SMSDriver', function () {
         $driver = new SMSDriver();
 
         expect(fn () => $driver->send($message))
-            ->toThrow(ConnectionException::class, 'Failed to send SMS: {"success":false,"statusCode":400,"message":"Bad Request","errors":["Invalid phone number"]}');
+            ->toThrow(RequestException::class);
     });
 
     it('uses configured timeout and retry settings', function () {

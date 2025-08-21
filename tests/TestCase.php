@@ -1,14 +1,15 @@
 <?php
 
-namespace Tests;
+namespace Arbi\Notifyre\Tests;
 
 use Arbi\Notifyre\Providers\NotifyreServiceProvider;
-use Illuminate\Container\Container;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Config\Repository;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Facade;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    protected Container $app;
+    protected Application $app;
 
     /**
      * Set up the test environment.
@@ -17,44 +18,50 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
-        $this->app = new Container();
+        $this->app = new Application(
+            $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+        );
+
+        $config = new Repository([
+            'notifyre' => [
+                'driver' => 'log',
+                'base_url' => 'https://api.notifyre.com',
+                'api_key' => 'test-api-key',
+                'timeout' => 30,
+                'retry' => [
+                    'times' => 3,
+                    'sleep' => 1000,
+                ],
+                'cache' => [
+                    'enabled' => false,
+                ],
+                'default_sender' => 'TestApp',
+                'default_recipient' => '+1234567890',
+            ],
+            'services' => [
+                'notifyre' => [
+                    'api_key' => 'test-api-key',
+                ],
+            ],
+        ]);
+
+        $this->app->instance('config', $config);
+
+        Facade::setFacadeApplication($this->app);
 
         $provider = new NotifyreServiceProvider($this->app);
         $provider->register();
         $provider->boot();
-
-        Config::set([
-            'notifyre.driver' => 'log',
-            'notifyre.base_url' => 'https://api.notifyre.com',
-            'notifyre.api_key' => 'test-api-key',
-            'notifyre.timeout' => 30,
-            'notifyre.retry.times' => 3,
-            'notifyre.retry.sleep' => 1000,
-            'notifyre.cache.enabled' => false,
-            'notifyre.default_sender' => 'TestApp',
-            'notifyre.default_recipient' => '+1234567890',
-        ]);
     }
 
     /**
-     * Create a test configuration for Notifyre
+     * Clean up after tests
      */
-    protected function notifyreTestConfig(array $overrides = []): array
+    protected function tearDown(): void
     {
-        return array_merge([
-            'driver' => 'log',
-            'api_key' => 'test-api-key',
-            'base_url' => 'https://api.notifyre.com',
-            'timeout' => 30,
-            'retry' => [
-                'times' => 3,
-                'sleep' => 1000,
-            ],
-            'cache' => [
-                'enabled' => false,
-            ],
-            'default_sender' => 'TestApp',
-            'default_recipient' => '+1234567890',
-        ], $overrides);
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication(null);
+
+        parent::tearDown();
     }
 }

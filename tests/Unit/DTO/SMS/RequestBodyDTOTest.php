@@ -1,7 +1,11 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Error;
+use InvalidArgumentException;
 
 describe('RequestBodyDTO', function () {
     it('creates a valid RequestBodyDTO with all parameters', function () {

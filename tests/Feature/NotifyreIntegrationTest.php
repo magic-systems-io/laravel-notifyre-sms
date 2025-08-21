@@ -1,16 +1,19 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Feature;
+
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Enums\NotifyreDriver;
-use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
 use Arbi\Notifyre\Services\DriverFactory;
 use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Config;
+use InvalidArgumentException;
 
 describe('Notifyre Integration', function () {
     beforeEach(function () {
@@ -54,7 +57,7 @@ describe('Notifyre Integration', function () {
             ]
         );
 
-        expect(fn () => $service->send($message))->toThrow(ConnectionException::class);
+        expect(fn () => $service->send($message))->toThrow(RequestException::class);
     });
 
     it('uses helper function to send SMS', function () {
@@ -115,7 +118,7 @@ describe('Notifyre Integration', function () {
 
         $factory = new DriverFactory();
 
-        expect(fn () => $factory->create())->toThrow(InvalidConfigurationException::class);
+        expect(fn () => $factory->create())->toThrow(InvalidArgumentException::class);
     });
 
     it('handles configuration priority correctly', function () {

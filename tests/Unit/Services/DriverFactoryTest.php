@@ -1,19 +1,22 @@
 <?php
 
+namespace Arbi\Notifyre\Tests\Unit\Services;
+
 use Arbi\Notifyre\Enums\NotifyreDriver;
-use Arbi\Notifyre\Exceptions\InvalidConfigurationException;
 use Arbi\Notifyre\Services\DriverFactory;
 use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
+use Illuminate\Support\Facades\Config;
+use InvalidArgumentException;
 
 describe('DriverFactory', function () {
     beforeEach(function () {
-        config()->set('services.notifyre.driver');
-        config()->set('notifyre.driver');
+        Config::set('services.notifyre.driver');
+        Config::set('notifyre.driver');
     });
 
     it('creates log driver when configured', function () {
-        config()->set('notifyre.driver', 'log');
+        Config::set('notifyre.driver', 'log');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -22,7 +25,7 @@ describe('DriverFactory', function () {
     });
 
     it('creates SMS driver when configured', function () {
-        config()->set('notifyre.driver', 'sms');
+        Config::set('notifyre.driver', 'sms');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -31,8 +34,8 @@ describe('DriverFactory', function () {
     });
 
     it('prioritizes services.notifyre.driver over notifyre.driver', function () {
-        config()->set('notifyre.driver', 'sms');
-        config()->set('services.notifyre.driver', 'log');
+        Config::set('notifyre.driver', 'sms');
+        Config::set('services.notifyre.driver', 'log');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -41,7 +44,7 @@ describe('DriverFactory', function () {
     });
 
     it('falls back to notifyre.driver when services.notifyre.driver is not set', function () {
-        config()->set('notifyre.driver', 'sms');
+        Config::set('notifyre.driver', 'sms');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -50,50 +53,50 @@ describe('DriverFactory', function () {
     });
 
     it('throws exception for invalid driver', function () {
-        config()->set('notifyre.driver', 'invalid_driver');
+        Config::set('notifyre.driver', 'invalid_driver');
 
         $factory = new DriverFactory();
 
         expect(fn () => $factory->create())
-            ->toThrow(InvalidConfigurationException::class, "Invalid Notifyre driver 'invalid_driver'. Supported drivers are: sms, log");
+            ->toThrow(InvalidArgumentException::class, "Invalid Notifyre driver 'invalid_driver'. Supported drivers are: sms, log");
     });
 
     it('throws exception for empty driver', function () {
-        config()->set('notifyre.driver', '');
+        Config::set('notifyre.driver', '');
 
         $factory = new DriverFactory();
 
         expect(fn () => $factory->create())
-            ->toThrow(InvalidConfigurationException::class, "Invalid Notifyre driver ''. Supported drivers are: sms, log");
+            ->toThrow(InvalidArgumentException::class, "Invalid Notifyre driver ''. Supported drivers are: sms, log");
     });
 
     it('throws exception for null driver', function () {
         $factory = new DriverFactory();
 
         expect(fn () => $factory->create())
-            ->toThrow(InvalidConfigurationException::class, "Invalid Notifyre driver ''. Supported drivers are: sms, log");
+            ->toThrow(InvalidArgumentException::class, "Invalid Notifyre driver ''. Supported drivers are: sms, log");
     });
 
     it('throws exception for whitespace-only driver', function () {
-        config()->set('notifyre.driver', '   ');
+        Config::set('notifyre.driver', '   ');
 
         $factory = new DriverFactory();
 
         expect(fn () => $factory->create())
-            ->toThrow(InvalidConfigurationException::class, "Invalid Notifyre driver '   '. Supported drivers are: sms, log");
+            ->toThrow(InvalidArgumentException::class, "Invalid Notifyre driver '   '. Supported drivers are: sms, log");
     });
 
     it('creates drivers with case-sensitive matching', function () {
-        config()->set('notifyre.driver', 'SMS'); // Uppercase
+        Config::set('notifyre.driver', 'SMS');
 
         $factory = new DriverFactory();
 
         expect(fn () => $factory->create())
-            ->toThrow(InvalidConfigurationException::class, "Invalid Notifyre driver 'SMS'. Supported drivers are: sms, log");
+            ->toThrow(InvalidArgumentException::class, "Invalid Notifyre driver 'SMS'. Supported drivers are: sms, log");
     });
 
     it('creates log driver with exact match', function () {
-        config()->set('notifyre.driver', NotifyreDriver::LOG->value);
+        Config::set('notifyre.driver', NotifyreDriver::LOG->value);
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -102,7 +105,7 @@ describe('DriverFactory', function () {
     });
 
     it('creates SMS driver with exact match', function () {
-        config()->set('notifyre.driver', NotifyreDriver::SMS->value);
+        Config::set('notifyre.driver', NotifyreDriver::SMS->value);
 
         $factory = new DriverFactory();
         $driver = $factory->create();
