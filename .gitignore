@@ -10,6 +10,7 @@ composer.lock
 coverage/
 coverage.txt
 coverage.xml
+badges/
 
 # Laravel
 /storage/logs/
