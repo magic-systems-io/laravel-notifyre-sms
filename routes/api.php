@@ -1,6 +1,12 @@
 <?php
 
+use Arbi\Notifyre\Http\Controllers\NotifyreSMSController;
+use Illuminate\Support\Facades\Route;
 
-use Arbi\Notifyre\Http\Controllers\NotifyreController;
+if (!config('notifyre.api.enabled', false)) {
+    return;
+}
 
-Route::apiResource('notifyre', NotifyreController::class);
+
+Route::apiResource('sms', NotifyreSMSController::class)
+    ->only(['index', 'show', 'store']);

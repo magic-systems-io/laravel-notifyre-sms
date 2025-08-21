@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Providers;
+namespace Arbi\Notifyre\Providers\Core;
 
 use Arbi\Notifyre\Channels\NotifyreChannel;
 use Arbi\Notifyre\Commands\NotifyreSmsSendCommand;
@@ -9,6 +9,13 @@ use Arbi\Notifyre\Commands\PublishNotifyreConfigCommand;
 use Arbi\Notifyre\Commands\PublishNotifyreEnvCommand;
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
+use Arbi\Notifyre\Providers\Features\CommandServiceProvider;
+use Arbi\Notifyre\Providers\Features\ModelServiceProvider;
+use Arbi\Notifyre\Providers\Features\RouteServiceProvider;
+use Arbi\Notifyre\Providers\Infrastructure\ConfigurationServiceProvider;
+use Arbi\Notifyre\Providers\Infrastructure\ContractServiceProvider;
+use Arbi\Notifyre\Providers\Infrastructure\FacadeServiceProvider;
+use Arbi\Notifyre\Providers\Infrastructure\MigrationServiceProvider;
 use Arbi\Notifyre\Services\DriverFactory;
 use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Notifications\ChannelManager;
@@ -17,7 +24,7 @@ use Illuminate\Support\ServiceProvider;
 
 class NotifyreServiceProvider extends ServiceProvider
 {
-    private const string CONFIG_PATH = __DIR__ . '/../../config/notifyre.php';
+    private const string CONFIG_PATH = __DIR__ . '/../../../config/notifyre.php';
 
     private const array COMMANDS = [
         NotifyreSmsSendCommand::class,
@@ -33,8 +40,22 @@ class NotifyreServiceProvider extends ServiceProvider
         NotifyreDriverFactoryInterface::class => DriverFactory::class,
     ];
 
+    private const array PROVIDERS = [
+        ConfigurationServiceProvider::class,
+        MigrationServiceProvider::class,
+        CommandServiceProvider::class,
+        RouteServiceProvider::class,
+        ModelServiceProvider::class,
+        ContractServiceProvider::class,
+        FacadeServiceProvider::class,
+    ];
+
     public function register(): void
     {
+        foreach (self::PROVIDERS as $provider) {
+            $this->app->register($provider);
+        }
+
         if (method_exists($this, 'mergeConfigFrom') && function_exists('config_path')) {
             $this->mergeConfigFrom(self::CONFIG_PATH, 'notifyre');
         }

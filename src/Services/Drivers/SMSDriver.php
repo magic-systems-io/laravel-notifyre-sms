@@ -32,12 +32,6 @@ readonly class SMSDriver implements NotifyreDriverInterface
             }, $requestBody->recipients),
         ];
 
-        if (!empty($requestBody->sender)) {
-            $data['From'] = $requestBody->sender;
-        } else {
-            $data['From'] = '';
-        }
-
         $response = Http::timeout(config('notifyre.timeout', 30))
             ->retry(
                 config('notifyre.retry.times', 3),

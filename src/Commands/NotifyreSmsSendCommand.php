@@ -10,17 +10,12 @@ use Illuminate\Console\Command;
 
 class NotifyreSmsSendCommand extends Command
 {
-    public $signature = 'sms:send {sender? : The number the SMS will be sent from} {recipient? : The number the SMS will be sent to} {message? : The message that will be sent}' {
-        get {
-            return $this->signature;
-        }
-    } //this name may conflict with other packages, consider renaming it
+    public $signature = 'sms:send 
+                        {--sender= : The number the SMS will be sent from}
+                        {--recipient= : The number the SMS will be sent to} 
+                        {--message= : The message that will be sent}';
 
-    public $description = 'Send an SMS to a specified phone number using Notifyre' {
-        get {
-            return $this->description;
-        }
-    }
+    public $description = 'Send an SMS to a specified phone number using Notifyre';
 
     public function __construct(
         private readonly NotifyreServiceInterface $notifyreService
@@ -58,25 +53,19 @@ class NotifyreSmsSendCommand extends Command
      */
     private function retrieveArguments(): array
     {
-        $sender = $this->argument('sender');
-        $recipient = $this->argument('recipient');
-        $message = $this->argument('message');
+        $sender = $this->option('sender');
+        $recipient = $this->option('recipient');
+        $message = $this->option('message');
 
         if (!$message) {
             $this->error('You must provide a message to send.');
-            $this->line('Usage: sms:send {sender?} {recipient?} {message?}');
+            $this->line('Usage: sms:send --sender=+123456789 --recipient=+123456789 --message="Hello World!"');
 
             return [];
         }
 
-        if ($sender && !$recipient) {
-            $recipient = config('notifyre.default_recipient');
-        } elseif (!$sender && $recipient) {
-            $sender = config('notifyre.default_sender');
-        } elseif (!$sender && !$recipient) {
-            $sender = config('notifyre.default_sender');
-            $recipient = config('notifyre.default_recipient');
-        }
+        $sender = $sender ?: config('notifyre.default_sender');
+        $recipient = $recipient ?: config('notifyre.default_recipient');
 
         if (!$sender || !$recipient) {
             $this->error('Unable to determine sender or recipient. Check your configuration.');

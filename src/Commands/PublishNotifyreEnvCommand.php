@@ -14,20 +14,23 @@ class PublishNotifyreEnvCommand extends Command
     protected $description = 'Publish Notifyre environment variables to .env file';
 
     private array $envVariables = [
-        'NOTIFYRE_API_TOKEN' => 'your_api_token_here',
         'NOTIFYRE_DRIVER' => 'log',
-        'NOTIFYRE_TIMEOUT' => '30',
-        'NOTIFYRE_RETRY_TIMES' => '3',
-        'NOTIFYRE_RETRY_SLEEP' => '1000',
-        'NOTIFYRE_BASE_URL' => 'https://api.notifyre.com',
+        'NOTIFYRE_API_TOKEN' => 'your_api_token_here',
         'NOTIFYRE_SMS_SENDER' => 'YourAppName',
         'NOTIFYRE_SMS_RECIPIENT' => '+1234567890',
         'NOTIFYRE_DEFAULT_NUMBER_PREFIX' => '+1',
-        'NOTIFYRE_SMS_DELAY' => '1',
-        'NOTIFYRE_MAX_PER_MINUTE' => '60',
-        'NOTIFYRE_CACHE_ENABLED' => 'true',
+        'NOTIFYRE_BASE_URL' => 'https://api.notifyre.com',
+        'NOTIFYRE_TIMEOUT' => '30',
+        'NOTIFYRE_RETRY_TIMES' => '3',
+        'NOTIFYRE_RETRY_SLEEP' => '1000',
+        'NOTIFYRE_CACHE_ENABLED' => true,
         'NOTIFYRE_CACHE_TTL' => '3600',
         'NOTIFYRE_CACHE_PREFIX' => 'notifyre_',
+        'NOTIFYRE_API_ENABLED' => true,
+        'NOTIFYRE_API_PREFIX' => 'notifyre',
+        'NOTIFYRE_RATE_LIMIT_ENABLED' => true,
+        'NOTIFYRE_RATE_LIMIT_DECAY_MINUTES' => '1',
+        'NOTIFYRE_RATE_LIMIT_MAX_REQUESTS' => '60',
     ];
 
     public function handle(): void

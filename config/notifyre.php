@@ -1,6 +1,5 @@
 <?php
 
-use Arbi\Notifyre\Enums\NotifyreDriver;
 
 return [
 
@@ -15,7 +14,7 @@ return [
     |
     */
 
-    'driver' => env('NOTIFYRE_DRIVER', NotifyreDriver::LOG), // 'api' or 'log'
+    'driver' => env('NOTIFYRE_DRIVER', 'log'), // 'api' or 'log'
 
     /*
      | ---------------------------------------------------------------------------
@@ -71,7 +70,7 @@ return [
      | ---------------------------------------------------------------------------
      |
      | This section contains configuration options for the Notifyre API, such as
-     | the base URL, timeout settings, retry logic, and rate limiting.
+     | the base URL, timeout settings and retry logic.
      |
      */
     'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
@@ -81,11 +80,6 @@ return [
     'retry' => [
         'times' => env('NOTIFYRE_RETRY_TIMES', 3),
         'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1000), // milliseconds between retries
-    ],
-
-    'rate_limiting' => [
-        'delay_between_sms' => env('NOTIFYRE_SMS_DELAY', 1), // seconds between SMS sends
-        'max_per_minute' => env('NOTIFYRE_MAX_PER_MINUTE', 60),
     ],
 
     /*
@@ -102,6 +96,29 @@ return [
         'enabled' => env('NOTIFYRE_CACHE_ENABLED', true),
         'ttl' => env('NOTIFYRE_CACHE_TTL', 3600), // Time to live in seconds
         'prefix' => env('NOTIFYRE_CACHE_PREFIX', 'notifyre_'),
+    ],
+
+
+    /*
+     | ---------------------------------------------------------------------------
+     | API Configuration
+     | ---------------------------------------------------------------------------
+     |
+     | This section contains configuration options for the Notifyre API, such as
+     | enabling/disabling the API, setting middleware, prefix, and rate limiting.
+     | You can customize these settings to control how the API behaves.
+     |
+     */
+
+    'api' => [
+        'enabled' => env('NOTIFYRE_API_ENABLED', true),
+        'prefix' => env('NOTIFYRE_API_PREFIX', 'notifyre'),
+        'middleware' => explode(',', env('NOTIFYRE_API_MIDDLEWARE', 'api')),
+        'rate_limit' => [
+            'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
+            'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX_REQUESTS', 60), // Maximum requests per minute
+            'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_DECAY_MINUTES', 1), // Time window for rate limiting in minutes
+        ],
     ],
 
 ];

@@ -10,7 +10,6 @@ use Arbi\Notifyre\Services\DriverFactory;
 use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Arbi\Notifyre\Services\NotifyreService;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
