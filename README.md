@@ -1,8 +1,9 @@
 # Notifyre Laravel Package
 
-A clean, Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly or through Laravel notifications with minimal setup.
+A clean, Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly or through Laravel
+notifications with minimal setup.
 
-![Test Coverage](https://img.shields.io/badge/coverage-64.0%25-brightgreen?style=flat-square&logo=php)
+![Test Coverage](https://img.shields.io/badge/coverage-34.9%25-brightgreen?style=flat-square&logo=php)
 
 ## ✨ Features
 
@@ -56,6 +57,7 @@ php artisan sms:send --message="Hello from Notifyre!"
 **[📖 Full Documentation](./docs/README.md)** - Complete documentation index and navigation
 
 **Quick Links:**
+
 - **[Installation](./docs/getting-started/INSTALLATION.md)** - How to install and configure the package
 - **[Direct SMS](./docs/usage/DIRECT_SMS.md)** - Send SMS immediately using the helper function
 - **[Notifications](./docs/usage/NOTIFICATIONS.md)** - Send SMS through Laravel notifications
@@ -99,7 +101,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 For issues and questions:
 
-1. Check the [documentation](./docs/)
+1. Check the [documentation](./docs/README.md)
 2. Review the [examples](./docs/usage/DIRECT_SMS.md)
 3. Open an issue on GitHub
 

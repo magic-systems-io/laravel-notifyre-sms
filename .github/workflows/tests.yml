@@ -83,8 +83,8 @@ jobs:
 
     - name: Generate Coverage Badge
       run: |
-        # Extract coverage percentage from XML
-        COVERAGE=$(grep -o 'statements="[0-9]*" coveredstatements="[0-9]*"' coverage.xml | sed 's/.*statements="\([0-9]*\)" coveredstatements="\([0-9]*\)".*/\1 \2/' | awk '{if($1>0) printf "%.1f", ($2/$1)*100; else print "0"}')
+        # Extract coverage percentage from XML (get the last occurrence which is the project total)
+        COVERAGE=$(grep -o 'statements="[0-9]*" coveredstatements="[0-9]*"' coverage.xml | tail -1 | sed 's/.*statements="\([0-9]*\)" coveredstatements="\([0-9]*\)".*/\1 \2/' | awk '{if($1>0) printf "%.1f", ($2/$1)*100; else print "0"}')
         
         # Create badges directory
         mkdir -p badges
@@ -94,15 +94,18 @@ jobs:
         
         # Also create a JSON file with the coverage data
         echo "{\"coverage\": \"${COVERAGE}%\"}" > badges/coverage.json
+        
+        # Update README.md with new coverage percentage
+        sed -i "s/coverage-[0-9.]*%25/coverage-${COVERAGE}%25/g" README.md
 
-    - name: Commit Coverage Badge
+    - name: Commit Coverage Badge and Updated README
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add badges/
-        git commit -m "Update coverage badge: $(grep -o 'statements="[0-9]*" coveredstatements="[0-9]*"' coverage.xml | sed 's/.*statements="\([0-9]*\)" coveredstatements="\([0-9]*\)".*/\1 \2/' | awk '{if($1>0) printf "%.1f%%", ($2/$1)*100; else print "0%"}' | head -1)" || echo "No changes to commit"
+        git add badges/ README.md
+        git commit -m "Update coverage badge to ${COVERAGE}%" || echo "No changes to commit"
 
-    - name: Push Coverage Badge
+    - name: Push Coverage Badge and Updated README
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
