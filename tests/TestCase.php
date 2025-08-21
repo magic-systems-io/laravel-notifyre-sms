@@ -6,6 +6,7 @@ use Arbi\Notifyre\Providers\Core\NotifyreServiceProvider;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Console\Kernel;
 use Illuminate\Foundation\Exceptions\Handler;
@@ -105,7 +106,7 @@ abstract class TestCase extends BaseTestCase
             return $capsule->getConnection()->getSchemaBuilder();
         });
 
-        \Illuminate\Database\Eloquent\Model::setConnectionResolver($capsule->getDatabaseManager());
+        Model::setConnectionResolver($capsule->getDatabaseManager());
 
         // Run migrations
         $this->runMigrations($capsule);
@@ -119,36 +120,18 @@ abstract class TestCase extends BaseTestCase
 
     protected function runMigrations($capsule): void
     {
-        // Create the migrations table if it doesn't exist
+        // Create migrations table
         $capsule->getConnection()->statement('CREATE TABLE IF NOT EXISTS migrations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             migration VARCHAR(255) NOT NULL,
             batch INTEGER NOT NULL
         )');
 
-        // Run the notifyre migrations using raw SQL
-        $capsule->getConnection()->statement('CREATE TABLE IF NOT EXISTS notifyre_sms_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at DATETIME,
-            updated_at DATETIME,
-            sender VARCHAR(50),
-            body VARCHAR(160)
-        )');
-
-        $capsule->getConnection()->statement('CREATE TABLE IF NOT EXISTS notifyre_recipients (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at DATETIME,
-            updated_at DATETIME,
-            type VARCHAR(50) DEFAULT "mobile_number",
-            value VARCHAR(255),
-            UNIQUE(type, value)
-        )');
-
-        $capsule->getConnection()->statement('CREATE TABLE IF NOT EXISTS notifyre_sms_message_recipients (
-            notifyre_sms_message_id INTEGER,
-            notifyre_recipient_id INTEGER,
-            FOREIGN KEY (notifyre_sms_message_id) REFERENCES notifyre_sms_messages(id) ON DELETE CASCADE,
-            FOREIGN KEY (notifyre_recipient_id) REFERENCES notifyre_recipients(id) ON DELETE CASCADE
-        )');
+        // Run the actual migration file
+        $migrationPath = __DIR__ . '/../database/migrations/create_notifyre_tables.php';
+        if (file_exists($migrationPath)) {
+            $migration = require $migrationPath;
+            $migration->up();
+        }
     }
 }
