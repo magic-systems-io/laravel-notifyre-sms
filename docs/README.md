@@ -1,97 +1,68 @@
 # Notifyre Laravel Package - Documentation
 
-Welcome to the Notifyre Laravel package documentation! This guide will help you get started and master all the features of the package.
+Simple, focused documentation for the Notifyre Laravel package.
 
-## 📚 Documentation Index
+## 📚 What This Package Does
+
+This package provides **two ways to send SMS**:
+1. **Direct SMS** - Send SMS immediately using the `notifyre()` helper
+2. **Laravel Notifications** - Send SMS through Laravel's notification system
+
+## �� Documentation
 
 ### 🚀 Getting Started
-- **[Installation Guide](./INSTALLATION.md)** - Complete setup instructions and environment configuration
-- **[Configuration Guide](./CONFIGURATION.md)** - All configuration options and environment variables
+- **[Installation](./getting-started/INSTALLATION.md)** - How to install and configure the package
+- **[Configuration](./getting-started/CONFIGURATION.md)** - Environment variables and config options
 
 ### 💡 How to Use
-- **[Usage Guide](./USAGE.md)** - Detailed usage examples for direct SMS and notifications
-- **[Examples](./EXAMPLES.md)** - Real-world examples and best practices for common scenarios
+- **[Direct SMS](./usage/DIRECT_SMS.md)** - Send SMS immediately using the helper function
+- **[Notifications](./usage/NOTIFICATIONS.md)** - Send SMS through Laravel notifications
+- **[Commands](./usage/COMMANDS.md)** - Send SMS from the command line
 
 ### 🔧 Technical Details
-- **[Commands Guide](./COMMANDS.md)** - All Artisan commands and customization
-- **[Architecture Guide](./ARCHITECTURE.md)** - Package internals and extension points
-- **[Drivers Guide](./DRIVERS.md)** - SMS and Log driver implementation details
-- **[Testing Guide](./../tests/README.md)** - Testing strategies and examples
+- **[Drivers](./technical/DRIVERS.md)** - How SMS and Log drivers work
+- **[Architecture](./technical/ARCHITECTURE.md)** - Package structure and design
+- **[Testing](./technical/TESTS.md)** - Testing strategies and examples
 
-## 🎯 Quick Navigation
+## 🚀 Quick Start
 
-### For New Users
-1. Start with **[Installation Guide](./INSTALLATION.md)** to get the package running
-2. Check **[Usage Guide](./USAGE.md)** for basic examples
-3. Review **[Examples](./EXAMPLES.md)** for real-world scenarios
+```bash
+# Install
+composer require arbi/notifyre-laravel
 
-### For Developers
-1. **[Configuration Guide](./CONFIGURATION.md)** for all available options
-2. **[Commands Guide](./COMMANDS.md)** for command customization and comprehensive testing
-3. **[Architecture Guide](./ARCHITECTURE.md)** for package internals and extension
-4. **[Drivers Guide](./DRIVERS.md)** for technical implementation details
-5. **[Testing Guide](./../tests/README.md)** for testing strategies
+# Configure (minimal)
+NOTIFYRE_DRIVER=log
+NOTIFYRE_API_TOKEN=your_token
 
-### For Production Deployment
-1. **[Installation Guide](./INSTALLATION.md)** - Production setup section
-2. **[Configuration Guide](./CONFIGURATION.md)** - Production configuration
-3. **[Drivers Guide](./DRIVERS.md)** - SMS driver configuration
-
-## 🔍 What You'll Find Here
-
-### Installation & Setup
-- Composer installation
-- Environment configuration
-- Artisan commands for setup
-- Minimal vs. full configuration options
-
-### Usage Examples
-- Direct SMS sending
-- Laravel notifications
-- CLI commands
-- Error handling
-- Rate limiting
-
-### Configuration Options
-- Driver selection
-- API settings
-- Retry logic
-- Caching options
-- Rate limiting
-- Default values
-
-### Advanced Features
-- Custom drivers
-- Queue integration
-- Event handling
-- Testing strategies
-- Performance optimization
-
-## 🆘 Need Help?
-
-- **Check the examples** - Most common use cases are covered
-- **Review configuration** - Ensure your environment is set up correctly
-- **Check the tests** - See how the package is intended to be used
-- **Open an issue** - If you can't find what you need
-
-## 📖 Package Structure
-
-```
-notifyre-laravel/
-├── src/                    # Source code
-│   ├── Channels/          # Notification channels
-│   ├── Commands/          # Artisan commands
-│   ├── Contracts/         # Interfaces
-│   ├── DTO/              # Data transfer objects
-│   ├── Enums/            # Enumerations
-│   ├── Facades/          # Laravel facades
-│   ├── Providers/        # Service providers
-│   └── Services/         # Core services
-├── docs/                  # This documentation
-├── tests/                 # Test suite
-└── config/                # Configuration files
+# Send SMS
+notifyre()->send(new RequestBodyDTO(
+    body: 'Hello World!',
+    sender: 'MyApp',
+    recipients: [new Recipient('mobile_number', '+1234567890')]
+));
 ```
 
----
+## 🎯 What You Need to Know
 
-**Ready to get started?** Begin with the [Installation Guide](./INSTALLATION.md)!
+- **2 environment variables** to get started
+- **1 helper function** for direct SMS
+- **1 notification channel** for Laravel notifications
+- **2 drivers**: `sms` (production) and `log` (testing)
+
+## 📁 Documentation Structure
+
+```
+docs/
+├── README.md                    # This overview
+├── getting-started/            # Setup and configuration
+│   ├── INSTALLATION.md        # How to install
+│   └── CONFIGURATION.md       # Configuration options
+├── usage/                      # How to use the package
+│   ├── DIRECT_SMS.md          # Send SMS directly
+│   ├── NOTIFICATIONS.md       # Laravel notifications
+│   └── COMMANDS.md            # Command line usage
+└── technical/                  # Advanced topics
+    ├── DRIVERS.md             # How drivers work
+    ├── ARCHITECTURE.md        # Package design
+    └── TESTS.md               # Testing strategies
+```

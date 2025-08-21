@@ -11,7 +11,6 @@ describe('PublishNotifyreEnvCommand', function () {
 
         $reflection = new ReflectionClass($command);
         $property = $reflection->getProperty('signature');
-        $property->setAccessible(true);
         $signature = $property->getValue($command);
 
         expect($signature)->toBe('notifyre:publish-env {--force : Force the operation to run without confirmation}');
@@ -43,12 +42,15 @@ describe('PublishNotifyreEnvCommand', function () {
             ->and($envVariables)->toHaveKey('NOTIFYRE_SMS_SENDER')
             ->and($envVariables)->toHaveKey('NOTIFYRE_SMS_RECIPIENT')
             ->and($envVariables)->toHaveKey('NOTIFYRE_DEFAULT_NUMBER_PREFIX')
-            ->and($envVariables)->toHaveKey('NOTIFYRE_SMS_DELAY')
-            ->and($envVariables)->toHaveKey('NOTIFYRE_MAX_PER_MINUTE')
             ->and($envVariables)->toHaveKey('NOTIFYRE_CACHE_ENABLED')
             ->and($envVariables)->toHaveKey('NOTIFYRE_CACHE_TTL')
             ->and($envVariables)->toHaveKey('NOTIFYRE_CACHE_PREFIX')
-            ->and(count($envVariables))->toBe(14);
+            ->and($envVariables)->toHaveKey('NOTIFYRE_API_ENABLED')
+            ->and($envVariables)->toHaveKey('NOTIFYRE_API_PREFIX')
+            ->and($envVariables)->toHaveKey('NOTIFYRE_RATE_LIMIT_ENABLED')
+            ->and($envVariables)->toHaveKey('NOTIFYRE_RATE_LIMIT_DECAY_MINUTES')
+            ->and($envVariables)->toHaveKey('NOTIFYRE_RATE_LIMIT_MAX_REQUESTS')
+            ->and(count($envVariables))->toBe(17);
     });
 
     it('has correct default values for key variables', function () {
@@ -63,7 +65,7 @@ describe('PublishNotifyreEnvCommand', function () {
             ->and($envVariables['NOTIFYRE_RETRY_TIMES'])->toBe('3')
             ->and($envVariables['NOTIFYRE_RETRY_SLEEP'])->toBe('1000')
             ->and($envVariables['NOTIFYRE_BASE_URL'])->toBe('https://api.notifyre.com')
-            ->and($envVariables['NOTIFYRE_CACHE_ENABLED'])->toBe('true')
+            ->and($envVariables['NOTIFYRE_CACHE_ENABLED'])->toBe(true)
             ->and($envVariables['NOTIFYRE_CACHE_TTL'])->toBe('3600')
             ->and($envVariables['NOTIFYRE_CACHE_PREFIX'])->toBe('notifyre_');
     });

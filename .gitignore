@@ -10,3 +10,10 @@ composer.lock
 coverage/
 coverage.txt
 coverage.xml
+
+# Laravel
+/storage/logs/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/bootstrap/cache/

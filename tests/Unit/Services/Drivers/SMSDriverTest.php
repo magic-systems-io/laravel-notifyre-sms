@@ -5,7 +5,6 @@ namespace Arbi\Notifyre\Tests\Unit\Services\Drivers;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -62,7 +61,6 @@ describe('SMSDriver', function () {
                                'value' => '+1234567890',
                            ],
                        ],
-                       'From' => 'TestApp',
                    ];
         });
     });
@@ -96,7 +94,7 @@ describe('SMSDriver', function () {
         $driver->send($message);
 
         Http::assertSent(function ($request) {
-            return $request->data()['From'] === '';
+            return !isset($request->data()['From']);
         });
     });
 
@@ -129,7 +127,7 @@ describe('SMSDriver', function () {
         $driver->send($message);
 
         Http::assertSent(function ($request) {
-            return $request->data()['From'] === '';
+            return !isset($request->data()['From']);
         });
     });
 

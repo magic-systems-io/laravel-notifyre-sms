@@ -2,7 +2,7 @@
 
 namespace Arbi\Notifyre\Tests;
 
-use Arbi\Notifyre\Providers\NotifyreServiceProvider;
+use Arbi\Notifyre\Providers\Core\NotifyreServiceProvider;
 use Illuminate\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Facade;

@@ -46,7 +46,7 @@ $user->notify(new WelcomeNotification());
 ### Test Your Installation
 
 ```bash
-php artisan sms:send "TestApp" "+1234567890" "Hello from Notifyre!"
+php artisan sms:send --message="Hello from Notifyre!"
 ```
 
 ## 📚 Documentation
@@ -54,9 +54,10 @@ php artisan sms:send "TestApp" "+1234567890" "Hello from Notifyre!"
 **[📖 Full Documentation](./docs/README.md)** - Complete documentation index and navigation
 
 **Quick Links:**
-- **[Installation Guide](./docs/INSTALLATION.md)** - Complete setup instructions
-- **[Usage Guide](./docs/USAGE.md)** - Detailed usage examples
-- **[Examples](./docs/EXAMPLES.md)** - Real-world examples and best practices
+- **[Installation](./docs/getting-started/INSTALLATION.md)** - How to install and configure the package
+- **[Direct SMS](./docs/usage/DIRECT_SMS.md)** - Send SMS immediately using the helper function
+- **[Notifications](./docs/usage/NOTIFICATIONS.md)** - Send SMS through Laravel notifications
+- **[Commands](./docs/usage/COMMANDS.md)** - Send SMS from the command line
 
 ## 🏗️ Architecture
 
@@ -97,7 +98,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 For issues and questions:
 
 1. Check the [documentation](./docs/)
-2. Review the [examples](./docs/EXAMPLES.md)
+2. Review the [examples](./docs/usage/DIRECT_SMS.md)
 3. Open an issue on GitHub
 
 ---

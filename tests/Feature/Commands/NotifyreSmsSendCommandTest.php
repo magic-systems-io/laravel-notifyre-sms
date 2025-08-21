@@ -33,16 +33,16 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'sender' => 'TestApp',
-            'recipient' => '+0987654321',
-            'message' => 'Test message',
+            '--sender' => 'TestApp',
+            '--recipient' => '+0987654321',
+            '--message' => 'Test message',
         ]));
 
         $command->run(
             new ArrayInput([
-                'sender' => 'TestApp',
-                'recipient' => '+0987654321',
-                'message' => 'Test message',
+                '--sender' => 'TestApp',
+                '--recipient' => '+0987654321',
+                '--message' => 'Test message',
             ]),
             new BufferedOutput()
         );
@@ -63,14 +63,14 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'recipient' => '+0987654321',
-            'message' => 'Test message',
+            '--recipient' => '+0987654321',
+            '--message' => 'Test message',
         ]));
 
         $command->run(
             new ArrayInput([
-                'recipient' => '+0987654321',
-                'message' => 'Test message',
+                '--recipient' => '+0987654321',
+                '--message' => 'Test message',
             ]),
             new BufferedOutput()
         );
@@ -91,14 +91,14 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'sender' => 'TestApp',
-            'message' => 'Test message',
+            '--sender' => 'TestApp',
+            '--message' => 'Test message',
         ]));
 
         $command->run(
             new ArrayInput([
-                'sender' => 'TestApp',
-                'message' => 'Test message',
+                '--sender' => 'TestApp',
+                '--message' => 'Test message',
             ]),
             new BufferedOutput()
         );
@@ -120,19 +120,19 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'message' => 'Test message',
+            '--message' => 'Test message',
         ]));
 
         $command->run(
             new ArrayInput([
-                'message' => 'Test message',
+                '--message' => 'Test message',
             ]),
             new BufferedOutput()
         );
 
         expect(true)->toBeTrue();
         Mockery::close();
-    }); 
+    });
 
     it('returns early when no message provided', function () {
         $mockService = Mockery::mock(NotifyreServiceInterface::class);
@@ -142,14 +142,14 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'sender' => 'TestApp',
-            'recipient' => '+0987654321',
+            '--sender' => 'TestApp',
+            '--recipient' => '+0987654321',
         ]));
 
         $command->run(
             new ArrayInput([
-                'sender' => 'TestApp',
-                'recipient' => '+0987654321',
+                '--sender' => 'TestApp',
+                '--recipient' => '+0987654321',
             ]),
             new BufferedOutput()
         );
@@ -169,12 +169,12 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'message' => 'Test message',
+            '--message' => 'Test message',
         ]));
 
         $command->run(
             new ArrayInput([
-                'message' => 'Test message',
+                '--message' => 'Test message',
             ]),
             new BufferedOutput()
         );
@@ -193,18 +193,18 @@ describe('NotifyreSmsSendCommand', function () {
 
         $command->setLaravel(app());
         $command->setInput(new ArrayInput([
-            'sender' => 'TestApp',
-            'recipient' => '+0987654321',
-            'message' => 'Test message',
+            '--sender' => 'TestApp',
+            '--recipient' => '+0987654321',
+            '--message' => 'Test message',
         ]));
 
         $output = new BufferedOutput();
 
         $command->run(
             new ArrayInput([
-                'sender' => 'TestApp',
-                'recipient' => '+0987654321',
-                'message' => 'Test message',
+                '--sender' => 'TestApp',
+                '--recipient' => '+0987654321',
+                '--message' => 'Test message',
             ]),
             $output
         );
@@ -217,7 +217,10 @@ describe('NotifyreSmsSendCommand', function () {
     it('has correct signature', function () {
         $command = new NotifyreSmsSendCommand(Mockery::mock(NotifyreServiceInterface::class));
 
-        expect($command->signature)->toBe('sms:send {sender? : The number the SMS will be sent from} {recipient? : The number the SMS will be sent to} {message? : The message that will be sent}');
+        expect($command->signature)->toBe('sms:send 
+                        {--sender= : The number the SMS will be sent from}
+                        {--recipient= : The number the SMS will be sent to} 
+                        {--message= : The message that will be sent}');
     });
 
     it('has correct description', function () {

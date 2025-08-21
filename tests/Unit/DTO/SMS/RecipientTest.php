@@ -93,13 +93,6 @@ describe('Recipient', function () {
         }
     });
 
-    it('has correct VALID_TYPES constant', function () {
-        expect(Recipient::VALID_TYPES)->toBe([
-            'mobile_number',
-            'contact',
-            'group',
-        ]);
-    });
 
     it('is readonly', function () {
         $recipient = new Recipient('mobile_number', '+1234567890');

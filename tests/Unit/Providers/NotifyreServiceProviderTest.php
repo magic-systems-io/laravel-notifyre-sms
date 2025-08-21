@@ -5,7 +5,7 @@ namespace Arbi\Notifyre\Tests\Unit\Providers;
 use Arbi\Notifyre\Channels\NotifyreChannel;
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\Providers\NotifyreServiceProvider;
+use Arbi\Notifyre\Providers\Core\NotifyreServiceProvider;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\ServiceProvider;
 
