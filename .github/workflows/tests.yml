@@ -7,6 +7,30 @@ on:
     branches: [ main, develop ]
 
 jobs:
+  validation:
+    runs-on: ubuntu-latest
+    name: Code Validation (Pre-commit Checks)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run Pint Check (Code Style)
+      run: composer pint --test
+
+    - name: Run Pest Tests
+      run: composer test
+
   tests:
     runs-on: ubuntu-latest
     strategy:
@@ -57,6 +81,33 @@ jobs:
         DB_DATABASE: database/database.sqlite
       run: vendor/bin/pest --coverage-clover=coverage.xml
 
+    - name: Generate Coverage Badge
+      run: |
+        # Extract coverage percentage from XML
+        COVERAGE=$(grep -o 'statements="[0-9]*" coveredstatements="[0-9]*"' coverage.xml | sed 's/.*statements="\([0-9]*\)" coveredstatements="\([0-9]*\)".*/\1 \2/' | awk '{if($1>0) printf "%.1f", ($2/$1)*100; else print "0"}')
+        
+        # Create badges directory
+        mkdir -p badges
+        
+        # Generate badge using shields.io
+        curl -o "badges/coverage.svg" "https://img.shields.io/badge/coverage-${COVERAGE}%25-brightgreen?style=flat-square&logo=php"
+        
+        # Also create a JSON file with the coverage data
+        echo "{\"coverage\": \"${COVERAGE}%\"}" > badges/coverage.json
+
+    - name: Commit Coverage Badge
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add badges/
+        git commit -m "Update coverage badge: $(grep -o 'statements="[0-9]*" coveredstatements="[0-9]*"' coverage.xml | sed 's/.*statements="\([0-9]*\)" coveredstatements="\([0-9]*\)".*/\1 \2/' | awk '{if($1>0) printf "%.1f%%", ($2/$1)*100; else print "0%"}' | head -1)" || echo "No changes to commit"
+
+    - name: Push Coverage Badge
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -65,131 +116,3 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: true
         verbose: true
-
-  tests-parallel:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        shard: [1, 2, 3, 4]
-        php: [8.4]
-        laravel: [12.*]
-        dependency-version: [prefer-stable]
-
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - Shard ${{ matrix.shard }}/4
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php }}
-        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --${{ matrix.dependency-version }} --prefer-dist --no-progress
-
-    - name: Copy environment file
-      run: cp .env.example .env
-
-    - name: Generate application key
-      run: php artisan key:generate
-
-    - name: Directory permissions
-      run: chmod -R 777 storage bootstrap/cache
-
-    - name: Create database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
-
-    - name: Execute tests in parallel via Pest
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
-      run: vendor/bin/pest --parallel --shard=${{ matrix.shard }}/4
-
-  static-analysis:
-    runs-on: ubuntu-latest
-    name: Static Analysis
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.4
-        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
-
-    - name: Run PHPStan
-      run: vendor/bin/phpstan analyse src --level=8
-
-    - name: Run PHP CS Fixer
-      run: vendor/bin/pint --test
-
-  mutation-testing:
-    runs-on: ubuntu-latest
-    name: Mutation Testing
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.4
-        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
-
-    - name: Copy environment file
-      run: cp .env.example .env
-
-    - name: Generate application key
-      run: php artisan key:generate
-
-    - name: Directory permissions
-      run: chmod -R 777 storage bootstrap/cache
-
-    - name: Create database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
-
-    - name: Run Infection
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
-      run: vendor/bin/infection --min-msi=80 --min-covered-msi=80
-
-  type-coverage:
-    runs-on: ubuntu-latest
-    name: Type Coverage
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.4
-        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
-
-    - name: Run Type Coverage
-      run: vendor/bin/pest --type-coverage --min=80

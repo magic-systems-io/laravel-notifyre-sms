@@ -18,6 +18,10 @@ readonly class DriverFactory implements NotifyreDriverFactoryInterface
     {
         $driver = config('services.notifyre.driver') ?? config('notifyre.driver');
 
+        if (empty(trim($driver ?? ''))) {
+            throw new InvalidArgumentException("Invalid Notifyre driver '$driver'. Supported drivers are: " . implode(', ', NotifyreDriver::values()));
+        }
+
         return match ($driver) {
             NotifyreDriver::LOG->value => new LogDriver(),
             NotifyreDriver::SMS->value => new SMSDriver(),

@@ -33,13 +33,6 @@ class NotifyreServiceProvider extends ServiceProvider
         PublishNotifyreAllCommand::class,
     ];
 
-    private const array SINGLETONS = [
-        'notifyre' => NotifyreService::class,
-        NotifyreServiceInterface::class => 'notifyre',
-        DriverFactory::class => DriverFactory::class,
-        NotifyreDriverFactoryInterface::class => DriverFactory::class,
-    ];
-
     private const array PROVIDERS = [
         ConfigurationServiceProvider::class,
         MigrationServiceProvider::class,
@@ -52,23 +45,28 @@ class NotifyreServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        // Register all feature providers
         foreach (self::PROVIDERS as $provider) {
             $this->app->register($provider);
         }
 
+        // Merge configuration
         if (method_exists($this, 'mergeConfigFrom') && function_exists('config_path')) {
             $this->mergeConfigFrom(self::CONFIG_PATH, 'notifyre');
         }
 
-        foreach (self::SINGLETONS as $abstract => $concrete) {
-            $this->app->singleton($abstract, function ($app) use ($concrete) {
-                return match ($concrete) {
-                    NotifyreService::class => new NotifyreService($app->make(NotifyreDriverFactoryInterface::class)),
-                    'notifyre' => $app->make('notifyre'),
-                    DriverFactory::class => new DriverFactory(),
-                };
-            });
-        }
+        // Register core services
+        $this->app->singleton(NotifyreDriverFactoryInterface::class, DriverFactory::class);
+        $this->app->singleton(DriverFactory::class, DriverFactory::class);
+
+        $this->app->singleton(NotifyreServiceInterface::class, function ($app) {
+            return new NotifyreService($app->make(NotifyreDriverFactoryInterface::class));
+        });
+
+        // Register the helper alias
+        $this->app->singleton('notifyre', function ($app) {
+            return $app->make(NotifyreServiceInterface::class);
+        });
     }
 
     public function boot(): void

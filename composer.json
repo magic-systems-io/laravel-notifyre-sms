@@ -52,6 +52,9 @@
     ],
     "test": [
       "vendor/bin/pest"
+    ],
+    "coverage": [
+      "vendor/bin/pest --coverage-html=coverage --coverage-clover=coverage.xml"
     ]
   },
   "type": "library",

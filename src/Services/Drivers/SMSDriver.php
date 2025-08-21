@@ -55,8 +55,8 @@ readonly class SMSDriver implements NotifyreDriverInterface
      */
     private function getApiUrl(): string
     {
-        $url = config('notifyre.base_url');
-        if (empty($url)) {
+        $url = config('notifyre.base_url') ?? '';
+        if (empty(trim($url))) {
             throw new InvalidArgumentException('Notifyre base URL is not configured.');
         }
 
@@ -68,8 +68,8 @@ readonly class SMSDriver implements NotifyreDriverInterface
      */
     private function getApiKey(): string
     {
-        $apiKey = config('services.notifyre.api_key') ?? config('notifyre.api_key');
-        if (empty($apiKey)) {
+        $apiKey = config('services.notifyre.api_key') ?? config('notifyre.api_key') ?? '';
+        if (empty(trim($apiKey))) {
             throw new InvalidArgumentException('Notifyre API key is not configured.');
         }
 

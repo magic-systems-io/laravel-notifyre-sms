@@ -16,11 +16,11 @@ class NotifyreSMSMessageService
 {
     public function getAllMessages(?string $sender): array
     {
-        if (empty(trim($sender))) {
+        if (empty($sender) || (is_string($sender) && empty(trim($sender)))) {
             return [];
         }
 
-        return NotifyreSMSMessages::where('sender', $sender)->all()->toArray();
+        return NotifyreSMSMessages::where('sender', $sender)->get()->toArray();
     }
 
     /**

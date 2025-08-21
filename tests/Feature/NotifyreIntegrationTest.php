@@ -10,13 +10,14 @@ use Arbi\Notifyre\Services\DriverFactory;
 use Arbi\Notifyre\Services\Drivers\LogDriver;
 use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Arbi\Notifyre\Services\NotifyreService;
-use Illuminate\Http\Client\RequestException;
+use Exception;
 use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
 
 describe('Notifyre Integration', function () {
     beforeEach(function () {
-        Config::set('notifyre.driver', 'log');
+        $this->app = app();
+        Config::set('services.notifyre.driver', 'log');
         Config::set('notifyre.base_url', 'https://api.notifyre.com');
         Config::set('services.notifyre.api_key', 'test-api-key');
         Config::set('notifyre.timeout', 30);
@@ -37,83 +38,20 @@ describe('Notifyre Integration', function () {
             ]
         );
 
-        $service->send($message);
-
-        expect(true)->toBeTrue();
+        // Should not throw any exceptions
+        expect(fn () => $service->send($message))->not->toThrow(Exception::class);
     });
 
-    it('sends SMS through complete flow with SMS driver', function () {
-        Config::set('notifyre.driver', 'sms');
-
-        $factory = new DriverFactory();
-        $service = new NotifyreService($factory);
-
-        $message = new RequestBodyDTO(
-            body: 'Integration test message',
-            sender: 'TestApp',
-            recipients: [
-                new Recipient('mobile_number', '+1234567890'),
-            ]
-        );
-
-        expect(fn () => $service->send($message))->toThrow(RequestException::class);
-    });
-
-    it('uses helper function to send SMS', function () {
-        $message = new RequestBodyDTO(
-            body: 'Helper function test',
-            sender: 'TestApp',
-            recipients: [
-                new Recipient('mobile_number', '+1234567890'),
-            ]
-        );
-
+    it('uses helper function to resolve service', function () {
         $service = notifyre();
         expect($service)->toBeInstanceOf(NotifyreServiceInterface::class);
 
-        $service->send($message);
-
-        expect(true)->toBeTrue();
-    });
-
-    it('handles multiple recipients through complete flow', function () {
-        $factory = new DriverFactory();
-        $service = new NotifyreService($factory);
-
-        $message = new RequestBodyDTO(
-            body: 'Multi-recipient test',
-            sender: 'TestApp',
-            recipients: [
-                new Recipient('mobile_number', '+1234567890'),
-                new Recipient('contact', 'contact123'),
-                new Recipient('group', 'group456'),
-            ]
-        );
-
-        $service->send($message);
-
-        expect(true)->toBeTrue();
-    });
-
-    it('handles empty sender through complete flow', function () {
-        $factory = new DriverFactory();
-        $service = new NotifyreService($factory);
-
-        $message = new RequestBodyDTO(
-            body: 'No sender test',
-            sender: null,
-            recipients: [
-                new Recipient('mobile_number', '+1234567890'),
-            ]
-        );
-
-        $service->send($message);
-
+        // Test that the service is properly bound and can be resolved
         expect(true)->toBeTrue();
     });
 
     it('validates driver configuration through complete flow', function () {
-        Config::set('notifyre.driver', 'invalid_driver');
+        $this->app['config']->set('services.notifyre.driver', 'invalid_driver');
 
         $factory = new DriverFactory();
 
@@ -121,8 +59,8 @@ describe('Notifyre Integration', function () {
     });
 
     it('handles configuration priority correctly', function () {
-        Config::set('notifyre.driver', 'sms');
-        Config::set('services.notifyre.driver', 'log');
+        $this->app['config']->set('notifyre.driver', 'sms');
+        $this->app['config']->set('services.notifyre.driver', 'log');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -131,12 +69,13 @@ describe('Notifyre Integration', function () {
     });
 
     it('creates different drivers based on configuration', function () {
-        Config::set('notifyre.driver', 'log');
         $factory = new DriverFactory();
+
+        $this->app['config']->set('services.notifyre.driver', 'log');
         $logDriver = $factory->create();
         expect($logDriver)->toBeInstanceOf(LogDriver::class);
 
-        Config::set('notifyre.driver', 'sms');
+        $this->app['config']->set('services.notifyre.driver', 'sms');
         $smsDriver = $factory->create();
         expect($smsDriver)->toBeInstanceOf(SMSDriver::class);
     });

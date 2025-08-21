@@ -25,7 +25,7 @@ describe('DriverFactory', function () {
     });
 
     it('creates SMS driver when configured', function () {
-        Config::set('notifyre.driver', 'sms');
+        $this->app['config']->set('services.notifyre.driver', 'sms');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -34,8 +34,8 @@ describe('DriverFactory', function () {
     });
 
     it('prioritizes services.notifyre.driver over notifyre.driver', function () {
-        Config::set('notifyre.driver', 'sms');
-        Config::set('services.notifyre.driver', 'log');
+        $this->app['config']->set('notifyre.driver', 'sms');
+        $this->app['config']->set('services.notifyre.driver', 'log');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -44,7 +44,8 @@ describe('DriverFactory', function () {
     });
 
     it('falls back to notifyre.driver when services.notifyre.driver is not set', function () {
-        Config::set('notifyre.driver', 'sms');
+        $this->app['config']->set('services.notifyre.driver', null);
+        $this->app['config']->set('notifyre.driver', 'sms');
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -53,7 +54,7 @@ describe('DriverFactory', function () {
     });
 
     it('throws exception for invalid driver', function () {
-        Config::set('notifyre.driver', 'invalid_driver');
+        $this->app['config']->set('services.notifyre.driver', 'invalid_driver');
 
         $factory = new DriverFactory();
 
@@ -62,7 +63,7 @@ describe('DriverFactory', function () {
     });
 
     it('throws exception for empty driver', function () {
-        Config::set('notifyre.driver', '');
+        $this->app['config']->set('services.notifyre.driver', '');
 
         $factory = new DriverFactory();
 
@@ -71,6 +72,9 @@ describe('DriverFactory', function () {
     });
 
     it('throws exception for null driver', function () {
+        $this->app['config']->set('services.notifyre.driver', null);
+        $this->app['config']->set('notifyre.driver', null);
+
         $factory = new DriverFactory();
 
         expect(fn () => $factory->create())
@@ -78,7 +82,7 @@ describe('DriverFactory', function () {
     });
 
     it('throws exception for whitespace-only driver', function () {
-        Config::set('notifyre.driver', '   ');
+        $this->app['config']->set('services.notifyre.driver', '   ');
 
         $factory = new DriverFactory();
 
@@ -87,7 +91,7 @@ describe('DriverFactory', function () {
     });
 
     it('creates drivers with case-sensitive matching', function () {
-        Config::set('notifyre.driver', 'SMS');
+        $this->app['config']->set('services.notifyre.driver', 'SMS');
 
         $factory = new DriverFactory();
 
@@ -96,7 +100,7 @@ describe('DriverFactory', function () {
     });
 
     it('creates log driver with exact match', function () {
-        Config::set('notifyre.driver', NotifyreDriver::LOG->value);
+        $this->app['config']->set('services.notifyre.driver', NotifyreDriver::LOG->value);
 
         $factory = new DriverFactory();
         $driver = $factory->create();
@@ -105,7 +109,7 @@ describe('DriverFactory', function () {
     });
 
     it('creates SMS driver with exact match', function () {
-        Config::set('notifyre.driver', NotifyreDriver::SMS->value);
+        $this->app['config']->set('services.notifyre.driver', NotifyreDriver::SMS->value);
 
         $factory = new DriverFactory();
         $driver = $factory->create();
