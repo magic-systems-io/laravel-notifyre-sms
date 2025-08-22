@@ -11,6 +11,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Console\Kernel;
 use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
@@ -20,8 +21,6 @@ abstract class TestCase extends BaseTestCase
 {
     protected function setUp(): void
     {
-        // Don't call parent::setUp() to avoid Laravel bootstrap requirements
-
         $app = new Application(
             $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
         );
@@ -41,6 +40,7 @@ abstract class TestCase extends BaseTestCase
                 ],
                 'default_sender' => 'TestApp',
                 'default_recipient' => '+1234567890',
+                'driver' => 'log', // Add default driver here too
             ],
             'services' => [
                 'notifyre' => [
@@ -70,8 +70,9 @@ abstract class TestCase extends BaseTestCase
             Handler::class
         );
 
-        // Set up facades BEFORE setting the config
+        // Set up facades BEFORE setting the config and ensure Config facade uses our instance
         Facade::setFacadeApplication($app);
+        Config::swap($config);
 
         // Set up validator
         $app->singleton('validator', function () {

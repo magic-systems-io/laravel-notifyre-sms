@@ -59,7 +59,7 @@ describe('Helper Functions', function () {
         $app = Container::getInstance();
         $app->instance('notifyre', $mockService);
 
-        $recipient = new Recipient('mobile_number', '+1234567890');
+        $recipient = new Recipient('virtual_mobile_number', '+1234567890');
         $requestBody = new RequestBodyDTO('Test message', 'TestSender', [$recipient]);
 
         notifyre()->send($requestBody);

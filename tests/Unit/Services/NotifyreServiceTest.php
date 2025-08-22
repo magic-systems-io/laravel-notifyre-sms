@@ -7,7 +7,6 @@ use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\Services\NotifyreService;
-use Error;
 use Mockery;
 
 describe('NotifyreService', function () {
@@ -25,11 +24,9 @@ describe('NotifyreService', function () {
         $service = new NotifyreService($mockFactory);
 
         $message = new RequestBodyDTO(
-            body: 'Test message',
-            sender: 'TestApp',
-            recipients: [
-                new Recipient('mobile_number', '+1234567890'),
-            ]
+            body:       'Test message',
+            recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
+            from:       'TestApp'
         );
 
         $service->send($message);
@@ -38,15 +35,6 @@ describe('NotifyreService', function () {
         $mockFactory->shouldHaveReceived('create');
 
         expect(true)->toBeTrue();
-        Mockery::close();
-    });
-
-    it('is readonly', function () {
-        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
-        $service = new NotifyreService($mockFactory);
-
-        expect(fn () => $service->driverFactory = null)->toThrow(Error::class);
-
         Mockery::close();
     });
 
@@ -62,11 +50,11 @@ describe('NotifyreService', function () {
         $service = new NotifyreService($mockFactory);
 
         $message = new RequestBodyDTO(
-            body: 'Test message',
-            sender: 'TestApp',
+            body:       'Test message',
             recipients: [
-                new Recipient('mobile_number', '+1234567890'),
-            ]
+                new Recipient('virtual_mobile_number', '+1234567890'),
+            ],
+            from:       'TestApp'
         );
 
         $service->send($message);

@@ -15,6 +15,7 @@ use Mockery;
 describe('ContractServiceProvider', function () {
     beforeEach(function () {
         $this->app = Mockery::mock(Application::class);
+        $this->app->shouldReceive('flush')->andReturnNull();
         $this->provider = new ContractServiceProvider($this->app);
     });
 
@@ -39,6 +40,7 @@ describe('ContractServiceProvider', function () {
             $app->shouldReceive('bind')
                 ->once()
                 ->with(NotifyreServiceInterface::class, NotifyreService::class);
+            $app->shouldReceive('flush')->andReturnNull();
 
             $provider = new ContractServiceProvider($app);
             $provider->register();
@@ -52,6 +54,7 @@ describe('ContractServiceProvider', function () {
             $app->shouldReceive('bind')
                 ->once()
                 ->with(NotifyreServiceInterface::class, NotifyreService::class);
+            $app->shouldReceive('flush')->andReturnNull();
 
             $provider = new ContractServiceProvider($app);
             $provider->register();

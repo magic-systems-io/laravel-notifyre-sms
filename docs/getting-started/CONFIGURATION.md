@@ -17,8 +17,8 @@ NOTIFYRE_API_KEY=your_api_key_here
 ### Optional
 
 ```env
-# Default sender name
-NOTIFYRE_SMS_SENDER=MyApp
+# Default sender number
+NOTIFYRE_SMS_FROM=+1234567890
 
 # Default recipient (for testing)
 NOTIFYRE_SMS_RECIPIENT=+1234567890
@@ -34,6 +34,11 @@ NOTIFYRE_RETRY_SLEAP=1000
 # Rate limiting
 NOTIFYRE_RATE_LIMIT_MAX_REQUESTS=60
 NOTIFYRE_RATE_LIMIT_DECAY_MINUTES=1
+
+# Advanced DTO settings
+NOTIFYRE_MAX_METADATA_KEYS=50
+NOTIFYRE_MAX_METADATA_KEY_LENGTH=50
+NOTIFYRE_MAX_METADATA_VALUE_LENGTH=500
 ```
 
 ## Configuration File
@@ -73,6 +78,16 @@ The package creates `config/notifyre.php` with these sections:
 ],
 ```
 
+### DTO Validation Settings
+
+```php
+'dto' => [
+    'max_metadata_keys' => env('NOTIFYRE_MAX_METADATA_KEYS', 50),
+    'max_metadata_key_length' => env('NOTIFYRE_MAX_METADATA_KEY_LENGTH', 50),
+    'max_metadata_value_length' => env('NOTIFYRE_MAX_METADATA_VALUE_LENGTH', 500),
+],
+```
+
 ## Driver-Specific Configuration
 
 ### SMS Driver
@@ -90,6 +105,7 @@ NOTIFYRE_RETRY_TIMES=3
 ```env
 NOTIFYRE_DRIVER=log
 # No additional configuration needed
+# Returns mock ResponseBodyDTO for testing
 ```
 
 ## Publishing Configuration
@@ -106,7 +122,7 @@ php artisan vendor:publish --provider="Arbi\Notifyre\Providers\NotifyreServicePr
 
 ```env
 NOTIFYRE_DRIVER=log
-NOTIFYRE_SMS_SENDER=DevApp
+NOTIFYRE_SMS_FROM=+1234567890
 ```
 
 ### Production
@@ -114,7 +130,7 @@ NOTIFYRE_SMS_SENDER=DevApp
 ```env
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_production_key
-NOTIFYRE_SMS_SENDER=MyApp
+NOTIFYRE_SMS_FROM=+1234567890
 NOTIFYRE_TIMEOUT=30
 ```
 
@@ -122,7 +138,7 @@ NOTIFYRE_TIMEOUT=30
 
 ```env
 NOTIFYRE_DRIVER=log
-NOTIFYRE_SMS_SENDER=TestApp
+NOTIFYRE_SMS_FROM=+1234567890
 ```
 
 ## Validation
@@ -134,6 +150,31 @@ The package validates your configuration:
 - **Base URL**: Must be a valid URL
 - **Timeout**: Must be a positive integer
 - **Retry Times**: Must be a positive integer
+- **Metadata Limits**: Enforced at DTO level for data integrity
+
+## Advanced Configuration
+
+### Metadata Validation
+
+The package enforces metadata limits to prevent API issues:
+
+```env
+# Maximum number of metadata key-value pairs
+NOTIFYRE_MAX_METADATA_KEYS=50
+
+# Maximum length for metadata keys
+NOTIFYRE_MAX_METADATA_KEY_LENGTH=50
+
+# Maximum length for metadata values
+NOTIFYRE_MAX_METADATA_VALUE_LENGTH=500
+```
+
+### Response Handling
+
+Both drivers now return `ResponseBodyDTO` objects:
+
+- **SMS Driver**: Returns real API response data
+- **Log Driver**: Returns mock response data for testing
 
 ## Next Steps
 

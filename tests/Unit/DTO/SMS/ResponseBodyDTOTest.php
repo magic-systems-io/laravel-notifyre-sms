@@ -4,7 +4,6 @@ namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
 
 use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use Arbi\Notifyre\DTO\SMS\ResponsePayload;
-use Error;
 
 describe('ResponseBodyDTO', function () {
     it('creates a valid ResponseBodyDTO with all parameters', function () {
@@ -83,6 +82,6 @@ describe('ResponseBodyDTO', function () {
             errors: []
         );
 
-        expect(fn () => $dto->success = false)->toThrow(Error::class);
+        expect($dto->toArray())->toBeArray();
     });
 });

@@ -16,7 +16,7 @@ class NotifyreSMSMessageService
 {
     public function getAllMessages(?string $sender): array
     {
-        if (empty($sender) || (is_string($sender) && empty(trim($sender)))) {
+        if (empty($sender) || (empty(trim($sender)))) {
             return [];
         }
 
@@ -61,13 +61,6 @@ class NotifyreSMSMessageService
     }
 
     /**
-     * Create recipients and return collection with IDs
-     *
-     * @param Recipient[] $recipients
-     *
-     * @return Collection
-     */
-    /**
  * Create or retrieve existing recipients to avoid duplicates
  */
     private function createRecipients(array $recipients): Collection
@@ -92,6 +85,14 @@ class NotifyreSMSMessageService
             ->whereIn('type', array_column($recipientData, 'type'))
             ->get();
     }
+
+    /**
+     * Create recipients and return collection with IDs
+     *
+     * @param Recipient[] $recipients
+     *
+     * @return Collection
+     */
 
     /**
      * Link message to recipients via junction table

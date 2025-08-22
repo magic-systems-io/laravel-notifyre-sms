@@ -82,22 +82,6 @@ return [
         'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1000), // milliseconds between retries
     ],
 
-    /*
-     | ---------------------------------------------------------------------------
-     | Cache Configuration
-     | ---------------------------------------------------------------------------
-     |
-     | This section contains configuration options for caching SMS requests.
-     | Use this if you want to store SMS responses to avoid calling the GET SMS API
-     | repeatedly for the same request.
-     |
-     */
-    'cache' => [
-        'enabled' => env('NOTIFYRE_CACHE_ENABLED', true),
-        'ttl' => env('NOTIFYRE_CACHE_TTL', 3600), // Time to live in seconds
-        'prefix' => env('NOTIFYRE_CACHE_PREFIX', 'notifyre_'),
-    ],
-
 
     /*
      | ---------------------------------------------------------------------------
@@ -118,6 +102,14 @@ return [
             'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
             'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX_REQUESTS', 60), // Maximum requests per minute
             'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_DECAY_MINUTES', 1), // Time window for rate limiting in minutes
+        ],
+        'database' => [
+            'enabled' => env('NOTIFYRE_DB_ENABLED', true),
+        ],
+        'cache' => [
+            'enabled' => env('NOTIFYRE_CACHE_ENABLED', true),
+            'ttl' => env('NOTIFYRE_CACHE_TTL', 3600), // Time to live in seconds
+            'prefix' => env('NOTIFYRE_CACHE_PREFIX', 'notifyre_'),
         ],
     ],
 

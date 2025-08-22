@@ -4,7 +4,7 @@ namespace Arbi\Notifyre\Enums;
 
 enum NotifyreRecipientTypes: string
 {
-    case MOBILE_NUMBER = 'mobile_number';
+    case VIRTUAL_MOBILE_NUMBER = 'virtual_mobile_number';
     case CONTACT = 'contact';
     case GROUP = 'group';
 
@@ -15,6 +15,6 @@ enum NotifyreRecipientTypes: string
 
     public static function isValid(string $type): bool
     {
-        return in_array($type, self::cases());
+        return in_array($type, self::values());
     }
 }

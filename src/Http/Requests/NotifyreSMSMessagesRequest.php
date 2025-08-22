@@ -13,10 +13,11 @@ class NotifyreSMSMessagesRequest extends FormRequest
         return [
             'body' => ['required', 'string', 'max:160'],
             'sender' => ['nullable', 'string', 'max:255'],
-            'recipients' => ['required', 'array'],
-            'recipients.*' => ['required', 'array'],
+            'recipients' => ['required', 'array', 'min:1'],
+            'recipients.*' => ['required', 'array', 'min:1'],
             'recipients.*.type' => ['required', 'string', Rule::enum(NotifyreRecipientTypes::class)],
             'recipients.*.value' => ['required', 'string', 'max:255'],
+            'persist' => ['nullable', 'boolean'],
         ];
     }
 

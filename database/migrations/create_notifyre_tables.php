@@ -12,6 +12,7 @@ return new class () extends Migration
         Schema::create('notifyre_sms_messages', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('messageId', 255);
             $table->string('sender', 50)->nullable();
             $table->string('body', 160)->nullable();
         });
@@ -24,7 +25,7 @@ return new class () extends Migration
         Schema::create('notifyre_recipients', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->enum('type', NotifyreRecipientTypes::values())->default(NotifyreRecipientTypes::MOBILE_NUMBER);
+            $table->enum('type', NotifyreRecipientTypes::values())->default(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER);
             $table->string('value', 255);
 
             $table->unique(['type', 'value']);

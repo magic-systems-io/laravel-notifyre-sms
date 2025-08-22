@@ -3,7 +3,7 @@
 namespace Arbi\Notifyre\Services\Drivers;
 
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
+use Arbi\Notifyre\DTO\SMS\InvalidNumber;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use Arbi\Notifyre\DTO\SMS\ResponsePayload;
@@ -14,25 +14,17 @@ use InvalidArgumentException;
 readonly class SMSDriver implements NotifyreDriverInterface
 {
     /**
-     * @throws InvalidArgumentException
+     * @param RequestBodyDTO $requestBody
+     *
      * @throws ConnectionException
+     * @return ?ResponseBodyDTO
      */
-    public function send(RequestBodyDTO $requestBody): void
+    public function send(RequestBodyDTO $requestBody): ?ResponseBodyDTO
     {
         $url = $this->getApiUrl();
         $apiKey = $this->getApiKey();
 
-        $data = [
-            'Body' => $requestBody->body,
-            'Recipients' => array_map(function (Recipient $recipient) {
-                return [
-                    'type' => $recipient->type,
-                    'value' => $recipient->value,
-                ];
-            }, $requestBody->recipients),
-        ];
-
-        $response = Http::timeout(config('notifyre.timeout', 30))
+        $response = Http::timeout(config('notifyre.timeout'))
             ->retry(
                 config('notifyre.retry.times', 3),
                 config('notifyre.retry.sleep', 1000)
@@ -41,13 +33,9 @@ readonly class SMSDriver implements NotifyreDriverInterface
                 'x-api-token' => $apiKey,
                 'Content-Type' => 'application/json',
             ])
-            ->post($url, $data);
+            ->post($url, $requestBody->toArray());
 
-        if (!$response->successful()) {
-            throw new ConnectionException("Failed to send SMS: {$response->body()}");
-        }
-
-        $this->cache($response->json(), $response->status());
+        return $this->parseResponse($response->json(), $response->status());
     }
 
     /**
@@ -76,30 +64,27 @@ readonly class SMSDriver implements NotifyreDriverInterface
         return $apiKey;
     }
 
-    private function cache(array $json, int $status): void
-    {
-        if (!config('notifyre.cache.enabled')) {
-            return;
-        }
-
-        $parsed = $this->parseResponse($json, $status);
-        // todo: Implement caching logic here
-    }
-
     private function parseResponse(array $responseData, int $statusCode): ResponseBodyDTO
     {
+        if (isset($responseData['Payload']['InvalidToNumbers']) && is_array($responseData['Payload']['InvalidToNumbers'])) {
+            $invalidToNumbers = array_map(fn ($invalidNumber) => new InvalidNumber(
+                number: $invalidNumber['Number'] ?? '',
+                message: $invalidNumber['Message'] ?? ''
+            ), $responseData['Payload']['InvalidToNumbers']);
+        }
+
         $payload = new ResponsePayload(
-            smsMessageID: $responseData['payload']['smsMessageID'] ?? '',
-            friendlyID: $responseData['payload']['friendlyID'] ?? '',
-            invalidToNumbers: $responseData['payload']['invalidToNumbers'] ?? []
+            smsMessageID: $responseData['Payload']['SmsMessageID'] ?? '',
+            friendlyID: $responseData['Payload']['FriendlyID'] ?? '',
+            invalidToNumbers: $invalidToNumbers ?? [],
         );
 
         return new ResponseBodyDTO(
-            success: $responseData['success'] ?? false,
-            statusCode: $responseData['statusCode'] ?? $statusCode,
-            message: $responseData['message'] ?? '',
+            success: $responseData['Success'] ?? false,
+            statusCode: $responseData['StatusCode'] ?? $statusCode,
+            message: $responseData['Message'] ?? '',
             payload: $payload,
-            errors: $responseData['errors'] ?? []
+            errors: $responseData['Errors'] ?? []
         );
     }
 }

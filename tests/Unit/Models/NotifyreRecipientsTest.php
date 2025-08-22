@@ -81,10 +81,10 @@ describe('NotifyreRecipients', function () {
     it('has type and value properties accessible', function () {
         $model = new NotifyreRecipients();
 
-        $model->type = 'mobile_number';
+        $model->type = 'virtual_mobile_number';
         $model->value = '+1234567890';
 
-        expect($model->type)->toBe('mobile_number')
+        expect($model->type)->toBe('virtual_mobile_number')
             ->and($model->value)->toBe('+1234567890');
     });
 });

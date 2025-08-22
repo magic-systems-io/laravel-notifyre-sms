@@ -3,6 +3,7 @@
 namespace Arbi\Notifyre\Contracts;
 
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use InvalidArgumentException;
 
 interface NotifyreServiceInterface
@@ -12,5 +13,5 @@ interface NotifyreServiceInterface
      *
      * @throws InvalidArgumentException
      */
-    public function send(RequestBodyDTO $message): void;
+    public function send(RequestBodyDTO $message): ?ResponseBodyDTO;
 }

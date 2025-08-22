@@ -27,7 +27,8 @@ describe('NotifyreSMSMessagesRequest', function () {
                 ->and($rules)->toHaveKey('recipients')
                 ->and($rules)->toHaveKey('recipients.*')
                 ->and($rules)->toHaveKey('recipients.*.type')
-                ->and($rules)->toHaveKey('recipients.*.value');
+                ->and($rules)->toHaveKey('recipients.*.value')
+                ->and($rules)->toHaveKey('persist');
         });
 
         it('body field is required, string, and max 160 characters', function () {
@@ -53,7 +54,8 @@ describe('NotifyreSMSMessagesRequest', function () {
             $recipientsRules = $rules['recipients'];
 
             expect($recipientsRules)->toContain('required')
-                ->and($recipientsRules)->toContain('array');
+                ->and($recipientsRules)->toContain('array')
+                ->and($recipientsRules)->toContain('min:1');
         });
 
         it('recipients.* field is required and array', function () {
@@ -61,7 +63,8 @@ describe('NotifyreSMSMessagesRequest', function () {
             $recipientItemRules = $rules['recipients.*'];
 
             expect($recipientItemRules)->toContain('required')
-                ->and($recipientItemRules)->toContain('array');
+                ->and($recipientItemRules)->toContain('array')
+            ->and($recipientItemRules)->toContain('min:1');
         });
 
         it('recipients.*.type field is required, string, and has enum validation', function () {
@@ -98,7 +101,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => 'Test message',
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => '+1234567890'],
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
                     ['type' => 'contact', 'value' => 'contact123'],
                 ],
             ];
@@ -113,7 +116,7 @@ describe('NotifyreSMSMessagesRequest', function () {
             $data = [
                 'body' => 'Test message',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => '+1234567890'],
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
                 ],
             ];
 
@@ -127,7 +130,7 @@ describe('NotifyreSMSMessagesRequest', function () {
             $data = [
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => '+1234567890'],
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
                 ],
             ];
 
@@ -143,7 +146,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => '',
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => '+1234567890'],
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
                 ],
             ];
 
@@ -159,7 +162,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => str_repeat('a', 161), // 161 characters
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => '+1234567890'],
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
                 ],
             ];
 
@@ -218,7 +221,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => 'Test message',
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number'],
+                    ['type' => 'virtual_mobile_number'],
                 ],
             ];
 
@@ -234,7 +237,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => 'Test message',
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => ''],
+                    ['type' => 'virtual_mobile_number', 'value' => ''],
                 ],
             ];
 
@@ -250,7 +253,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => 'Test message',
                 'sender' => 'TestApp',
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => str_repeat('a', 256)],
+                    ['type' => 'virtual_mobile_number', 'value' => str_repeat('a', 256)],
                 ],
             ];
 
@@ -266,7 +269,7 @@ describe('NotifyreSMSMessagesRequest', function () {
                 'body' => 'Test message',
                 'sender' => str_repeat('a', 256),
                 'recipients' => [
-                    ['type' => 'mobile_number', 'value' => '+1234567890'],
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
                 ],
             ];
 
@@ -276,11 +279,28 @@ describe('NotifyreSMSMessagesRequest', function () {
             expect($isValid)->toBeFalse()
                 ->and($validator->errors()->has('sender'))->toBeTrue();
         });
+
+        it('fails validation when persist is not a boolean', function () {
+            $data = [
+                'body' => 'Test message',
+                'sender' => 'TestApp',
+                'recipients' => [
+                    ['type' => 'virtual_mobile_number', 'value' => '+1234567890'],
+                ],
+                'persist' => 'not_a_boolean',
+            ];
+
+            $validator = Validator::make($data, $this->request->rules());
+            $isValid = $validator->passes();
+
+            expect($isValid)->toBeFalse()
+                ->and($validator->errors()->has('persist'))->toBeTrue();
+        });
     });
 
     describe('enum validation', function () {
         it('accepts valid recipient types', function () {
-            $validTypes = ['mobile_number', 'contact', 'group'];
+            $validTypes = ['virtual_mobile_number', 'contact', 'group'];
 
             foreach ($validTypes as $type) {
                 $data = [

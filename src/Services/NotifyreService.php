@@ -5,6 +5,7 @@ namespace Arbi\Notifyre\Services;
 use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use InvalidArgumentException;
 
 readonly class NotifyreService implements NotifyreServiceInterface
@@ -18,9 +19,8 @@ readonly class NotifyreService implements NotifyreServiceInterface
      *
      * @throws InvalidArgumentException
      */
-    public function send(RequestBodyDTO $message): void
+    public function send(RequestBodyDTO $message): ?ResponseBodyDTO
     {
-        $driver = $this->driverFactory->create();
-        $driver->send($message);
+        return $this->driverFactory->create()->send($message);
     }
 }

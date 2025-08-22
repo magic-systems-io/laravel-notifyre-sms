@@ -3,9 +3,10 @@
 namespace Arbi\Notifyre\DTO\SMS;
 
 use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
+use Illuminate\Contracts\Support\Arrayable;
 use Symfony\Component\Mime\Exception\InvalidArgumentException;
 
-readonly class Recipient
+readonly class Recipient implements Arrayable
 {
     public function __construct(
         public string $type,
@@ -18,5 +19,13 @@ readonly class Recipient
         if (empty(trim($value))) {
             throw new InvalidArgumentException('Value cannot be empty');
         }
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'type' => $this->type,
+            'value' => $this->value,
+        ];
     }
 }

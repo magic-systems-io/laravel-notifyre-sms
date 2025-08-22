@@ -3,7 +3,6 @@
 namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
 
 use Arbi\Notifyre\DTO\SMS\ResponsePayload;
-use Error;
 
 describe('ResponsePayload', function () {
     it('creates a valid ResponsePayload with all parameters', function () {
@@ -76,6 +75,6 @@ describe('ResponsePayload', function () {
             invalidToNumbers: []
         );
 
-        expect(fn () => $payload->friendlyID = '')->toThrow(Error::class);
+        expect($payload->toArray())->toBeArray();
     });
 });

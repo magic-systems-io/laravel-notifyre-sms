@@ -5,6 +5,7 @@ namespace Arbi\Notifyre\Commands;
 use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use Exception;
 use Illuminate\Console\Command;
 
@@ -38,7 +39,7 @@ class NotifyreSmsSendCommand extends Command
                 body: $message,
                 sender: $sender,
                 recipients: [
-                    new Recipient('mobile_number', $recipient),
+                    new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $recipient),
                 ]
             ));
 

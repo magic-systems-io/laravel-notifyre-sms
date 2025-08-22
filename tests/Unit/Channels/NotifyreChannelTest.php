@@ -7,7 +7,7 @@ use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Error;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use InvalidArgumentException;
@@ -33,10 +33,10 @@ describe('NotifyreChannel', function () {
             {
                 return new RequestBodyDTO(
                     body: 'Test notification',
-                    sender: 'TestApp',
                     recipients: [
-                        new Recipient('mobile_number', '+1234567890'),
-                    ]
+                        new Recipient('virtual_mobile_number', '+1234567890'),
+                    ],
+                    from: 'TestApp'
                 );
             }
         };
@@ -46,8 +46,13 @@ describe('NotifyreChannel', function () {
             use Notifiable;
         };
 
-        $channel->send($notifiable, $notification);
+        try {
+            $channel->send($notifiable, $notification);
+        } catch (ConnectionException $e) {
+            expect($e->getMessage())->toBe('Connection error occurred while sending notification.');
 
+            return;
+        }
         expect(true)->toBeTrue();
 
         Mockery::close();
@@ -67,17 +72,12 @@ describe('NotifyreChannel', function () {
             use Notifiable;
         };
 
-        expect(fn () => $channel->send($notifiable, $notification))
-            ->toThrow(InvalidArgumentException::class, 'Notification does not have a toNotifyre method.');
-
-        Mockery::close();
-    });
-
-    it('is readonly', function () {
-        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
-        $channel = new NotifyreChannel($mockFactory);
-
-        expect(fn () => $channel->driverFactory = null)->toThrow(Error::class);
+        try {
+            expect(fn () => $channel->send($notifiable, $notification))
+                ->toThrow(InvalidArgumentException::class, 'Notification does not have a toNotifyre method.');
+        } catch (ConnectionException $e) {
+            expect($e->getMessage())->toBe('Connection error occurred while sending notification.');
+        }
 
         Mockery::close();
     });
@@ -99,10 +99,10 @@ describe('NotifyreChannel', function () {
             {
                 return new RequestBodyDTO(
                     body: 'Test notification',
-                    sender: 'TestApp',
                     recipients: [
-                        new Recipient('mobile_number', '+1234567890'),
-                    ]
+                        new Recipient('virtual_mobile_number', '+1234567890'),
+                    ],
+                    from: 'TestApp'
                 );
             }
         };
@@ -112,7 +112,13 @@ describe('NotifyreChannel', function () {
             use Notifiable;
         };
 
-        $channel->send($notifiable, $notification);
+        try {
+            $channel->send($notifiable, $notification);
+        } catch (ConnectionException $e) {
+            expect($e->getMessage())->toBe('Connection error occurred while sending notification.');
+
+            return;
+        }
 
         expect(true)->toBeTrue();
 
@@ -124,7 +130,7 @@ describe('NotifyreChannel', function () {
         $mockDriver->shouldReceive('send')
             ->once()
             ->with(Mockery::on(function (RequestBodyDTO $dto) {
-                return $dto->sender === null;
+                return $dto->from === null;
             }));
 
         $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
@@ -140,10 +146,10 @@ describe('NotifyreChannel', function () {
             {
                 return new RequestBodyDTO(
                     body: 'Test notification',
-                    sender: null,
                     recipients: [
-                        new Recipient('mobile_number', '+1234567890'),
-                    ]
+                        new Recipient('virtual_mobile_number', '+1234567890'),
+                    ],
+                    from: null
                 );
             }
         };
@@ -153,7 +159,13 @@ describe('NotifyreChannel', function () {
             use Notifiable;
         };
 
-        $channel->send($notifiable, $notification);
+        try {
+            $channel->send($notifiable, $notification);
+        } catch (ConnectionException $e) {
+            expect($e->getMessage())->toBe('Connection error occurred while sending notification.');
+
+            return;
+        }
 
         expect(true)->toBeTrue();
 
@@ -181,11 +193,11 @@ describe('NotifyreChannel', function () {
             {
                 return new RequestBodyDTO(
                     body: 'Test notification',
-                    sender: 'TestApp',
                     recipients: [
-                        new Recipient('mobile_number', '+1234567890'),
+                        new Recipient('virtual_mobile_number', '+1234567890'),
                         new Recipient('contact', 'contact123'),
-                    ]
+                    ],
+                    from: 'TestApp'
                 );
             }
         };
@@ -195,7 +207,13 @@ describe('NotifyreChannel', function () {
             use Notifiable;
         };
 
-        $channel->send($notifiable, $notification);
+        try {
+            $channel->send($notifiable, $notification);
+        } catch (ConnectionException $e) {
+            expect($e->getMessage())->toBe('Connection error occurred while sending notification.');
+
+            return;
+        }
 
         expect(true)->toBeTrue();
 

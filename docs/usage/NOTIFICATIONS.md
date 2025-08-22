@@ -11,6 +11,7 @@ namespace App\Notifications;
 
 use Arbi\Notifyre\DTO\SMS\Recipient;
 use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
+use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use Illuminate\Notifications\Notification;
 
 class WelcomeNotification extends Notification
@@ -24,8 +25,7 @@ class WelcomeNotification extends Notification
     {
         return new RequestBodyDTO(
             body: 'Welcome to our app!',
-            sender: 'MyApp',
-            recipients: [new Recipient('mobile_number', $notifiable->phone_number)]
+            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)]
         );
     }
 }
@@ -63,8 +63,7 @@ public function toNotifyre(): RequestBodyDTO
 {
     return new RequestBodyDTO(
         body: 'Your message here',
-        sender: 'AppName',
-        recipients: [new Recipient('mobile_number', $notifiable->phone_number)]
+        recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)]
     );
 }
 ```
@@ -90,8 +89,13 @@ class OrderConfirmationNotification extends Notification
     {
         return new RequestBodyDTO(
             body: "Order #{$this->orderNumber} confirmed! Total: \${$this->total}",
-            sender: 'ShopApp',
-            recipients: [new Recipient('mobile_number', $notifiable->phone_number)]
+            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+            metadata: [
+                'order_number' => $this->orderNumber,
+                'total_amount' => (string) $this->total,
+                'notification_type' => 'order_confirmation'
+            ],
+            campaignName: 'Order Confirmations'
         );
     }
 }
@@ -119,8 +123,45 @@ class MeetingReminderNotification extends Notification
     {
         return new RequestBodyDTO(
             body: "Meeting reminder: {$this->meetingTime} at {$this->location}",
-            sender: 'WorkApp',
-            recipients: [new Recipient('mobile_number', $notifiable->phone_number)]
+            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+            metadata: [
+                'meeting_time' => $this->meetingTime,
+                'location' => $this->location,
+                'notification_type' => 'meeting_reminder'
+            ]
+        );
+    }
+}
+```
+
+### Scheduled Birthday Notification
+
+```php
+class BirthdayNotification extends Notification
+{
+    public function __construct(
+        private string $name,
+        private string $birthday
+    ) {}
+
+    public function via(object $notifiable): array
+    {
+        return ['notifyre'];
+    }
+
+    public function toNotifyre(): RequestBodyDTO
+    {
+        return new RequestBodyDTO(
+            body: "Happy Birthday {$this->name}! 🎉",
+            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+            scheduledDate: strtotime($this->birthday . ' 9:00 AM'),
+            addUnsubscribeLink: true,
+            metadata: [
+                'customer_name' => $this->name,
+                'birthday_date' => $this->birthday,
+                'notification_type' => 'birthday'
+            ],
+            campaignName: 'Birthday Campaign'
         );
     }
 }
@@ -147,6 +188,7 @@ class User extends Authenticatable
 - **Testing**: Easy to mock and test
 - **Multiple channels**: Send to SMS, email, database, etc.
 - **Rate limiting**: Built-in Laravel rate limiting
+- **Advanced features**: Scheduling, metadata, callbacks, and campaign tracking
 
 ## Queue Support
 
@@ -166,5 +208,45 @@ class WelcomeNotification extends Notification
     {
         // ... implementation
     }
+}
+```
+
+## Advanced Features
+
+### Using Different Recipient Types
+
+```php
+public function toNotifyre(): RequestBodyDTO
+{
+    return new RequestBodyDTO(
+        body: 'Welcome to our service!',
+        recipients: [
+            // Send to phone number
+            new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number),
+            // Or send to a contact in your Notifyre account
+            new Recipient(NotifyreRecipientTypes::CONTACT->value, 'contact_123'),
+            // Or send to a group
+            new Recipient(NotifyreRecipientTypes::GROUP->value, 'group_456')
+        ]
+    );
+}
+```
+
+### Adding Callbacks and Metadata
+
+```php
+public function toNotifyre(): RequestBodyDTO
+{
+    return new RequestBodyDTO(
+        body: 'Your delivery is on its way!',
+        recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+        callbackUrl: 'https://yourapp.com/sms-delivery-status',
+        metadata: [
+            'customer_id' => $notifiable->id,
+            'delivery_date' => date('Y-m-d'),
+            'notification_type' => 'delivery_update'
+        ],
+        campaignName: 'Delivery Updates'
+    );
 }
 ```

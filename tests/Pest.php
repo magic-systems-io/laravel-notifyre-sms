@@ -9,12 +9,4 @@ expect()->extend('toBeOne', function () {
 });
 
 uses(TestCase::class, RefreshDatabase::class)->in('Feature');
-
-// Only Unit tests that specifically need Laravel
-uses(TestCase::class, RefreshDatabase::class)->in('Unit/Services');
-uses(TestCase::class, RefreshDatabase::class)->in('Unit/Models');
-uses(TestCase::class, RefreshDatabase::class)->in('Unit/Providers/Core');
-uses(TestCase::class, RefreshDatabase::class)->in('Unit/Providers/Features');
-uses(TestCase::class, RefreshDatabase::class)->in('Unit/Providers/Infrastructure/ConfigurationServiceProviderTest.php');
-
-uses(TestCase::class, RefreshDatabase::class)->in('Http');
+uses(TestCase::class, RefreshDatabase::class)->in('Unit');

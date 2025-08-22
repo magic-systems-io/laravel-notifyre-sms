@@ -16,6 +16,11 @@ notifications with minimal setup.
 - ⚡ **Queue Support** - Built-in support for Laravel queues
 - 🧪 **Testing Ready** - Log driver for development and testing
 - ⚙️ **Minimal Setup** - Only 2 environment variables required to get started
+- 📊 **Advanced DTOs** - Rich data transfer objects with Arrayable interface
+- 🕒 **Scheduling Support** - Schedule SMS for future delivery
+- 🔗 **Callback URLs** - Webhook support for delivery status
+- 🏷️ **Metadata Support** - Add custom key-value pairs to messages
+- 📝 **Campaign Tracking** - Optional campaign names for message organization
 
 ## 🚀 Quick Start
 
@@ -38,8 +43,19 @@ NOTIFYRE_API_TOKEN=your_api_token_here
 // Direct SMS (fast)
 notifyre()->send(new RequestBodyDTO(
     body: 'Hello World!',
-    sender: 'MyApp',
-    recipients: [new Recipient('mobile_number', '+1234567890')]
+    recipients: [new Recipient('virtual_mobile_number', '+1234567890')]
+));
+
+// Advanced SMS with metadata and scheduling
+notifyre()->send(new RequestBodyDTO(
+    body: 'Your order has been shipped!',
+    recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
+    from: '+1987654321',
+    scheduledDate: time() + 3600, // Send in 1 hour
+    addUnsubscribeLink: true,
+    callbackUrl: 'https://yourapp.com/sms-callback',
+    metadata: ['order_id' => '12345', 'customer_type' => 'premium'],
+    campaignName: 'Order Shipping Campaign'
 ));
 
 // Laravel notifications (full features)
@@ -75,7 +91,7 @@ php artisan sms:send --message="Hello from Notifyre!"
                        ┌──────────────────┐
                        │ NotifyreChannel  │
                        │ (Notifications)  │
-                       └──────────────────┘
+                       └─────────────────┘
 ```
 
 ## 🔧 Drivers
