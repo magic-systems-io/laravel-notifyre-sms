@@ -42,10 +42,9 @@ jobs:
         php-version: 8.4
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
         tools: composer:v2
-        coverage: xdebug
 
     - name: Install dependencies
-      run: composer install --prefer-stable --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-progress
 
     - name: Copy environment file
       run: cp .env.example .env
@@ -65,47 +64,4 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: vendor/bin/pest --coverage-clover=coverage.xml
-
-    - name: Generate Coverage Badge
-      if: github.ref == 'refs/heads/main'
-      run: |
-        # Extract coverage percentage from XML
-        COVERAGE=$(grep -o 'statements="[0-9]*" coveredstatements="[0-9]*"' coverage.xml | tail -1 | sed 's/.*statements="\([0-9]*\)" coveredstatements="\([0-9]*\)".*/\1 \2/' | awk '{if($1>0) printf "%.1f", ($2/$1)*100; else print "0"}')
-        
-        # Create badges directory
-        mkdir -p badges
-        
-        # Generate badge using shields.io
-        curl -o "badges/coverage.svg" "https://img.shields.io/badge/coverage-${COVERAGE}%25-brightgreen?style=flat-square&logo=php"
-        
-        # Also create a JSON file with the coverage data
-        echo "{\"coverage\": \"${COVERAGE}%\"}" > badges/coverage.json
-        
-        # Update README.md with new coverage percentage
-        sed -i "s/coverage-[0-9.]*%25/coverage-${COVERAGE}%25/g" README.md
-
-    - name: Commit Coverage Badge and Updated README
-      if: github.ref == 'refs/heads/main'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add badges/ README.md
-        git commit -m "Update coverage badge to ${COVERAGE}%" || echo "No changes to commit"
-
-    - name: Push Coverage Badge and Updated README
-      if: github.ref == 'refs/heads/main'
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: main
-        force: false
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-        verbose: true
+      run: vendor/bin/pest

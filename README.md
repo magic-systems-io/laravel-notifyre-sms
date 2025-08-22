@@ -3,8 +3,6 @@
 A clean, Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly or through Laravel
 notifications with minimal setup.
 
-![Test Coverage](https://img.shields.io/badge/coverage-34.9%25-brightgreen?style=flat-square&logo=php)
-
 ## ✨ Features
 
 - 🚀 **Direct SMS Sending** - Fast, simple SMS without notification overhead
