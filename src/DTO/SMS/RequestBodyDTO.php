@@ -1,16 +1,18 @@
 <?php
 
-namespace Arbi\Notifyre\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\DTO\SMS;
 
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 
 readonly class RequestBodyDTO implements Arrayable
 {
+    public ?string $sender;
+
     /**
      * @param string $body The body of the SMS message
      * @param Recipient[] $recipients A collection of recipient objects
-     * @param ?string $from The mobile phone number of who sent the SMS (empty for shared number)
+     * @param ?string $sender The mobile phone number of who sent the SMS (empty for shared number)
      * @param ?int $scheduledDate Unix timestamp for scheduled sending
      * @param bool $addUnsubscribeLink Option to add opt-out link
      * @param ?string $callbackUrl Optional callback URL for SMS completion
@@ -20,13 +22,14 @@ readonly class RequestBodyDTO implements Arrayable
     public function __construct(
         public string $body,
         public array $recipients,
-        public ?string $from = null,
+        ?string $sender = null,
         public ?int $scheduledDate = null,
         public bool $addUnsubscribeLink = false,
         public ?string $callbackUrl = null,
         public array $metadata = [],
         public ?string $campaignName = null,
     ) {
+        $this->sender = $sender;
         if (empty(trim($body))) {
             throw new InvalidArgumentException('Body cannot be empty');
         }
@@ -55,8 +58,8 @@ readonly class RequestBodyDTO implements Arrayable
             'Recipients' => $recipients,
         ];
 
-        if ($this->from !== null && !empty(trim($this->from))) {
-            $data['From'] = $this->from;
+        if ($this->sender !== null && !empty(trim($this->sender))) {
+            $data['From'] = $this->sender;
         }
 
         if (!empty($this->scheduledDate)) {

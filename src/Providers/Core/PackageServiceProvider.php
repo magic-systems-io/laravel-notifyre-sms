@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Core;
+namespace MagicSystemsIO\Notifyre\Providers\Core;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +12,7 @@ use Illuminate\Support\ServiceProvider;
  *
  * 'providers' => [
  *     // ... other providers
- *     Arbi\Notifyre\Providers\Core\PackageServiceProvider::class,
+ *     MagicSystemsIO\Notifyre\Providers\Core\PackageServiceProvider::class,
  * ]
  */
 class PackageServiceProvider extends ServiceProvider

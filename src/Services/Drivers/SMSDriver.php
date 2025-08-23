@@ -1,15 +1,15 @@
 <?php
 
-namespace Arbi\Notifyre\Services\Drivers;
+namespace MagicSystemsIO\Notifyre\Services\Drivers;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\DTO\SMS\InvalidNumber;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponsePayload;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 
 readonly class SMSDriver implements NotifyreDriverInterface
 {

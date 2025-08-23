@@ -1,14 +1,14 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit;
+namespace MagicSystemsIO\Notifyre\Tests\Unit;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Container\Container;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Mockery;
 
 describe('Helper Functions', function () {

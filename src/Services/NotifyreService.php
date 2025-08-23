@@ -1,12 +1,12 @@
 <?php
 
-namespace Arbi\Notifyre\Services;
+namespace MagicSystemsIO\Notifyre\Services;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
 
 readonly class NotifyreService implements NotifyreServiceInterface
 {

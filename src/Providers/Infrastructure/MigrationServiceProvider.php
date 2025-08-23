@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Infrastructure;
+namespace MagicSystemsIO\Notifyre\Providers\Infrastructure;
 
 use Illuminate\Support\ServiceProvider;
 

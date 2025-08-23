@@ -1,12 +1,12 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Services;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Services;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Services\NotifyreService;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Mockery;
 
 describe('NotifyreService', function () {
@@ -26,7 +26,7 @@ describe('NotifyreService', function () {
         $message = new RequestBodyDTO(
             body:       'Test message',
             recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
-            from:       'TestApp'
+            sender:     'TestApp'
         );
 
         $service->send($message);
@@ -54,7 +54,7 @@ describe('NotifyreService', function () {
             recipients: [
                 new Recipient('virtual_mobile_number', '+1234567890'),
             ],
-            from:       'TestApp'
+            sender:     'TestApp'
         );
 
         $service->send($message);

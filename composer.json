@@ -7,7 +7,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Arbi\\Notifyre\\": "src/"
+      "MagicSystemsIO\\Notifyre\\": "src/"
     },
     "files": [
       "src/helpers.php"
@@ -15,7 +15,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Arbi\\Notifyre\\Tests\\": "tests/"
+      "MagicSystemsIO\\Notifyre\\Tests\\": "tests/"
     }
   },
   "config": {
@@ -27,7 +27,7 @@
   "description": "A Notifyre wrapper for laravel",
   "license": "MIT",
   "minimum-stability": "stable",
-  "name": "arbi/notifyre-laravel",
+  "name": "magic-systems-io/notifyre-laravel-sms",
   "require": {
     "php": "^8.4",
     "laravel/framework": "^12.20.0"
@@ -58,5 +58,11 @@
     ]
   },
   "type": "library",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/magicsystems-io/laravel-notifyre-sms"
+    }
+  ]
 }

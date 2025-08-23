@@ -1,14 +1,14 @@
 <?php
 
-namespace Arbi\Notifyre\Http\Services;
+namespace MagicSystemsIO\Notifyre\Http\Services;
 
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
-use Arbi\Notifyre\Models\NotifyreRecipients;
-use Arbi\Notifyre\Models\NotifyreSMSMessages;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
+use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
+use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
 use RuntimeException;
 use Throwable;
 

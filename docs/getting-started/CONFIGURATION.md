@@ -113,7 +113,7 @@ NOTIFYRE_DRIVER=log
 Publish the configuration file:
 
 ```bash
-php artisan vendor:publish --provider="Arbi\Notifyre\Providers\NotifyreServiceProvider"
+php artisan vendor:publish --provider="MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider"
 ```
 
 ## Environment-Specific Configs

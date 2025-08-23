@@ -1,14 +1,14 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Providers;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Providers;
 
-use Arbi\Notifyre\Channels\NotifyreChannel;
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\Providers\Core\NotifyreServiceProvider;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Channels\NotifyreChannel;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\Providers\Core\NotifyreServiceProvider;
 
 describe('NotifyreServiceProvider', function () {
     it('registers NotifyreService in container', function () {

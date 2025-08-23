@@ -1,12 +1,12 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Models\JunctionTables;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Models\JunctionTables;
 
-use Arbi\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
-use Arbi\Notifyre\Models\NotifyreRecipients;
-use Arbi\Notifyre\Models\NotifyreSMSMessages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
+use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
+use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
 
 describe('NotifyreSMSMessageRecipient', function () {
     it('has correct table name', function () {

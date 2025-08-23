@@ -1,13 +1,13 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Services;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Services;
 
-use Arbi\Notifyre\Enums\NotifyreDriver;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\Services\Drivers\LogDriver;
-use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
+use MagicSystemsIO\Notifyre\Services\DriverFactory;
+use MagicSystemsIO\Notifyre\Services\Drivers\LogDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
 
 describe('DriverFactory', function () {
     beforeEach(function () {

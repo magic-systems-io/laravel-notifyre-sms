@@ -1,11 +1,11 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\DTO\SMS;
 
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 describe('RequestBodyDTO', function () {
     it('creates a valid request body DTO', function () {
@@ -28,7 +28,7 @@ describe('RequestBodyDTO', function () {
 
         expect($requestBody->body)->toBe('Test message')
             ->and($requestBody->recipients)->toBe($recipients)
-            ->and($requestBody->from)->toBe('+1987654321');
+            ->and($requestBody->sender)->toBe('+1987654321');
     });
 
     it('creates a valid request body DTO with all optional parameters', function () {
@@ -50,7 +50,7 @@ describe('RequestBodyDTO', function () {
 
         expect($requestBody->body)->toBe('Test message')
             ->and($requestBody->recipients)->toBe($recipients)
-            ->and($requestBody->from)->toBe('+1987654321')
+            ->and($requestBody->sender)->toBe('+1987654321')
             ->and($requestBody->scheduledDate)->toBe(1234567890)
             ->and($requestBody->addUnsubscribeLink)->toBe(true)
             ->and($requestBody->callbackUrl)->toBe('https://example.com/callback')

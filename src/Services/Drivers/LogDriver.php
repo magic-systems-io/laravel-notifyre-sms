@@ -1,12 +1,12 @@
 <?php
 
-namespace Arbi\Notifyre\Services\Drivers;
+namespace MagicSystemsIO\Notifyre\Services\Drivers;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use Illuminate\Support\Facades\Log;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
 
 readonly class LogDriver implements NotifyreDriverInterface
 {
@@ -14,7 +14,7 @@ readonly class LogDriver implements NotifyreDriverInterface
     {
         Log::info('SMS would be sent via Notifyre', [
             'body' => $requestBody->body,
-            'sender' => $requestBody->from ?: '(auto-assigned by token)',
+            'sender' => $requestBody->sender ?: '(auto-assigned by token)',
             'recipients' => array_map(function (Recipient $recipient) {
                 return [
                     'type' => $recipient->type,

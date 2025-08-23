@@ -1,11 +1,11 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Features;
+namespace MagicSystemsIO\Notifyre\Providers\Features;
 
-use Arbi\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
-use Arbi\Notifyre\Models\NotifyreRecipients;
-use Arbi\Notifyre\Models\NotifyreSMSMessages;
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
+use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
+use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
 
 class ModelServiceProvider extends ServiceProvider
 {

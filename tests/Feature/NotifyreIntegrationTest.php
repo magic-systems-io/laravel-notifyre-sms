@@ -1,18 +1,18 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Feature;
+namespace MagicSystemsIO\Notifyre\Tests\Feature;
 
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Enums\NotifyreDriver;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\Services\Drivers\LogDriver;
-use Arbi\Notifyre\Services\Drivers\SMSDriver;
-use Arbi\Notifyre\Services\NotifyreService;
 use Exception;
 use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
+use MagicSystemsIO\Notifyre\Services\DriverFactory;
+use MagicSystemsIO\Notifyre\Services\Drivers\LogDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 describe('Notifyre Integration', function () {
     beforeEach(function () {
@@ -32,8 +32,8 @@ describe('Notifyre Integration', function () {
         $service = new NotifyreService(new DriverFactory());
 
         $message = new RequestBodyDTO(
-            body: 'Integration test message',
-            from: 'TestApp',
+            body:       'Integration test message',
+            sender:     'TestApp',
             recipients: [
                 new Recipient('virtual_mobile_number', '+1234567890'),
             ]

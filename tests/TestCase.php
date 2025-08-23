@@ -1,8 +1,7 @@
 <?php
 
-namespace Arbi\Notifyre\Tests;
+namespace MagicSystemsIO\Notifyre\Tests;
 
-use Arbi\Notifyre\Providers\Core\NotifyreServiceProvider;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -16,6 +15,7 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
+use MagicSystemsIO\Notifyre\Providers\Core\NotifyreServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {

@@ -1,18 +1,18 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Services\Drivers;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Services\Drivers;
 
-use Arbi\Notifyre\DTO\SMS\InvalidNumber;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponsePayload;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
-use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
+use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
 
 describe('SMSDriver', function () {
     beforeEach(function () {

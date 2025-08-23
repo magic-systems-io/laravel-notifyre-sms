@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Http\Controllers;
+namespace MagicSystemsIO\Notifyre\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

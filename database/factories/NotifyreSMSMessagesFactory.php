@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use Arbi\Notifyre\Models\NotifyreSMSMessages;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
 
 class NotifyreSMSMessagesFactory extends Factory
 {

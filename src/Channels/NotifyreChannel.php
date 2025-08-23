@@ -1,11 +1,11 @@
 <?php
 
-namespace Arbi\Notifyre\Channels;
+namespace MagicSystemsIO\Notifyre\Channels;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notification;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
 
 readonly class NotifyreChannel
 {

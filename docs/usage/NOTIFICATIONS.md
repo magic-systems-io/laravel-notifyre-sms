@@ -9,9 +9,9 @@ Send SMS through Laravel's notification system for queuing, events, and more fea
 
 namespace App\Notifications;
 
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use Illuminate\Notifications\Notification;
 
 class WelcomeNotification extends Notification

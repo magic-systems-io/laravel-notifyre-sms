@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Tests;
+namespace MagicSystemsIO\Notifyre\Tests;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

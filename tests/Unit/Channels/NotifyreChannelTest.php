@@ -1,16 +1,16 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Channels;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Channels;
 
-use Arbi\Notifyre\Channels\NotifyreChannel;
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Channels\NotifyreChannel;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
 use Mockery;
 
 describe('NotifyreChannel', function () {
@@ -32,11 +32,11 @@ describe('NotifyreChannel', function () {
             public function toNotifyre(): RequestBodyDTO
             {
                 return new RequestBodyDTO(
-                    body: 'Test notification',
+                    body:       'Test notification',
                     recipients: [
                         new Recipient('virtual_mobile_number', '+1234567890'),
                     ],
-                    from: 'TestApp'
+                    sender:     'TestApp'
                 );
             }
         };
@@ -98,11 +98,11 @@ describe('NotifyreChannel', function () {
             public function toNotifyre(): RequestBodyDTO
             {
                 return new RequestBodyDTO(
-                    body: 'Test notification',
+                    body:       'Test notification',
                     recipients: [
                         new Recipient('virtual_mobile_number', '+1234567890'),
                     ],
-                    from: 'TestApp'
+                    sender:     'TestApp'
                 );
             }
         };
@@ -130,7 +130,7 @@ describe('NotifyreChannel', function () {
         $mockDriver->shouldReceive('send')
             ->once()
             ->with(Mockery::on(function (RequestBodyDTO $dto) {
-                return $dto->from === null;
+                return $dto->sender === null;
             }));
 
         $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
@@ -145,11 +145,11 @@ describe('NotifyreChannel', function () {
             public function toNotifyre(): RequestBodyDTO
             {
                 return new RequestBodyDTO(
-                    body: 'Test notification',
+                    body:       'Test notification',
                     recipients: [
                         new Recipient('virtual_mobile_number', '+1234567890'),
                     ],
-                    from: null
+                    sender:     null
                 );
             }
         };
@@ -192,12 +192,12 @@ describe('NotifyreChannel', function () {
             public function toNotifyre(): RequestBodyDTO
             {
                 return new RequestBodyDTO(
-                    body: 'Test notification',
+                    body:       'Test notification',
                     recipients: [
                         new Recipient('virtual_mobile_number', '+1234567890'),
                         new Recipient('contact', 'contact123'),
                     ],
-                    from: 'TestApp'
+                    sender:     'TestApp'
                 );
             }
         };

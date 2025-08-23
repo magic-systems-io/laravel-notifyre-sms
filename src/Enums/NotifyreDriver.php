@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Enums;
+namespace MagicSystemsIO\Notifyre\Enums;
 
 enum NotifyreDriver: string
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Contracts;
+namespace MagicSystemsIO\Notifyre\Contracts;
 
 interface NotifyreDriverFactoryInterface
 {

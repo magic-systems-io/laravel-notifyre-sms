@@ -1,7 +1,7 @@
 <?php
 
-use Arbi\Notifyre\Http\Controllers\NotifyreSMSController;
 use Illuminate\Support\Facades\Route;
+use MagicSystemsIO\Notifyre\Http\Controllers\NotifyreSMSController;
 
 if (!config('notifyre.api.enabled', false)) {
     return;

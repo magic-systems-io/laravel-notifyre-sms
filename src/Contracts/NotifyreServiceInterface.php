@@ -1,10 +1,10 @@
 <?php
 
-namespace Arbi\Notifyre\Contracts;
+namespace MagicSystemsIO\Notifyre\Contracts;
 
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
 
 interface NotifyreServiceInterface
 {

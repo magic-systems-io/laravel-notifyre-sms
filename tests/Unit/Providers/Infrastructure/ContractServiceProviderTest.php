@@ -1,15 +1,15 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Providers\Infrastructure;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Providers\Infrastructure;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\Providers\Infrastructure\ContractServiceProvider;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\Services\NotifyreService;
 use Exception;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\Providers\Infrastructure\ContractServiceProvider;
+use MagicSystemsIO\Notifyre\Services\DriverFactory;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Mockery;
 
 describe('ContractServiceProvider', function () {

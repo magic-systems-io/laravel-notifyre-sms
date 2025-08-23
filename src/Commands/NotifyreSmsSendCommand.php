@@ -1,13 +1,13 @@
 <?php
 
-namespace Arbi\Notifyre\Commands;
+namespace MagicSystemsIO\Notifyre\Commands;
 
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use Exception;
 use Illuminate\Console\Command;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 class NotifyreSmsSendCommand extends Command
 {
@@ -36,11 +36,11 @@ class NotifyreSmsSendCommand extends Command
             $this->info('Sending SMS...');
 
             $this->notifyreService->send(new RequestBodyDTO(
-                body: $message,
-                sender: $sender,
-                recipients: [
+                body:                                $message,
+                recipients:                          [
                     new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $recipient),
-                ]
+                ],
+                sender: $sender
             ));
 
             $this->info('SMS sent successfully!');

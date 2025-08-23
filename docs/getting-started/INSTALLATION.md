@@ -65,9 +65,9 @@ Messages are sent through the Notifyre API and return real response data.
 Check that the package is working:
 
 ```php
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 // In tinker or a test
 $response = notifyre()->send(new RequestBodyDTO(

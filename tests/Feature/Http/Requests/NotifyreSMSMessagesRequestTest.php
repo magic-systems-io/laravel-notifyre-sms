@@ -1,10 +1,10 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Feature\Http\Requests;
+namespace MagicSystemsIO\Notifyre\Tests\Feature\Http\Requests;
 
-use Arbi\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
+use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
 
 describe('NotifyreSMSMessagesRequest', function () {
     beforeEach(function () {

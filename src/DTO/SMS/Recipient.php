@@ -1,9 +1,9 @@
 <?php
 
-namespace Arbi\Notifyre\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\DTO\SMS;
 
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use Illuminate\Contracts\Support\Arrayable;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use Symfony\Component\Mime\Exception\InvalidArgumentException;
 
 readonly class Recipient implements Arrayable

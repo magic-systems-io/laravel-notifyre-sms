@@ -5,9 +5,9 @@ Send SMS messages immediately using the `notifyre()` helper function with rich D
 ## Quick Example
 
 ```php
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 notifyre()->send(new RequestBodyDTO(
     body: 'Hello World!',

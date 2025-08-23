@@ -1,8 +1,8 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Enums;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Enums;
 
-use Arbi\Notifyre\Enums\NotifyreDriver;
+use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
 
 describe('NotifyreDriver', function () {
     it('has correct SMS driver value', function () {

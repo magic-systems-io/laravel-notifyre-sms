@@ -1,9 +1,9 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\DTO\SMS;
 
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponsePayload;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 
 describe('ResponseBodyDTO', function () {
     it('creates a valid ResponseBodyDTO with all parameters', function () {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Arbi\Notifyre\Http\Requests;
+namespace MagicSystemsIO\Notifyre\Http\Requests;
 
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 class NotifyreSMSMessagesRequest extends FormRequest
 {

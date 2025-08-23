@@ -1,12 +1,12 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Features;
+namespace MagicSystemsIO\Notifyre\Providers\Features;
 
-use Arbi\Notifyre\Commands\NotifyreSmsSendCommand;
-use Arbi\Notifyre\Commands\PublishNotifyreAllCommand;
-use Arbi\Notifyre\Commands\PublishNotifyreConfigCommand;
-use Arbi\Notifyre\Commands\PublishNotifyreEnvCommand;
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Commands\NotifyreSmsSendCommand;
+use MagicSystemsIO\Notifyre\Commands\PublishNotifyreAllCommand;
+use MagicSystemsIO\Notifyre\Commands\PublishNotifyreConfigCommand;
+use MagicSystemsIO\Notifyre\Commands\PublishNotifyreEnvCommand;
 
 class CommandServiceProvider extends ServiceProvider
 {

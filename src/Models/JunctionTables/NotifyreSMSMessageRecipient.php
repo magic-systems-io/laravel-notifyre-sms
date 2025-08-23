@@ -1,11 +1,11 @@
 <?php
 
-namespace Arbi\Notifyre\Models\JunctionTables;
+namespace MagicSystemsIO\Notifyre\Models\JunctionTables;
 
-use Arbi\Notifyre\Models\NotifyreRecipients;
-use Arbi\Notifyre\Models\NotifyreSMSMessages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
+use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
 
 class NotifyreSMSMessageRecipient extends Model
 {

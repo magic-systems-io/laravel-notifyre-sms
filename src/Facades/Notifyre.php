@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Facades;
+namespace MagicSystemsIO\Notifyre\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

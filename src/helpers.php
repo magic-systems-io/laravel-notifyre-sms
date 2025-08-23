@@ -1,7 +1,7 @@
 <?php
 
 
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
 
 if (!function_exists('notifyre')) {
     function notifyre(): NotifyreServiceInterface

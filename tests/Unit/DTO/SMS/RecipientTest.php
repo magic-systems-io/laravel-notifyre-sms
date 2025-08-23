@@ -1,10 +1,10 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\DTO\SMS;
 
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\Enums\NotifyreRecipientTypes;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 describe('Recipient', function () {
     it('creates a valid recipient with virtual_mobile_number type', function () {

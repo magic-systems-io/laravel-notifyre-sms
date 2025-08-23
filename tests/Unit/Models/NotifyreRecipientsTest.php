@@ -1,11 +1,11 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\Models;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\Models;
 
-use Arbi\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
-use Arbi\Notifyre\Models\NotifyreRecipients;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
+use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
 
 describe('NotifyreRecipients', function () {
     it('has correct fillable attributes', function () {

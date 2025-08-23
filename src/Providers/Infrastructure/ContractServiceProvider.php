@@ -1,12 +1,12 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Infrastructure;
+namespace MagicSystemsIO\Notifyre\Providers\Infrastructure;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\Services\DriverFactory;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 class ContractServiceProvider extends ServiceProvider
 {

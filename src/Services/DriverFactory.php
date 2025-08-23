@@ -1,13 +1,13 @@
 <?php
 
-namespace Arbi\Notifyre\Services;
+namespace MagicSystemsIO\Notifyre\Services;
 
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreDriverInterface;
-use Arbi\Notifyre\Enums\NotifyreDriver;
-use Arbi\Notifyre\Services\Drivers\LogDriver;
-use Arbi\Notifyre\Services\Drivers\SMSDriver;
 use InvalidArgumentException;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\LogDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
 
 readonly class DriverFactory implements NotifyreDriverFactoryInterface
 {

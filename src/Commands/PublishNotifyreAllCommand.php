@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Commands;
+namespace MagicSystemsIO\Notifyre\Commands;
 
 use Illuminate\Console\Command;
 

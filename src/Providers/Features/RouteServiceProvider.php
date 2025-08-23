@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Features;
+namespace MagicSystemsIO\Notifyre\Providers\Features;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;

@@ -1,26 +1,26 @@
 <?php
 
-namespace Arbi\Notifyre\Providers\Core;
+namespace MagicSystemsIO\Notifyre\Providers\Core;
 
-use Arbi\Notifyre\Channels\NotifyreChannel;
-use Arbi\Notifyre\Commands\NotifyreSmsSendCommand;
-use Arbi\Notifyre\Commands\PublishNotifyreAllCommand;
-use Arbi\Notifyre\Commands\PublishNotifyreConfigCommand;
-use Arbi\Notifyre\Commands\PublishNotifyreEnvCommand;
-use Arbi\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\Providers\Features\CommandServiceProvider;
-use Arbi\Notifyre\Providers\Features\ModelServiceProvider;
-use Arbi\Notifyre\Providers\Features\RouteServiceProvider;
-use Arbi\Notifyre\Providers\Infrastructure\ConfigurationServiceProvider;
-use Arbi\Notifyre\Providers\Infrastructure\ContractServiceProvider;
-use Arbi\Notifyre\Providers\Infrastructure\FacadeServiceProvider;
-use Arbi\Notifyre\Providers\Infrastructure\MigrationServiceProvider;
-use Arbi\Notifyre\Services\DriverFactory;
-use Arbi\Notifyre\Services\NotifyreService;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Channels\NotifyreChannel;
+use MagicSystemsIO\Notifyre\Commands\NotifyreSmsSendCommand;
+use MagicSystemsIO\Notifyre\Commands\PublishNotifyreAllCommand;
+use MagicSystemsIO\Notifyre\Commands\PublishNotifyreConfigCommand;
+use MagicSystemsIO\Notifyre\Commands\PublishNotifyreEnvCommand;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\Providers\Features\CommandServiceProvider;
+use MagicSystemsIO\Notifyre\Providers\Features\ModelServiceProvider;
+use MagicSystemsIO\Notifyre\Providers\Features\RouteServiceProvider;
+use MagicSystemsIO\Notifyre\Providers\Infrastructure\ConfigurationServiceProvider;
+use MagicSystemsIO\Notifyre\Providers\Infrastructure\ContractServiceProvider;
+use MagicSystemsIO\Notifyre\Providers\Infrastructure\FacadeServiceProvider;
+use MagicSystemsIO\Notifyre\Providers\Infrastructure\MigrationServiceProvider;
+use MagicSystemsIO\Notifyre\Services\DriverFactory;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 class NotifyreServiceProvider extends ServiceProvider
 {

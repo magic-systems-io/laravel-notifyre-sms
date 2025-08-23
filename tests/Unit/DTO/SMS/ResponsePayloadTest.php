@@ -1,8 +1,8 @@
 <?php
 
-namespace Arbi\Notifyre\Tests\Unit\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\Tests\Unit\DTO\SMS;
 
-use Arbi\Notifyre\DTO\SMS\ResponsePayload;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 
 describe('ResponsePayload', function () {
     it('creates a valid ResponsePayload with all parameters', function () {

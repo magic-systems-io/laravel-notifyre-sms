@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbi\Notifyre\DTO\SMS;
+namespace MagicSystemsIO\Notifyre\DTO\SMS;
 
 use Illuminate\Contracts\Support\Arrayable;
 

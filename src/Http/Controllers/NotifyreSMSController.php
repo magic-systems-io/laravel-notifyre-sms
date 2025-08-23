@@ -1,16 +1,16 @@
 <?php
 
-namespace Arbi\Notifyre\Http\Controllers;
+namespace MagicSystemsIO\Notifyre\Http\Controllers;
 
-use Arbi\Notifyre\Contracts\NotifyreServiceInterface;
-use Arbi\Notifyre\DTO\SMS\Recipient;
-use Arbi\Notifyre\DTO\SMS\RequestBodyDTO;
-use Arbi\Notifyre\DTO\SMS\ResponseBodyDTO;
-use Arbi\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
-use Arbi\Notifyre\Http\Services\NotifyreSMSMessageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
+use MagicSystemsIO\Notifyre\Http\Services\NotifyreSMSMessageService;
 use Psr\SimpleCache\InvalidArgumentException;
 use RuntimeException;
 use Throwable;
