@@ -32,7 +32,7 @@ This package provides **two ways to send SMS**:
 
 ```bash
 # Install
-composer require arbi/notifyre-laravel
+composer require magicsystems-io/notifyre-laravel
 
 # Configure (minimal)
 NOTIFYRE_DRIVER=log

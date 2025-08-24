@@ -25,7 +25,7 @@ notifications with minimal setup.
 ### Installation
 
 ```bash
-composer require arbi/notifyre-laravel
+composer require magicsystems-io/notifyre-laravel
 ```
 
 ### Minimal Setup (2 environment variables)
