@@ -2,25 +2,39 @@
 
 namespace MagicSystemsIO\Notifyre\Services;
 
+use Illuminate\Http\Client\ConnectionException;
 use InvalidArgumentException;
-use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
-use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\LogDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
 
-readonly class NotifyreService implements NotifyreServiceInterface
+readonly class NotifyreService
 {
-    public function __construct(private NotifyreDriverFactoryInterface $driverFactory)
-    {
-    }
-
     /**
      * Send SMS directly using the service
      *
      * @throws InvalidArgumentException
+     * @throws ConnectionException
      */
     public function send(RequestBodyDTO $message): ?ResponseBodyDTO
     {
-        return $this->driverFactory->create()->send($message);
+        return $this->create()->send($message);
+    }
+
+    private function create(): LogDriver|SMSDriver
+    {
+        $driver = config('services.notifyre.driver') ?? config('notifyre.driver');
+
+        if (empty(trim($driver ?? ''))) {
+            throw new InvalidArgumentException("Invalid Notifyre driver '$driver'. Supported drivers are: " . implode(', ', NotifyreDriver::values()));
+        }
+
+        return match ($driver) {
+            NotifyreDriver::LOG->value => new LogDriver(),
+            NotifyreDriver::SMS->value => new SMSDriver(),
+            default => throw new InvalidArgumentException("Invalid Notifyre driver '$driver'. Supported drivers are: " . implode(', ', NotifyreDriver::values())),
+        };
     }
 }

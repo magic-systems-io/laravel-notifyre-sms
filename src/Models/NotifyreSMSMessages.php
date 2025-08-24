@@ -14,6 +14,7 @@ class NotifyreSMSMessages extends Model
     protected $table = 'notifyre_sms_messages';
 
     protected $fillable = [
+        'messageId',
         'sender',
         'body',
     ];

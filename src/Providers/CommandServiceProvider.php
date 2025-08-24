@@ -1,6 +1,6 @@
 <?php
 
-namespace MagicSystemsIO\Notifyre\Providers\Features;
+namespace MagicSystemsIO\Notifyre\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use MagicSystemsIO\Notifyre\Commands\NotifyreSmsSendCommand;
@@ -14,10 +14,10 @@ class CommandServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                NotifyreSmsSendCommand::class,
                 PublishNotifyreAllCommand::class,
                 PublishNotifyreConfigCommand::class,
                 PublishNotifyreEnvCommand::class,
-                NotifyreSmsSendCommand::class,
             ]);
         }
     }

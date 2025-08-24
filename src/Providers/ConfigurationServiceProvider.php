@@ -1,12 +1,12 @@
 <?php
 
-namespace MagicSystemsIO\Notifyre\Providers\Infrastructure;
+namespace MagicSystemsIO\Notifyre\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
 class ConfigurationServiceProvider extends ServiceProvider
 {
-    private const string CONFIG_PATH = __DIR__ . '/../../../config/notifyre.php';
+    public const string CONFIG_PATH = __DIR__ . '/../../config/notifyre.php';
 
     public const string CONFIG_KEY = 'notifyre';
 
@@ -17,7 +17,7 @@ class ConfigurationServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (method_exists($this, 'publishes') && function_exists('config_path')) {
+        if ($this->app->runningInConsole()) {
             $this->publishes([
                 self::CONFIG_PATH => config_path('notifyre.php'),
             ], 'notifyre-config');

@@ -5,12 +5,12 @@ namespace MagicSystemsIO\Notifyre\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
 use MagicSystemsIO\Notifyre\Http\Services\NotifyreSMSMessageService;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Psr\SimpleCache\InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -18,8 +18,8 @@ use Throwable;
 class NotifyreSMSController extends Controller
 {
     public function __construct(
+        protected NotifyreService $service,
         protected NotifyreSMSMessageService $notifyreSMSMessageService,
-        protected NotifyreServiceInterface $notifyreService
     ) {
     }
 
@@ -34,7 +34,7 @@ class NotifyreSMSController extends Controller
     {
         try {
             $messageData = $this->buildMessageData($request);
-            $response = $this->notifyreService->send($messageData);
+            $response = $this->service->send($messageData);
 
             if (empty($response) || !$response->success) {
                 return response()->json(['message' => 'Failed to send SMS'], 422);
@@ -43,9 +43,9 @@ class NotifyreSMSController extends Controller
             if (!empty($failedRecipients = $response->payload->invalidToNumbers)) {
                 $successfulRecipients = $this->filterSuccessfulRecipients($messageData->recipients, $failedRecipients);
                 $messageData = new RequestBodyDTO(
-                    body: $messageData->body,
-                    sender: $messageData->sender,
-                    recipients: $successfulRecipients
+                    body:       $messageData->body,
+                    recipients: $successfulRecipients,
+                    sender:     $messageData->sender
                 );
             }
 
@@ -79,8 +79,8 @@ class NotifyreSMSController extends Controller
 
         return new RequestBodyDTO(
             body:       $request->validated('body'),
-            sender:     $request->validated('sender'),
             recipients: $recipients,
+            sender:     $request->validated('sender'),
         );
     }
 

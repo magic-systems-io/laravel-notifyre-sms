@@ -5,21 +5,21 @@ namespace MagicSystemsIO\Notifyre\Services\Drivers;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
-use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 
-readonly class SMSDriver implements NotifyreDriverInterface
+readonly class SMSDriver implements NotifyreManager
 {
     /**
-     * @param RequestBodyDTO $requestBody
+     * @param RequestBodyDTO $request
      *
      * @throws ConnectionException
      * @return ?ResponseBodyDTO
      */
-    public function send(RequestBodyDTO $requestBody): ?ResponseBodyDTO
+    public function send(RequestBodyDTO $request): ?ResponseBodyDTO
     {
         $url = $this->getApiUrl();
         $apiKey = $this->getApiKey();
@@ -33,7 +33,7 @@ readonly class SMSDriver implements NotifyreDriverInterface
                 'x-api-token' => $apiKey,
                 'Content-Type' => 'application/json',
             ])
-            ->post($url, $requestBody->toArray());
+            ->post($url, $request->toArray());
 
         return $this->parseResponse($response->json(), $response->status());
     }

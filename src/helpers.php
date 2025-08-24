@@ -1,11 +1,12 @@
 <?php
 
 
-use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 if (!function_exists('notifyre')) {
-    function notifyre(): NotifyreServiceInterface
+    function notifyre(): NotifyreService
     {
-        return app('notifyre');
+        return app(NotifyreManager::class);
     }
 }

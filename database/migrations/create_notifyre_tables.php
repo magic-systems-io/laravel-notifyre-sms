@@ -18,14 +18,14 @@ return new class () extends Migration
         });
 
         Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
-            $table->foreignId('notifyre_sms_message_id')->constrained('notifyre_sms_messages')->cascadeOnDelete();
-            $table->foreignId('notifyre_recipient_id')->constrained('notifyre_recipients')->cascadeOnDelete();
+            $table->foreignId('sms_message_id')->constrained('notifyre_sms_messages')->cascadeOnDelete();
+            $table->foreignId('recipient_id')->constrained('notifyre_recipients')->cascadeOnDelete();
         });
 
         Schema::create('notifyre_recipients', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->enum('type', NotifyreRecipientTypes::values())->default(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER);
+            $table->string('type', 255)->default(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value);
             $table->string('value', 255);
 
             $table->unique(['type', 'value']);
@@ -34,6 +34,8 @@ return new class () extends Migration
 
     public function down(): void
     {
+        Schema::dropIfExists('notifyre_recipients');
+        Schema::dropIfExists('notifyre_sms_message_recipients');
         Schema::dropIfExists('notifyre_sms_messages');
     }
 };

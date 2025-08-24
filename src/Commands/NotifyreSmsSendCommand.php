@@ -4,10 +4,10 @@ namespace MagicSystemsIO\Notifyre\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 class NotifyreSmsSendCommand extends Command
 {
@@ -19,7 +19,7 @@ class NotifyreSmsSendCommand extends Command
     public $description = 'Send an SMS to a specified phone number using Notifyre';
 
     public function __construct(
-        private readonly NotifyreServiceInterface $notifyreService
+        protected NotifyreService $service
     ) {
         parent::__construct();
     }
@@ -35,9 +35,9 @@ class NotifyreSmsSendCommand extends Command
         try {
             $this->info('Sending SMS...');
 
-            $this->notifyreService->send(new RequestBodyDTO(
-                body:                                $message,
-                recipients:                          [
+            $this->service->send(new RequestBodyDTO(
+                body: $message,
+                recipients: [
                     new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $recipient),
                 ],
                 sender: $sender

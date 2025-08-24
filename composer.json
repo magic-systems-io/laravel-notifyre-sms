@@ -1,10 +1,39 @@
 {
+  "name": "magic-systems-io/notifyre-laravel-sms",
+  "description": "A Notifyre wrapper for laravel",
+  "version": "0.0.0",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "notifyre",
+    "sms"
+  ],
+  "homepage": "https://github.com/magicsystems-io/laravel-notifyre-sms",
+  "support": {
+    "issues": "https://github.com/magicsystems-io/laravel-notifyre-sms/issues",
+    "source": "https://github.com/magicsystems-io/laravel-notifyre-sms"
+  },
+  "readme": "README.md",
   "authors": [
     {
       "name": "Arbi Kullakshi",
       "email": "arbikullakshi0@gmail.com"
+    },
+    {
+      "name": "Magic Systems IO",
+      "email": "support@hirealoo.com",
+      "homepage": "https://hirealoo.au"
     }
   ],
+  "require": {
+    "php": "^8.4",
+    "laravel/framework": "^12.20.0"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.24.0",
+    "mockery/mockery": "^1.6",
+    "pestphp/pest": "^3.8"
+  },
   "autoload": {
     "psr-4": {
       "MagicSystemsIO\\Notifyre\\": "src/"
@@ -18,25 +47,27 @@
       "MagicSystemsIO\\Notifyre\\Tests\\": "tests/"
     }
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "MagicSystemsIO\\Notifyre\\Providers\\NotifyreServiceProvider"
+      ],
+      "config": {
+        "abac": "config/notifyre.php"
+      },
+      "aliases": {
+        "Abac": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
+      }
+    }
+  },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
       "pestphp/pest-plugin": true
     }
   },
-  "description": "A Notifyre wrapper for laravel",
-  "license": "MIT",
   "minimum-stability": "stable",
-  "name": "magic-systems-io/notifyre-laravel-sms",
-  "require": {
-    "php": "^8.4",
-    "laravel/framework": "^12.20.0"
-  },
-  "require-dev": {
-    "laravel/pint": "^1.24.0",
-    "mockery/mockery": "^1.6",
-    "pestphp/pest": "^3.8"
-  },
+  "prefer-stabe": true,
   "scripts": {
     "version-patch": [
       "php -f scripts/version.php patch"
@@ -52,13 +83,8 @@
     ],
     "test": [
       "vendor/bin/pest"
-    ],
-    "coverage": [
-      "vendor/bin/pest --coverage-html=coverage --coverage-clover=coverage.xml"
     ]
   },
-  "type": "library",
-  "version": "0.0.0",
   "repositories": [
     {
       "type": "github",

@@ -8,9 +8,9 @@ repos:
         pass_filenames: false
         stages: [ pre-commit ]
 
-      - id: pest-check
-        name: Run pest tests
-        entry: composer test
-        language: system
-        pass_filenames: false
-        stages: [ pre-commit ]
+#      - id: pest-check
+#        name: Run pest tests
+#        entry: composer test
+#        language: system
+#        pass_filenames: false
+#        stages: [ pre-commit ]

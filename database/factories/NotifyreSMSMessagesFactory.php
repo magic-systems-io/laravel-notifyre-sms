@@ -13,7 +13,10 @@ class NotifyreSMSMessagesFactory extends Factory
     public function definition(): array
     {
         return [
-            'created_at' => Carbon::now(), //
+            'messageId' => $this->faker->uuid,
+            'sender' => $this->faker->name,
+            'body' => $this->faker->text,
+            'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
     }
