@@ -1,0 +1,85 @@
+<?php
+
+namespace MagicSystemsIO\Notifyre\Tests\Unit;
+
+use Illuminate\Container\Container;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverFactoryInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreDriverInterface;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreServiceInterface;
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\Services\NotifyreService;
+use Mockery;
+
+describe('Helper Functions', function () {
+    beforeEach(function () {
+        $app = new Container();
+
+        $mockFactory = Mockery::mock(NotifyreDriverFactoryInterface::class);
+
+        $mockDriver = Mockery::mock(NotifyreDriverInterface::class);
+        $mockDriver->shouldReceive('send')->andReturn(null);
+
+        $mockFactory->shouldReceive('create')->andReturn($mockDriver);
+
+        $app->singleton('notifyre', function () use ($mockFactory) {
+            return new NotifyreService($mockFactory);
+        });
+
+        Container::setInstance($app);
+    });
+
+    afterEach(function () {
+        Container::setInstance();
+        Mockery::close();
+    });
+    it('notifyre function returns NotifyreService instance', function () {
+        $service = notifyre();
+
+        expect($service)->toBeInstanceOf(NotifyreServiceInterface::class);
+    });
+
+    it('notifyre function returns same instance on multiple calls', function () {
+        $first = notifyre();
+        $second = notifyre();
+
+        expect($first)->toBe($second);
+    });
+
+    it('notifyre function resolves from container', function () {
+        $service = notifyre();
+
+        expect($service)->toBe(app('notifyre'));
+    });
+
+    it('notifyre function can call service methods', function () {
+        $mockService = Mockery::mock(NotifyreServiceInterface::class);
+        $mockService->shouldReceive('send')->once();
+
+        $app = Container::getInstance();
+        $app->instance('notifyre', $mockService);
+
+        $recipient = new Recipient('virtual_mobile_number', '+1234567890');
+        $requestBody = new RequestBodyDTO('Test message', [$recipient], 'TestSender');
+
+        notifyre()->send($requestBody);
+
+        expect(true)->toBeTrue();
+
+        Mockery::close();
+    });
+
+    it('notifyre function exists', function () {
+        expect(function_exists('notifyre'))->toBeTrue();
+    });
+
+    it('notifyre function is callable', function () {
+        expect(is_callable('notifyre'))->toBeTrue();
+    });
+
+    it('notifyre function returns correct type', function () {
+        $service = notifyre();
+
+        expect($service)->toBeInstanceOf(NotifyreServiceInterface::class);
+    });
+});

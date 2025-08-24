@@ -1,0 +1,68 @@
+{
+  "authors": [
+    {
+      "name": "Arbi Kullakshi",
+      "email": "arbikullakshi0@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MagicSystemsIO\\Notifyre\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MagicSystemsIO\\Notifyre\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "description": "A Notifyre wrapper for laravel",
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "name": "magic-systems-io/notifyre-laravel-sms",
+  "require": {
+    "php": "^8.4",
+    "laravel/framework": "^12.20.0"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.24.0",
+    "mockery/mockery": "^1.6",
+    "pestphp/pest": "^3.8"
+  },
+  "scripts": {
+    "version-patch": [
+      "php -f scripts/version.php patch"
+    ],
+    "version-minor": [
+      "php -f scripts/version.php minor"
+    ],
+    "version-major": [
+      "php -f scripts/version.php major"
+    ],
+    "pint": [
+      "vendor/bin/pint"
+    ],
+    "test": [
+      "vendor/bin/pest"
+    ],
+    "coverage": [
+      "vendor/bin/pest --coverage-html=coverage --coverage-clover=coverage.xml"
+    ]
+  },
+  "type": "library",
+  "version": "0.0.0",
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/magicsystems-io/laravel-notifyre-sms"
+    }
+  ]
+}
