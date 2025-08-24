@@ -5,7 +5,7 @@ Get the Notifyre Laravel package up and running in your application.
 ## Step 1: Install via Composer
 
 ```bash
-composer require arbi/notifyre-laravel
+composer require magicsystems-io/notifyre-laravel
 ```
 
 ## Step 2: Configure Environment Variables
