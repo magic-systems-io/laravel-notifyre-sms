@@ -14,6 +14,7 @@ class NotifyreServiceProvider extends ServiceProvider
         $this->app->register(ServicesServiceProvider::class);
         $this->app->register(MigrationServiceProvider::class);
         $this->app->register(CommandServiceProvider::class);
+        $this->app->register(RouteServiceProvider::class);
 
         $this->app->bind(NotifyreManager::class, function ($app) {
             return $app->make(NotifyreService::class);
