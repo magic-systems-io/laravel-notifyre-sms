@@ -8,10 +8,10 @@
     "notifyre",
     "sms"
   ],
-  "homepage": "https://github.com/magicsystems-io/laravel-notifyre-sms",
+  "homepage": "https://github.com/magic-systems-io/laravel-notifyre-sms",
   "support": {
-    "issues": "https://github.com/magicsystems-io/laravel-notifyre-sms/issues",
-    "source": "https://github.com/magicsystems-io/laravel-notifyre-sms"
+    "issues": "https://github.com/magic-systems-io/laravel-notifyre-sms/issues",
+    "source": "https://github.com/magic-systems-io/laravel-notifyre-sms"
   },
   "readme": "README.md",
   "authors": [
@@ -90,7 +90,7 @@
   "repositories": [
     {
       "type": "github",
-      "url": "https://github.com/magicsystems-io/laravel-notifyre-sms"
+      "url": "https://github.com/magic-systems-io/laravel-notifyre-sms"
     }
   ]
 }

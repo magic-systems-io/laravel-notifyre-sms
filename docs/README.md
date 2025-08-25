@@ -34,7 +34,7 @@ This package provides **three ways to send SMS**:
 
 ```bash
 # Install
-composer require magicsystems-io/notifyre-laravel
+composer require magic-systems-io/notifyre-laravel
 
 # Configure (basic setup)
 NOTIFYRE_DRIVER=log
@@ -71,12 +71,14 @@ notifyre()->send(new RequestBodyDTO(
 ## 🏗️ Package Features
 
 ### Core Functionality
+
 - **SMS Sending** - Direct SMS via helper function
 - **Notification Channel** - Laravel notification integration
 - **CLI Commands** - Artisan commands for SMS operations
 - **Driver System** - Pluggable SMS and logging drivers
 
 ### Advanced Features
+
 - **Database Models** - Store and retrieve SMS messages
 - **HTTP Controllers** - REST API endpoints
 - **Request Validation** - Comprehensive input validation
@@ -86,6 +88,7 @@ notifyre()->send(new RequestBodyDTO(
 - **Caching** - Response caching for performance
 
 ### Configuration Options
+
 - **Driver Selection** - Choose between SMS and log drivers
 - **API Settings** - Base URL, timeout, retry logic
 - **Database Options** - Enable/disable persistence
@@ -114,10 +117,12 @@ docs/
 ## 🔧 Environment Variables
 
 ### Required
+
 - `NOTIFYRE_DRIVER` - Driver type (sms/log)
 - `NOTIFYRE_API_KEY` - Your Notifyre API key
 
 ### Optional
+
 - `NOTIFYRE_SMS_SENDER` - Default sender number
 - `NOTIFYRE_SMS_RECIPIENT` - Default recipient number
 - `NOTIFYRE_DEFAULT_NUMBER_PREFIX` - Country code prefix
@@ -127,6 +132,7 @@ docs/
 - `NOTIFYRE_RETRY_SLEEP` - Retry delay
 
 ### API Configuration
+
 - `NOTIFYRE_API_ENABLED` - Enable/disable API
 - `NOTIFYRE_API_PREFIX` - API route prefix
 - `NOTIFYRE_RATE_LIMIT_ENABLED` - Enable rate limiting

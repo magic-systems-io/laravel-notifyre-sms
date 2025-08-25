@@ -1,6 +1,7 @@
 # Notifyre Laravel Package
 
-A comprehensive Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly, through Laravel notifications, or via REST API with database persistence and advanced features.
+A comprehensive Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly, through
+Laravel notifications, or via REST API with database persistence and advanced features.
 
 ## ✨ Features
 
@@ -25,7 +26,7 @@ A comprehensive Laravel-native SMS package that integrates with Notifyre's SMS s
 ### Installation
 
 ```bash
-composer require magicsystems-io/notifyre-laravel
+composer require magic-systems-io/notifyre-laravel
 ```
 
 ### Basic Setup

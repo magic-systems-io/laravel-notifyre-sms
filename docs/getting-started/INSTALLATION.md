@@ -5,7 +5,7 @@ Get the Notifyre Laravel package up and running in your application.
 ## Step 1: Install via Composer
 
 ```bash
-composer require magicsystems-io/notifyre-laravel
+composer require magic-systems-io/notifyre-laravel
 ```
 
 ## Step 2: Configure Environment Variables
@@ -58,7 +58,8 @@ php artisan sms:send --message="Hello from Notifyre!"
 NOTIFYRE_DRIVER=log
 ```
 
-Messages are logged to `storage/logs/laravel.log` instead of being sent. The log driver returns `null` for testing purposes.
+Messages are logged to `storage/logs/laravel.log` instead of being sent. The log driver returns `null` for testing
+purposes.
 
 ### Production
 
