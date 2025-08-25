@@ -5,7 +5,7 @@ namespace MagicSystemsIO\Notifyre\Http\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
 use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
 use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
@@ -26,13 +26,13 @@ class NotifyreSMSMessageService
     /**
      * Create a new SMS message with recipients
      *
-     * @param RequestBodyDTO $data
+     * @param RequestBody $data
      *
+     *@throws RuntimeException
      * @throws Throwable
-     * @throws RuntimeException
      * @return array
      */
-    public function createMessage(RequestBodyDTO $data): array
+    public function createMessage(RequestBody $data): array
     {
         return DB::transaction(function () use ($data) {
             $message = $this->createSMSMessage($data);
@@ -46,9 +46,10 @@ class NotifyreSMSMessageService
     /**
      * Create the main SMS message
      */
-    private function createSMSMessage(RequestBodyDTO $data): NotifyreSMSMessages
+    private function createSMSMessage(RequestBody $data): NotifyreSMSMessages
     {
         $message = NotifyreSMSMessages::create([
+            'messageId' => uniqid('msg_', true),
             'sender' => $data->sender,
             'body' => $data->body,
         ]);
@@ -101,8 +102,8 @@ class NotifyreSMSMessageService
     {
         $messageRecipientData = $recipients->map(function (NotifyreRecipients $recipient) use ($message) {
             return [
-                'notifyre_sms_message_id' => $message->id,
-                'notifyre_recipient_id' => $recipient->id,
+                'sms_message_id' => $message->id,
+                'recipient_id' => $recipient->id,
             ];
         })->toArray();
 

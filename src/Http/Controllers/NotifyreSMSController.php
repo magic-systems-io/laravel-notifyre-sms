@@ -6,8 +6,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
 use MagicSystemsIO\Notifyre\Http\Services\NotifyreSMSMessageService;
 use MagicSystemsIO\Notifyre\Services\NotifyreService;
@@ -42,7 +42,7 @@ class NotifyreSMSController extends Controller
 
             if (!empty($failedRecipients = $response->payload->invalidToNumbers)) {
                 $successfulRecipients = $this->filterSuccessfulRecipients($messageData->recipients, $failedRecipients);
-                $messageData = new RequestBodyDTO(
+                $messageData = new RequestBody(
                     body:       $messageData->body,
                     recipients: $successfulRecipients,
                     sender:     $messageData->sender
@@ -68,7 +68,7 @@ class NotifyreSMSController extends Controller
         }
     }
 
-    private function buildMessageData(NotifyreSMSMessagesRequest $request): RequestBodyDTO
+    private function buildMessageData(NotifyreSMSMessagesRequest $request): RequestBody
     {
         $recipients = array_map(fn ($recipient) => new Recipient(
             type:  $recipient['type'],
@@ -77,7 +77,7 @@ class NotifyreSMSController extends Controller
             'recipients'
         ));
 
-        return new RequestBodyDTO(
+        return new RequestBody(
             body:       $request->validated('body'),
             recipients: $recipients,
             sender:     $request->validated('sender'),
@@ -100,7 +100,7 @@ class NotifyreSMSController extends Controller
     /**
      * @throws InvalidArgumentException
      */
-    private function cache(ResponseBodyDTO $responseBodyDTO): void
+    private function cache(ResponseBody $responseBodyDTO): void
     {
         if (!class_exists(Cache::class) || !Cache::getStore()) {
             return;

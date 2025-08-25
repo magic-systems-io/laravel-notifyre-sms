@@ -1,7 +1,6 @@
 # Notifyre Laravel Package
 
-A clean, Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly or through Laravel
-notifications with minimal setup.
+A comprehensive Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly, through Laravel notifications, or via REST API with database persistence and advanced features.
 
 ## ✨ Features
 
@@ -9,16 +8,17 @@ notifications with minimal setup.
 - 🔔 **Laravel Notifications** - Full notification system with queuing and events
 - 🔧 **Multiple Drivers** - SMS driver for production, log driver for testing
 - 🏗️ **Clean Architecture** - Driver-based design with separation of concerns
-- 🛡️ **Error Handling** - Comprehensive exception handling and retry logic
+- 🛡️ **Error Handling** - Comprehensive exception handling and validation
 - 📱 **CLI Support** - Send SMS directly from Artisan commands
-- ⚡ **Queue Support** - Built-in support for Laravel queues
+- 🌐 **REST API** - Full HTTP API with rate limiting and authentication
+- 💾 **Database Persistence** - Store SMS messages and recipients in database
+- ⚡ **Caching Support** - Built-in caching for API responses
 - 🧪 **Testing Ready** - Log driver for development and testing
-- ⚙️ **Minimal Setup** - Only 2 environment variables required to get started
+- ⚙️ **Flexible Configuration** - Extensive configuration options
 - 📊 **Advanced DTOs** - Rich data transfer objects with Arrayable interface
-- 🕒 **Scheduling Support** - Schedule SMS for future delivery
-- 🔗 **Callback URLs** - Webhook support for delivery status
-- 🏷️ **Metadata Support** - Add custom key-value pairs to messages
-- 📝 **Campaign Tracking** - Optional campaign names for message organization
+- 🔗 **Webhook Support** - Handle delivery status callbacks
+- 🏷️ **Recipient Types** - Support for virtual mobile numbers, contacts, and groups
+- 📝 **Message Tracking** - Track SMS messages with unique IDs
 
 ## 🚀 Quick Start
 
@@ -28,11 +28,13 @@ notifications with minimal setup.
 composer require magicsystems-io/notifyre-laravel
 ```
 
-### Minimal Setup (2 environment variables)
+### Basic Setup
 
 ```env
 NOTIFYRE_DRIVER=log
-NOTIFYRE_API_TOKEN=your_api_token_here
+NOTIFYRE_API_KEY=your_api_key_here
+NOTIFYRE_SMS_SENDER=+1234567890
+NOTIFYRE_SMS_RECIPIENT=+0987654321
 ```
 
 ### Basic Usage
@@ -44,16 +46,11 @@ notifyre()->send(new RequestBodyDTO(
     recipients: [new Recipient('virtual_mobile_number', '+1234567890')]
 ));
 
-// Advanced SMS with metadata and scheduling
+// With sender
 notifyre()->send(new RequestBodyDTO(
     body: 'Your order has been shipped!',
     recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
-    from: '+1987654321',
-    scheduledDate: time() + 3600, // Send in 1 hour
-    addUnsubscribeLink: true,
-    callbackUrl: 'https://yourapp.com/sms-callback',
-    metadata: ['order_id' => '12345', 'customer_type' => 'premium'],
-    campaignName: 'Order Shipping Campaign'
+    sender: '+1987654321'
 ));
 
 // Laravel notifications (full features)
@@ -76,6 +73,7 @@ php artisan sms:send --message="Hello from Notifyre!"
 - **[Direct SMS](./docs/usage/DIRECT_SMS.md)** - Send SMS immediately using the helper function
 - **[Notifications](./docs/usage/NOTIFICATIONS.md)** - Send SMS through Laravel notifications
 - **[Commands](./docs/usage/COMMANDS.md)** - Send SMS from the command line
+- **[API Usage](./docs/usage/API.md)** - Use the REST API endpoints
 
 ## 🏗️ Architecture
 
@@ -89,13 +87,33 @@ php artisan sms:send --message="Hello from Notifyre!"
                        ┌──────────────────┐
                        │ NotifyreChannel  │
                        │ (Notifications)  │
-                       └─────────────────┘
+                       └──────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │ HTTP Controllers │
+                       │ (REST API)       │
+                       └──────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │ Database Models  │
+                       │ (Persistence)    │
+                       └──────────────────┘
 ```
 
 ## 🔧 Drivers
 
 - **`sms`** - Sends real SMS via Notifyre API
 - **`log`** - Logs SMS to Laravel logs (for testing)
+
+## 🌐 API Endpoints
+
+The package provides REST API endpoints for SMS operations:
+
+- `POST /api/notifyre/sms` - Send SMS messages
+- `GET /api/notifyre/sms` - List SMS messages
+- `GET /api/notifyre/sms/{id}` - Get specific SMS message
 
 ## 📋 Requirements
 

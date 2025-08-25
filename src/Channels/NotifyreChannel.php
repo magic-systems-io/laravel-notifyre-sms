@@ -5,7 +5,7 @@ namespace MagicSystemsIO\Notifyre\Channels;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notification;
 use InvalidArgumentException;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 readonly class NotifyreChannel
@@ -30,7 +30,7 @@ readonly class NotifyreChannel
         }
 
         $request = $notification->toNotifyre();
-        if (!$request instanceof RequestBodyDTO) {
+        if (!$request instanceof RequestBody) {
             throw new InvalidArgumentException('Method `toNotifyre` must return RequestBodyDTO object.');
         }
 

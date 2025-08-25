@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories\junction;
+namespace MagicSystemsIO\Notifyre\Database\Factories\Junction;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;

@@ -7,19 +7,19 @@ use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 
 readonly class SMSDriver implements NotifyreManager
 {
     /**
-     * @param RequestBodyDTO $request
+     * @param RequestBody $request
      *
-     * @throws ConnectionException
-     * @return ?ResponseBodyDTO
+     *@throws ConnectionException
+     * @return ?ResponseBody
      */
-    public function send(RequestBodyDTO $request): ?ResponseBodyDTO
+    public function send(RequestBody $request): ?ResponseBody
     {
         $url = $this->getApiUrl();
         $apiKey = $this->getApiKey();
@@ -64,7 +64,7 @@ readonly class SMSDriver implements NotifyreManager
         return $apiKey;
     }
 
-    private function parseResponse(array $responseData, int $statusCode): ResponseBodyDTO
+    private function parseResponse(array $responseData, int $statusCode): ResponseBody
     {
         if (isset($responseData['Payload']['InvalidToNumbers']) && is_array($responseData['Payload']['InvalidToNumbers'])) {
             $invalidToNumbers = array_map(fn ($invalidNumber) => new InvalidNumber(
@@ -79,7 +79,7 @@ readonly class SMSDriver implements NotifyreManager
             invalidToNumbers: $invalidToNumbers ?? [],
         );
 
-        return new ResponseBodyDTO(
+        return new ResponseBody(
             success: $responseData['Success'] ?? false,
             statusCode: $responseData['StatusCode'] ?? $statusCode,
             message: $responseData['Message'] ?? '',

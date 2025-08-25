@@ -32,11 +32,13 @@
   "require-dev": {
     "laravel/pint": "^1.24.0",
     "mockery/mockery": "^1.6",
+    "orchestra/testbench": "^10.6",
     "pestphp/pest": "^3.8"
   },
   "autoload": {
     "psr-4": {
-      "MagicSystemsIO\\Notifyre\\": "src/"
+      "MagicSystemsIO\\Notifyre\\": "src/",
+      "MagicSystemsIO\\Notifyre\\Database\\Factories\\": "database/factories/"
     },
     "files": [
       "src/helpers.php"

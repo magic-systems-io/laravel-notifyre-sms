@@ -1,6 +1,6 @@
 # Drivers
 
-Drivers determine how SMS messages are processed - either sent to the Notifyre API or logged for testing. All drivers now return response data for better tracking and error handling.
+Drivers determine how SMS messages are processed - either sent to the Notifyre API or logged for testing. Each driver has different behavior and return values.
 
 ## Available Drivers
 
@@ -15,11 +15,11 @@ NOTIFYRE_API_KEY=your_api_key_here
 
 **Use for:** Production environments where you want to send actual SMS messages and track delivery status.
 
-**Returns:** `ResponseBodyDTO` with real API response data including message IDs, status codes, and error details.
+**Returns:** `ResponseBody` with real API response data including message IDs, status codes, and error details.
 
 ### Log Driver (`log`)
 
-Logs SMS messages to Laravel logs instead of sending them and returns mock response data.
+Logs SMS messages to Laravel logs instead of sending them.
 
 ```env
 NOTIFYRE_DRIVER=log
@@ -27,23 +27,31 @@ NOTIFYRE_DRIVER=log
 
 **Use for:** Development, testing, and staging environments.
 
-**Returns:** `ResponseBodyDTO` with mock response data for testing response handling logic.
+**Returns:** `null` (messages are logged to Laravel logs for debugging).
 
 ## How Drivers Work
 
 1. **Driver Selection**: Set `NOTIFYRE_DRIVER` in your `.env` file
-2. **Driver Creation**: The `DriverFactory` creates the appropriate driver
+2. **Driver Creation**: The `NotifyreService` creates the appropriate driver
 3. **Message Processing**: Your SMS message is sent to the selected driver
-4. **Response**: Driver returns `ResponseBodyDTO` with success/failure details
+4. **Response**: Driver returns response data or null based on implementation
 
-## Driver Factory
+## Driver Creation
 
 The package automatically selects the right driver based on your configuration:
 
 ```php
 // In NotifyreService
-$driver = $this->driverFactory->create();
-$response = $driver->send($message); // Now returns ResponseBodyDTO
+private function create(): LogDriver|SMSDriver
+{
+    $driver = config('services.notifyre.driver') ?? config('notifyre.driver');
+    
+    return match ($driver) {
+        NotifyreDriver::LOG->value => new LogDriver(),
+        NotifyreDriver::SMS->value => new SMSDriver(),
+        default => throw new InvalidArgumentException("Invalid driver: {$driver}")
+    };
+}
 ```
 
 ## Configuration
@@ -109,7 +117,7 @@ NOTIFYRE_DRIVER=log
 2. Sends HTTP request to Notifyre API
 3. Handles response and errors
 4. Retries on failure (if configured)
-5. **Returns `ResponseBodyDTO`** with real API response data
+5. **Returns `ResponseBody`** with real API response data
 
 ### Log Driver
 
@@ -117,7 +125,7 @@ NOTIFYRE_DRIVER=log
 2. Logs to `storage/logs/laravel.log`
 3. Includes sender, recipient, and message body
 4. No external API calls
-5. **Returns `ResponseBodyDTO`** with mock response data for testing
+5. **Returns `null`** (no response data)
 
 ## Response Handling
 
@@ -141,10 +149,11 @@ if ($response && $response->success) {
 ```php
 $response = notifyre()->send($message);
 
-// Always returns mock success response for testing
-if ($response && $response->success) {
-    echo "Message logged successfully (mock response)";
-    echo "Mock ID: " . $response->payload->smsMessageID;
+// Always returns null, check logs for message details
+if ($response === null) {
+    echo "Message logged successfully (check Laravel logs)";
+} else {
+    echo "Unexpected response from log driver";
 }
 ```
 
@@ -156,9 +165,9 @@ if ($response && $response->success) {
 // In your test
 Config::set('notifyre.driver', 'log');
 
-// SMS will be logged, not sent, but returns mock response
+// SMS will be logged, not sent, returns null
 $response = notifyre()->send($message);
-$this->assertTrue($response->success);
+$this->assertNull($response);
 ```
 
 ### Manual Testing
@@ -173,30 +182,47 @@ tail -f storage/logs/laravel.log
 
 ## Driver Implementation
 
-Drivers implement the `NotifyreDriverInterface`:
+Drivers follow a consistent pattern but have different return values:
 
 ```php
-interface NotifyreDriverInterface
+class SMSDriver
 {
-    public function send(RequestBodyDTO $message): ?ResponseBodyDTO;
+    public function send(RequestBody $message): ?ResponseBody
+    {
+        // Send via Notifyre API
+        // Return ResponseBody with real data
+    }
+}
+
+class LogDriver
+{
+    public function send(RequestBody $message): ?ResponseBody
+    {
+        // Log to Laravel logs
+        Log::info('SMS Message', [
+            'body' => $message->body,
+            'recipients' => $message->recipients,
+            'sender' => $message->sender,
+        ]);
+        
+        return null; // No response data
+    }
 }
 ```
 
-This ensures all drivers work the same way regardless of implementation and return consistent response data.
-
 ## Custom Drivers
 
-When creating custom drivers, ensure they return `ResponseBodyDTO`:
+When creating custom drivers, you can choose the return type based on your needs:
 
 ```php
-class CustomDriver implements NotifyreDriverInterface
+class CustomDriver
 {
-    public function send(RequestBodyDTO $message): ?ResponseBodyDTO
+    public function send(RequestBody $message): ?ResponseBody
     {
         // Your custom SMS logic
         
-        // Return response data
-        return new ResponseBodyDTO(
+        // Option 1: Return response data
+        return new ResponseBody(
             success: true,
             statusCode: 200,
             message: 'Message sent via custom driver',
@@ -207,6 +233,56 @@ class CustomDriver implements NotifyreDriverInterface
             ),
             errors: []
         );
+        
+        // Option 2: Return null (like log driver)
+        // return null;
     }
 }
 ```
+
+## Driver Priority
+
+The package checks configuration in this order:
+
+1. `config('services.notifyre.driver')` - Laravel services config
+2. `config('notifyre.driver')` - Package config
+3. Falls back to default value
+
+This follows Laravel conventions and allows for flexible configuration.
+
+## Error Handling
+
+### SMS Driver Errors
+
+- **Connection Errors**: Network issues, timeouts
+- **API Errors**: Invalid API key, rate limiting
+- **Validation Errors**: Invalid phone numbers, empty messages
+- **Response Errors**: API returns error status
+
+### Log Driver Errors
+
+- **Validation Errors**: Invalid input data
+- **Logging Errors**: File system issues (rare)
+
+## Performance Considerations
+
+### SMS Driver
+
+- **Network Latency**: Depends on Notifyre API response time
+- **Rate Limiting**: Respects API limits
+- **Retry Logic**: Configurable retry attempts
+- **Caching**: Optional response caching
+
+### Log Driver
+
+- **Fast**: No network calls
+- **Lightweight**: Simple file logging
+- **No Limits**: Can handle high message volumes
+- **Debugging**: Full message details in logs
+
+## Next Steps
+
+- [Learn about the architecture](./ARCHITECTURE.md)
+- [See usage examples](./../usage/DIRECT_SMS.md)
+- [Configure the package](./../getting-started/CONFIGURATION.md)
+- [Explore API usage](./../usage/API.md)

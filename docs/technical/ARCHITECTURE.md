@@ -4,7 +4,7 @@ How the Notifyre package is structured and designed.
 
 ## Overview
 
-The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application, with rich DTOs that implement Laravel's Arrayable interface.
+The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application, with rich DTOs that implement Laravel's Arrayable interface, database persistence, and REST API endpoints.
 
 ## Core Components
 
@@ -19,6 +19,18 @@ The package follows a **driver-based architecture** that separates SMS sending l
                        │ NotifyreChannel  │
                        │ (Notifications)  │
                        └──────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │ HTTP Controllers │
+                       │ (REST API)       │
+                       └──────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │ Database Models  │
+                       │ (Persistence)    │
+                       └──────────────────┘
 ```
 
 ## Key Classes
@@ -28,11 +40,11 @@ The package follows a **driver-based architecture** that separates SMS sending l
 The main service for direct SMS sending:
 
 ```php
-class NotifyreService implements NotifyreServiceInterface
+class NotifyreService
 {
-    public function send(RequestBodyDTO $message): ?ResponseBodyDTO
+    public function send(RequestBody $message): ?ResponseBody
     {
-        return $this->driverFactory->create()->send($message);
+        return $this->create()->send($message);
     }
 }
 ```
@@ -48,18 +60,15 @@ class NotifyreService implements NotifyreServiceInterface
 Creates the appropriate driver based on configuration:
 
 ```php
-class DriverFactory implements NotifyreDriverFactoryInterface
+private function create(): LogDriver|SMSDriver
 {
-    public function create(): NotifyreDriverInterface
-    {
-        $driver = config('notifyre.driver');
-        
-        return match($driver) {
-            'sms' => new SMSDriver(),
-            'log' => new LogDriver(),
-            default => throw new InvalidArgumentException("Unknown driver: {$driver}")
-        };
-    }
+    $driver = config('services.notifyre.driver') ?? config('notifyre.driver');
+    
+    return match ($driver) {
+        NotifyreDriver::LOG->value => new LogDriver(),
+        NotifyreDriver::SMS->value => new SMSDriver(),
+        default => throw new InvalidArgumentException("Invalid driver: {$driver}")
+    };
 }
 ```
 
@@ -70,17 +79,30 @@ class DriverFactory implements NotifyreDriverFactoryInterface
 
 ### Drivers
 
-Implement the `NotifyreDriverInterface`:
+Implement the driver pattern:
 
 ```php
-interface NotifyreDriverInterface
+// Both drivers implement similar interfaces
+class SMSDriver
 {
-    public function send(RequestBodyDTO $message): ?ResponseBodyDTO;
+    public function send(RequestBody $message): ?ResponseBody
+    {
+        // Send via Notifyre API
+    }
+}
+
+class LogDriver
+{
+    public function send(RequestBody $message): ?ResponseBody
+    {
+        // Log to Laravel logs
+        return null;
+    }
 }
 ```
 
 - **SMSDriver**: Sends real SMS via Notifyre API and returns response data
-- **LogDriver**: Logs SMS to Laravel logs and returns mock response data
+- **LogDriver**: Logs SMS to Laravel logs and returns null
 
 ### NotifyreChannel
 
@@ -91,31 +113,77 @@ class NotifyreChannel
 {
     public function send(object $notifiable, Notification $notification): void
     {
-        $this->driverFactory->create()->send($notification->toNotifyre());
+        $request = $notification->toNotifyre();
+        $this->service->send($request);
+    }
+}
+```
+
+### HTTP Controllers
+
+Provide REST API endpoints:
+
+```php
+class NotifyreSMSController extends Controller
+{
+    public function store(NotifyreSMSMessagesRequest $request): JsonResponse
+    {
+        // Send SMS and optionally persist to database
+    }
+    
+    public function index(Request $request): JsonResponse
+    {
+        // List SMS messages with pagination
+    }
+    
+    public function show(int $sms): JsonResponse
+    {
+        // Get specific SMS message
+    }
+}
+```
+
+### Database Models
+
+Store SMS messages and recipients:
+
+```php
+class NotifyreSMSMessages extends Model
+{
+    protected $fillable = [
+        'messageId',
+        'sender',
+        'body',
+    ];
+    
+    public function messageRecipients(): HasMany
+    {
+        return $this->hasMany(NotifyreSMSMessageRecipient::class, 'sms_message_id');
     }
 }
 ```
 
 ## DTO Architecture
 
-### RequestBodyDTO
+### RequestBody
 
 Rich data transfer object for SMS requests:
 
 ```php
-readonly class RequestBodyDTO implements Arrayable
+readonly class RequestBody implements Arrayable
 {
     public function __construct(
         public string $body,
         public array $recipients,
-        public ?string $from = null,
-        public ?int $scheduledDate = null,
-        public bool $addUnsubscribeLink = false,
-        public ?string $callbackUrl = null,
-        public array $metadata = [],
-        public ?string $campaignName = null,
+        public ?string $sender = null,
     ) {
-        // Comprehensive validation
+        // Validation
+        if (empty(trim($body))) {
+            throw new InvalidArgumentException('Body cannot be empty');
+        }
+        if (empty($recipients)) {
+            throw new InvalidArgumentException('Recipients cannot be empty');
+        }
     }
     
     public function toArray(): array
@@ -128,15 +196,14 @@ readonly class RequestBodyDTO implements Arrayable
 **Features:**
 - **Arrayable Interface**: Easy conversion to arrays and JSON
 - **Comprehensive Validation**: Built-in input validation
-- **Flexible Parameters**: Support for scheduling, callbacks, metadata
 - **Type Safety**: Readonly properties with proper typing
 
-### ResponseBodyDTO
+### ResponseBody
 
 Structured response data:
 
 ```php
-readonly class ResponseBodyDTO implements Arrayable
+readonly class ResponseBody implements Arrayable
 {
     public function __construct(
         public bool $success,
@@ -163,7 +230,14 @@ readonly class Recipient implements Arrayable
     public function __construct(
         public string $type,
         public string $value,
-    ) {}
+    ) {
+        if (!in_array($type, NotifyreRecipientTypes::values())) {
+            throw new InvalidArgumentException("Invalid type '$type'");
+        }
+        if (empty(trim($value))) {
+            throw new InvalidArgumentException('Value cannot be empty');
+        }
+    }
     
     public function toArray(): array
     {
@@ -184,7 +258,7 @@ readonly class Recipient implements Arrayable
 1. `notifyre()->send($message)` calls `NotifyreService::send()`
 2. Service gets driver from `DriverFactory`
 3. Driver processes the message (API call or logging)
-4. **Response data is returned to caller** (new behavior)
+4. Response data is returned to caller
 5. Caller can handle success/failure and access message details
 
 ### Notifications
@@ -195,13 +269,22 @@ readonly class Recipient implements Arrayable
 4. Message is sent through the appropriate driver
 5. Response data is available for error handling
 
+### REST API
+
+1. HTTP request comes to `NotifyreSMSController`
+2. Request is validated using `NotifyreSMSMessagesRequest`
+3. Message is sent via `NotifyreService`
+4. Optionally persisted to database if enabled
+5. Response is cached if caching is enabled
+6. JSON response returned to client
+
 ## Design Patterns
 
 ### Strategy Pattern
 
 Drivers implement different strategies for SMS processing:
 - **SMS Strategy**: Send via API and return real response
-- **Log Strategy**: Log to files and return mock response
+- **Log Strategy**: Log to files and return null
 
 ### Factory Pattern
 
@@ -210,6 +293,10 @@ Drivers implement different strategies for SMS processing:
 ### Facade Pattern
 
 `Notifyre` facade provides easy access to the service.
+
+### Repository Pattern
+
+Database operations are handled through service classes.
 
 ### Dependency Injection
 
@@ -223,15 +310,15 @@ Rich DTOs with validation and Arrayable interface for easy data manipulation.
 
 ### Custom Drivers
 
-Create your own driver by implementing `NotifyreDriverInterface`:
+Create your own driver by implementing the driver pattern:
 
 ```php
-class CustomDriver implements NotifyreDriverInterface
+class CustomDriver
 {
-    public function send(RequestBodyDTO $message): ?ResponseBodyDTO
+    public function send(RequestBody $message): ?ResponseBody
     {
         // Your custom SMS logic
-        return new ResponseBodyDTO(/* ... */);
+        return new ResponseBody(/* ... */);
     }
 }
 ```
@@ -243,7 +330,7 @@ Extend `NotifyreService` for additional functionality:
 ```php
 class CustomNotifyreService extends NotifyreService
 {
-    public function sendWithRetry(RequestBodyDTO $message, int $retries): ?ResponseBodyDTO
+    public function sendWithRetry(RequestBody $message, int $retries): ?ResponseBody
     {
         // Custom retry logic
     }
@@ -255,17 +342,17 @@ class CustomNotifyreService extends NotifyreService
 The package registers itself through:
 
 - **`NotifyreServiceProvider`**: Main service provider
-- **`PackageServiceProvider`**: Package-level configuration
-- **`ContractServiceProvider`**: Interface bindings
-- **`FacadeServiceProvider`**: Facade registration
+- **`ConfigurationServiceProvider`**: Configuration management
+- **`MigrationServiceProvider`**: Database migrations
+- **`ServicesServiceProvider`**: Service bindings
+- **`CommandServiceProvider`**: Artisan commands
 
 ## Contracts
 
 Key interfaces that define the package's API:
 
-- `NotifyreServiceInterface`: Main service contract
-- `NotifyreDriverInterface`: Driver contract with response return
-- `NotifyreDriverFactoryInterface`: Factory contract
+- `NotifyreManager`: Main service contract
+- Driver contracts for SMS and logging operations
 
 ## Benefits
 
@@ -277,6 +364,9 @@ Key interfaces that define the package's API:
 - **Rich DTOs**: Comprehensive data objects with validation
 - **Response Handling**: Full response data for tracking and debugging
 - **Arrayable Interface**: Easy data manipulation and serialization
+- **Database Persistence**: Store SMS messages and recipients
+- **REST API**: Full HTTP API with rate limiting and caching
+- **Rate Limiting**: Built-in protection against abuse
 
 ## Performance Considerations
 
@@ -292,6 +382,10 @@ Drivers are created only when needed.
 
 Optional response caching for API calls.
 
+### Database Optimization
+
+Efficient database queries with proper relationships.
+
 ## Testing Architecture
 
 ### Mocking Strategy
@@ -300,7 +394,7 @@ The package is designed for easy testing:
 
 ```php
 // Mock the service
-$mockService = Mockery::mock(NotifyreServiceInterface::class);
+$mockService = Mockery::mock(NotifyreService::class);
 $mockService->shouldReceive('send')->once()->andReturn($mockResponse);
 
 // Bind mock to container
@@ -309,10 +403,10 @@ $this->app->instance('notifyre', $mockService);
 
 ### Test Drivers
 
-The log driver provides cost-free testing with mock responses:
+The log driver provides cost-free testing:
 
 ```php
-NOTIFYRE_DRIVER=log  // No actual SMS sent, returns mock ResponseBodyDTO
+NOTIFYRE_DRIVER=log  // No actual SMS sent, logs to Laravel logs
 ```
 
 ## Security Considerations
@@ -328,6 +422,10 @@ All inputs are validated through DTOs with comprehensive validation rules.
 ### Rate Limiting
 
 Built-in rate limiting to prevent abuse.
+
+### Middleware Support
+
+Customizable middleware stack for API endpoints.
 
 ## Best Practices
 
@@ -353,8 +451,17 @@ Built-in rate limiting to prevent abuse.
 - **Logging**: Log errors for debugging
 - **Response Data**: Use response DTOs for detailed error information
 
+### API Design
+
+- **RESTful**: Follow REST conventions
+- **Validation**: Comprehensive input validation
+- **Rate Limiting**: Protect against abuse
+- **Caching**: Improve performance where appropriate
+- **Error Handling**: Consistent error responses
+
 ## Next Steps
 
 - [Learn about drivers](./DRIVERS.md)
 - [See usage examples](./../usage/DIRECT_SMS.md)
 - [Configure the package](./../getting-started/CONFIGURATION.md)
+- [Explore API usage](./../usage/API.md)

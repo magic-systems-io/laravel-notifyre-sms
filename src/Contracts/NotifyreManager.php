@@ -2,10 +2,10 @@
 
 namespace MagicSystemsIO\Notifyre\Contracts;
 
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 
 interface NotifyreManager
 {
-    public function send(RequestBodyDTO $request): ?ResponseBodyDTO;
+    public function send(RequestBody $request): ?ResponseBody;
 }

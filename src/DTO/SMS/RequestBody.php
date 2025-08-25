@@ -5,7 +5,7 @@ namespace MagicSystemsIO\Notifyre\DTO\SMS;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 
-readonly class RequestBodyDTO implements Arrayable
+readonly class RequestBody implements Arrayable
 {
     public ?string $sender;
 

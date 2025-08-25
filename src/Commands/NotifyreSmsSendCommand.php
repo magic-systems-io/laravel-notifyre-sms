@@ -5,7 +5,7 @@ namespace MagicSystemsIO\Notifyre\Commands;
 use Exception;
 use Illuminate\Console\Command;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
@@ -35,7 +35,7 @@ class NotifyreSmsSendCommand extends Command
         try {
             $this->info('Sending SMS...');
 
-            $this->service->send(new RequestBodyDTO(
+            $this->service->send(new RequestBody(
                 body: $message,
                 recipients: [
                     new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $recipient),

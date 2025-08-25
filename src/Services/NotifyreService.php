@@ -4,8 +4,8 @@ namespace MagicSystemsIO\Notifyre\Services;
 
 use Illuminate\Http\Client\ConnectionException;
 use InvalidArgumentException;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
 use MagicSystemsIO\Notifyre\Services\Drivers\LogDriver;
 use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
@@ -18,7 +18,7 @@ readonly class NotifyreService
      * @throws InvalidArgumentException
      * @throws ConnectionException
      */
-    public function send(RequestBodyDTO $message): ?ResponseBodyDTO
+    public function send(RequestBody $message): ?ResponseBody
     {
         return $this->create()->send($message);
     }

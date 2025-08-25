@@ -23,6 +23,6 @@ class NotifyreRecipients extends Model
 
     public function notifyreSMSMessageRecipients(): HasMany
     {
-        return $this->hasMany(NotifyreSMSMessageRecipient::class, 'notifyre_recipient_id');
+        return $this->hasMany(NotifyreSMSMessageRecipient::class, 'recipient_id');
     }
 }

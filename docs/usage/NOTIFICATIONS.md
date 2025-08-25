@@ -10,7 +10,7 @@ Send SMS through Laravel's notification system for queuing, events, and more fea
 namespace App\Notifications;
 
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBodyDTO;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use Illuminate\Notifications\Notification;
 
@@ -21,9 +21,9 @@ class WelcomeNotification extends Notification
         return ['notifyre'];
     }
 
-    public function toNotifyre(): RequestBodyDTO
+    public function toNotifyre(): RequestBody
     {
-        return new RequestBodyDTO(
+        return new RequestBody(
             body: 'Welcome to our app!',
             recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)]
         );

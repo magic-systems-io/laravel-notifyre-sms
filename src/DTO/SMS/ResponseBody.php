@@ -4,7 +4,7 @@ namespace MagicSystemsIO\Notifyre\DTO\SMS;
 
 use Illuminate\Contracts\Support\Arrayable;
 
-readonly class ResponseBodyDTO implements Arrayable
+readonly class ResponseBody implements Arrayable
 {
     /**
      * @param bool $success Shows if the API call has been successful
