@@ -7,19 +7,20 @@ use InvalidArgumentException;
 
 readonly class RequestBody implements Arrayable
 {
-    public ?string $sender;
-
     /**
      * @param string $body The body of the SMS message
      * @param Recipient[] $recipients A collection of recipient objects
-     * @param ?string $sender The mobile phone number of who sent the SMS (empty for shared number)
      */
     public function __construct(
         public string $body,
         public array $recipients,
-        ?string $sender = null,
+        public string $sender = '',
+        public int $scheduledDate = 0,
+        public bool $addUnsubscribeLink = false,
+        public string $callbackUrl = '',
+        public array $metadata = [],
+        public string $campaignName = '',
     ) {
-        $this->sender = $sender;
         if (empty(trim($body))) {
             throw new InvalidArgumentException('Body cannot be empty');
         }
@@ -32,15 +33,15 @@ readonly class RequestBody implements Arrayable
     {
         $recipients = array_map(fn (Recipient $recipient) => $recipient->toArray(), $this->recipients);
 
-        $data = [
+        return [
             'Body' => $this->body,
             'Recipients' => $recipients,
+            'From' => $this->sender,
+            'ScheduledDate' => $this->scheduledDate,
+            'AddUnsubscribeLink' => $this->addUnsubscribeLink,
+            'CallbackUrl' => $this->callbackUrl,
+            'Metadata' => $this->metadata,
+            'CampaignName' => $this->campaignName,
         ];
-
-        if ($this->sender !== null && !empty(trim($this->sender))) {
-            $data['From'] = $this->sender;
-        }
-
-        return $data;
     }
 }

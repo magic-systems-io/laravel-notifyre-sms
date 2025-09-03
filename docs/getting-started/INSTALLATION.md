@@ -18,11 +18,6 @@ NOTIFYRE_DRIVER=log
 
 # Required for SMS driver (production)
 NOTIFYRE_API_KEY=your_api_key_here
-
-# Optional: Default sender number
-NOTIFYRE_SMS_SENDER=YourAppName
-
-# Optional: Default recipient (for testing)
 ```
 
 ## Step 3: Publish Configuration (Optional)

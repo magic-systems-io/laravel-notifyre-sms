@@ -34,7 +34,6 @@ composer require magic-systems-io/laravel-notifyre-sms
 ```env
 NOTIFYRE_DRIVER=log
 NOTIFYRE_API_KEY=your_api_key_here
-NOTIFYRE_SMS_SENDER=YourAppName
 ```
 
 ### Basic Usage

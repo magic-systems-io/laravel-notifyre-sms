@@ -14,7 +14,6 @@ use Throwable;
 class NotifyreSmsSendCommand extends Command
 {
     public $signature = 'sms:send 
-		{--s|sender= : The sender name or number} 
 		{--r|recipient=* : The number and optional type, e.g. +123456789:mobile_number,+987654321:contact} 
 		{--m|message= : The message that will be sent}';
 
@@ -27,7 +26,6 @@ class NotifyreSmsSendCommand extends Command
             NotifyreService::send(new RequestBody(
                 body: $this->parseMessage(),
                 recipients: $this->parseRecipients(),
-                sender: $this->parseSender()
             ));
             $this->info('SMS sent successfully!');
 
@@ -66,16 +64,5 @@ class NotifyreSmsSendCommand extends Command
             return new Recipient(type: $type, value: $number);
 
         }, $argRecipients);
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function parseSender(): string
-    {
-        $sender = $this->option('sender');
-        $sender = $sender ?: config('notifyre.default_sender');
-
-        return $sender ?? throw new Exception('Unable to determine sender. Please provide a sender using the --sender option or set a default sender in the configuration.');
     }
 }

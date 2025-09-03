@@ -21,7 +21,6 @@ test('has correct signature structure', function () {
     $signature = $signatureProperty->getValue($command);
 
     expect($signature)->toContain('sms:send')
-        ->and($signature)->toContain('--s|sender=')
         ->and($signature)->toContain('--r|recipient=*')
         ->and($signature)->toContain('--m|message=');
 });
@@ -46,10 +45,6 @@ test('retrieveArguments method exists and is private', function () {
 
     $method = $reflection->getMethod('parseRecipients');
     expect($method->isPrivate())->toBeTrue();
-
-    $method = $reflection->getMethod('parseSender');
-    expect($method->isPrivate())->toBeTrue();
-
 });
 
 test('handle method exists and is public', function () {

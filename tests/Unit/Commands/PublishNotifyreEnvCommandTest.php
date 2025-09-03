@@ -40,7 +40,6 @@ test('has correct environment variables array', function () {
 
     expect($envVariables)->toHaveKey('NOTIFYRE_DRIVER')
         ->and($envVariables)->toHaveKey('NOTIFYRE_API_KEY')
-        ->and($envVariables)->toHaveKey('NOTIFYRE_SMS_SENDER')
         ->and($envVariables)->toHaveKey('NOTIFYRE_BASE_URL')
         ->and($envVariables)->toHaveKey('NOTIFYRE_TIMEOUT')
         ->and($envVariables)->toHaveKey('NOTIFYRE_RETRY_TIMES')

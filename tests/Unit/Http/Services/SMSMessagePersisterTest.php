@@ -182,7 +182,6 @@ test('createMessage handles empty sender correctly', function () {
     $requestData = new RequestBody(
         body: 'Test message',
         recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+61412345678')],
-        sender: ''
     );
 
     $service = new SMSMessagePersister();
@@ -190,20 +189,6 @@ test('createMessage handles empty sender correctly', function () {
     $result = $service->persist($requestData, build_success_response_body());
 
     expect($result['sender'])->toBe('');
-});
-
-test('createMessage handles null sender correctly', function () {
-    $requestData = new RequestBody(
-        body: 'Test message',
-        recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+61412345678')],
-        sender: null
-    );
-
-    $service = new SMSMessagePersister();
-
-    $result = $service->persist($requestData, build_success_response_body());
-
-    expect($result['sender'])->toBeNull();
 });
 
 test('createMessage updates existing recipient timestamps', function () {

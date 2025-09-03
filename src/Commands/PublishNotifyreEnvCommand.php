@@ -16,7 +16,6 @@ class PublishNotifyreEnvCommand extends Command
     private array $envVariables = [
         'NOTIFYRE_DRIVER' => 'log',
         'NOTIFYRE_API_KEY' => 'your_api_token_here',
-        'NOTIFYRE_SMS_SENDER' => 'YourAppName',
         'NOTIFYRE_DEFAULT_NUMBER_PREFIX' => '+1',
         'NOTIFYRE_BASE_URL' => 'https://api.notifyre.com',
         'NOTIFYRE_TIMEOUT' => 30,

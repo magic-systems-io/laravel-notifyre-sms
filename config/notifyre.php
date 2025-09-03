@@ -31,17 +31,6 @@ return [
 
     /*
      | ---------------------------------------------------------------------------
-     | Default Sender
-     | ---------------------------------------------------------------------------
-     |
-     | This is the default sender ID that will be used when sending SMS messages.
-     | If you leave it empty, Notifyre will auto-assign a sender ID based on
-     | your API token. You can set a custom sender ID if you have one.
-     */
-    'default_sender' => env('NOTIFYRE_SMS_SENDER', env('APP_NAME')),
-
-    /*
-     | ---------------------------------------------------------------------------
      | Default Number Prefix
      | ---------------------------------------------------------------------------
      |

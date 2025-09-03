@@ -19,7 +19,7 @@ test('can be instantiated with basic request', function () {
     expect($request_body)->toBeInstanceOf(RequestBody::class)
         ->and($request_body->body)->toBe('Hello, this is a test SMS message!')
         ->and($request_body->recipients)->toHaveCount(1)
-        ->and($request_body->sender)->toBeNull();
+        ->and($request_body->sender)->toBeEmpty();
 });
 
 test('can be instantiated with sender', function () {
@@ -37,7 +37,7 @@ test('can be instantiated with multiple recipients', function () {
     expect($request_body)->toBeInstanceOf(RequestBody::class)
         ->and($request_body->body)->toBe('Hello, this is a test SMS message for multiple recipients!')
         ->and($request_body->recipients)->toHaveCount(3)
-        ->and($request_body->sender)->toBeNull();
+        ->and($request_body->sender)->toBeEmpty();
 });
 
 test('can be instantiated with long message', function () {
@@ -54,7 +54,7 @@ test('toArray method works with basic request', function () {
 
     expect($array)->toBeArray()
         ->and($array)->toHaveKeys(['Body', 'Recipients'])
-        ->and($array)->not->toHaveKey('From')
+        ->and($array['From'])->toBeEmpty()
         ->and($array['Body'])->toBe('Hello, this is a test SMS message!')
         ->and($array['Recipients'])->toHaveCount(1);
 });
@@ -117,7 +117,7 @@ test('sender is optional and can be null', function () {
         recipients: build_request_body_basic()->recipients
     );
 
-    expect($request_body->sender)->toBeNull();
+    expect($request_body->sender)->toBeEmpty();
 });
 
 test('sender can be empty string and will be ignored in toArray', function () {
@@ -128,5 +128,5 @@ test('sender can be empty string and will be ignored in toArray', function () {
     );
 
     $array = $request_body->toArray();
-    expect($array)->not->toHaveKey('From');
+    expect($array['From'])->toBeEmpty();
 });
