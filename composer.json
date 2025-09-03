@@ -1,96 +1,96 @@
 {
-    "name": "magic-systems-io/laravel-notifyre-sms",
-    "description": "A Notifyre wrapper for laravel",
-    "version": "0.0.1",
-    "type": "library",
-    "license": "MIT",
-    "keywords": [
-        "notifyre",
-        "sms"
-    ],
-    "homepage": "https://github.com/magic-systems-io/laravel-notifyre-sms",
-    "support": {
-        "issues": "https://github.com/magic-systems-io/laravel-notifyre-sms/issues",
-        "source": "https://github.com/magic-systems-io/laravel-notifyre-sms"
+  "name": "magic-systems-io/laravel-notifyre-sms",
+  "description": "A Notifyre wrapper for laravel",
+  "version": "0.0.1",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "notifyre",
+    "sms",
+    "laravel"
+  ],
+  "support": {
+    "issues": "https://github.com/magic-systems-io/laravel-notifyre-sms/issues",
+    "source": "https://github.com/magic-systems-io/laravel-notifyre-sms"
+  },
+  "readme": "README.md",
+  "authors": [
+    {
+      "name": "Arbi Kullakshi",
+      "email": "arbikullakshi0@gmail.com"
     },
-    "readme": "README.md",
-    "authors": [
-        {
-            "name": "Arbi Kullakshi",
-            "email": "arbikullakshi0@gmail.com"
-        },
-        {
-            "name": "Magic Systems IO",
-            "email": "support@hirealoo.com.au",
-            "homepage": "https://hirealoo.com.au"
-        }
-    ],
-    "require": {
-        "php": "^8.4",
-        "laravel/framework": "^12.20.0"
+    {
+      "name": "Magic Systems IO",
+      "email": "guy@hirealoo.com.au",
+      "homepage": "https://magicsystems.io"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "laravel/framework": "^12.20.0"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.24.0",
+    "mockery/mockery": "^1.6",
+    "orchestra/testbench": "^10.6",
+    "pestphp/pest": "^3.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "MagicSystemsIO\\Notifyre\\": "src/",
+      "MagicSystemsIO\\Notifyre\\Database\\Factories\\": "database/factories/"
     },
-    "require-dev": {
-        "laravel/pint": "^1.24.0",
-        "mockery/mockery": "^1.6",
-        "orchestra/testbench": "^10.6",
-        "pestphp/pest": "^3.8"
-    },
-    "autoload": {
-        "psr-4": {
-            "MagicSystemsIO\\Notifyre\\": "src/",
-            "MagicSystemsIO\\Notifyre\\Database\\Factories\\": "database/factories/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "MagicSystemsIO\\Notifyre\\Tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "MagicSystemsIO\\Notifyre\\Providers\\NotifyreServiceProvider"
-            ],
-            "config": {
-                "abac": "config/notifyre.php"
-            },
-            "aliases": {
-                "Abac": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
-            }
-        }
-    },
-    "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
-    },
-    "minimum-stability": "stable",
-    "prefer-stabe": true,
-    "scripts": {
-        "version-patch": [
-            "php -f scripts/version.php patch"
-        ],
-        "version-minor": [
-            "php -f scripts/version.php minor"
-        ],
-        "version-major": [
-            "php -f scripts/version.php major"
-        ],
-        "pint": [
-            "vendor/bin/pint"
-        ],
-        "test": [
-            "vendor/bin/pest"
-        ]
-    },
-    "repositories": [
-        {
-            "type": "github",
-            "url": "https://github.com/magic-systems-io/laravel-notifyre-sms"
-        }
+    "files": [
+      "src/helpers.php"
     ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MagicSystemsIO\\Notifyre\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "MagicSystemsIO\\Notifyre\\Providers\\NotifyreServiceProvider"
+      ],
+      "config": {
+        "abac": "config/notifyre.php"
+      },
+      "aliases": {
+        "Abac": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
+      }
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stabe": true,
+  "scripts": {
+    "version-patch": [
+      "php -f scripts/version.php patch"
+    ],
+    "version-minor": [
+      "php -f scripts/version.php minor"
+    ],
+    "version-major": [
+      "php -f scripts/version.php major"
+    ],
+    "pint": [
+      "vendor/bin/pint"
+    ],
+    "test": [
+      "vendor/bin/pest"
+    ]
+  },
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/magic-systems-io/laravel-notifyre-sms"
+    }
+  ]
 }
