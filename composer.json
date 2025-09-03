@@ -69,7 +69,7 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stabe": true,
+    "prefer-stable": true,
     "scripts": {
         "version-patch": [
             "php -f scripts/version.php patch"
@@ -86,11 +86,6 @@
         "test": [
             "vendor/bin/pest"
         ]
-    },
-    "repositories": [
-        {
-            "type": "github",
-            "url": "https://github.com/magic-systems-io/laravel-notifyre-sms"
-        }
-    ]
+    }
 }
+

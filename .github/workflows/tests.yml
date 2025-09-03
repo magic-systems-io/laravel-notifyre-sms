@@ -51,13 +51,15 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Execute tests via Pest with coverage
-        run: vendor/bin/pest --coverage --coverage-format=clover --coverage-output=coverage.xml
+        run: vendor/bin/pest --coverage 2>&1 | tee test-output.txt
 
       - name: Calculate coverage percentage
         id: coverage
         run: |
-          # Extract coverage percentage from XML
-          COVERAGE=$(grep -o 'percentage="[^"]*"' coverage.xml | head -1 | grep -o '[0-9]*\.[0-9]*')
+          # Extract coverage percentage from Pest output
+          COVERAGE=$(grep -o 'Total: [0-9]*\.[0-9]* %' test-output.txt | grep -o '[0-9]*\.[0-9]*' || echo "0.0")
+          
+          # Convert to integer
           COVERAGE_INT=$(printf "%.0f" $COVERAGE)
           
           # Determine color based on coverage
