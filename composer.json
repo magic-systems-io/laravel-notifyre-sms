@@ -1,5 +1,5 @@
 {
-  "name": "magic-systems-io/notifyre-laravel-sms",
+  "name": "magic-systems-io/laravel-notifyre-sms",
   "description": "A Notifyre wrapper for laravel",
   "version": "0.0.0",
   "type": "library",
