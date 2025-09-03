@@ -8,72 +8,74 @@ use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use MagicSystemsIO\Notifyre\Services\NotifyreService;
+use Symfony\Component\Console\Command\Command as CommandStatus;
+use Throwable;
 
 class NotifyreSmsSendCommand extends Command
 {
     public $signature = 'sms:send 
-                        {--sender= : The number the SMS will be sent from}
-                        {--recipient= : The number the SMS will be sent to} 
-                        {--message= : The message that will be sent}';
+		{--s|sender= : The sender name or number} 
+		{--r|recipient=* : The number and optional type, e.g. +123456789:mobile_number,+987654321:contact} 
+		{--m|message= : The message that will be sent}';
 
     public $description = 'Send an SMS to a specified phone number using Notifyre';
 
-    public function __construct(
-        protected NotifyreService $service
-    ) {
-        parent::__construct();
-    }
-
-    public function handle(): void
+    public function handle(): int
     {
-        $arguments = $this->retrieveArguments();
-        if (empty($arguments)) {
-            return;
-        }
-        [$sender, $recipient, $message] = $arguments;
-
         try {
             $this->info('Sending SMS...');
-
-            $this->service->send(new RequestBody(
-                body: $message,
-                recipients: [
-                    new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $recipient),
-                ],
-                sender: $sender
+            NotifyreService::send(new RequestBody(
+                body: $this->parseMessage(),
+                recipients: $this->parseRecipients(),
+                sender: $this->parseSender()
             ));
-
             $this->info('SMS sent successfully!');
-        } catch (Exception $e) {
+
+            return  CommandStatus::SUCCESS;
+        } catch (Throwable $e) {
             $this->error('Failed to send SMS: ' . $e->getMessage());
+            $this->line('Use --help to see usage information.');
+
+            return  CommandStatus::FAILURE;
         }
     }
 
     /**
-     * @return array{sender: string, recipient: string, message: string}|array{}
+     * @throws Exception
      */
-    private function retrieveArguments(): array
+    private function parseMessage(): string
+    {
+        return $this->option('message') ?? throw new Exception('You must provide a message to send.');
+    }
+
+    /**
+     * @throws Exception
+     * @return Recipient[]
+     */
+    private function parseRecipients(): array
+    {
+        $argRecipients = $this->option('recipient');
+        if (!$argRecipients) {
+            throw new Exception('You must provide a recipient to send the SMS to.');
+        }
+
+        return array_map(function (string $recipient): Recipient {
+            [$number, $type] = explode(':', $recipient, 2) + [null, null];
+            $type = $type ?: NotifyreRecipientTypes::MOBILE_NUMBER->value;
+
+            return new Recipient(type: $type, value: $number);
+
+        }, $argRecipients);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function parseSender(): string
     {
         $sender = $this->option('sender');
-        $recipient = $this->option('recipient');
-        $message = $this->option('message');
-
-        if (!$message) {
-            $this->error('You must provide a message to send.');
-            $this->line('Usage: sms:send --sender=+123456789 --recipient=+123456789 --message="Hello World!"');
-
-            return [];
-        }
-
         $sender = $sender ?: config('notifyre.default_sender');
-        $recipient = $recipient ?: config('notifyre.default_recipient');
 
-        if (!$sender || !$recipient) {
-            $this->error('Unable to determine sender or recipient. Check your configuration.');
-
-            return [];
-        }
-
-        return [$sender, $recipient, $message];
+        return $sender ?? throw new Exception('Unable to determine sender. Please provide a sender using the --sender option or set a default sender in the configuration.');
     }
 }

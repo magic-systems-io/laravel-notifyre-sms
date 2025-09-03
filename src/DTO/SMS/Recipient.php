@@ -12,7 +12,7 @@ readonly class Recipient implements Arrayable
         public string $type,
         public string $value,
     ) {
-        if (!in_array($type, NotifyreRecipientTypes::values())) {
+        if (!NotifyreRecipientTypes::isValid($this->type)) {
             throw new InvalidArgumentException("Invalid type '$type'. Valid types are: " . implode(', ', NotifyreRecipientTypes::values()));
         }
 

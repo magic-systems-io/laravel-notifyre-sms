@@ -20,10 +20,9 @@ NOTIFYRE_DRIVER=log
 NOTIFYRE_API_KEY=your_api_key_here
 
 # Optional: Default sender number
-NOTIFYRE_SMS_SENDER=+1234567890
+NOTIFYRE_SMS_SENDER=YourAppName
 
 # Optional: Default recipient (for testing)
-NOTIFYRE_SMS_RECIPIENT=+1234567890
 ```
 
 ## Step 3: Publish Configuration (Optional)
@@ -94,7 +93,7 @@ use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 // In tinker or a test
 $response = notifyre()->send(new RequestBody(
     body: 'Test message',
-    recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+1234567890')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 
 // Check response (log driver returns null, SMS driver returns ResponseBody)

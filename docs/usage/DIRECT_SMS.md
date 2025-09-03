@@ -11,7 +11,7 @@ use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 notifyre()->send(new RequestBody(
     body: 'Hello World!',
-    recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+1234567890')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 ```
 
@@ -34,7 +34,7 @@ The `notifyre()` helper function returns the NotifyreService, which:
 
 ### Recipient
 
-- **`type`** - Currently supports `'virtual_mobile_number'`, `'contact'`, and `'group'`
+- **`type`** - Currently supports `'mobile_number'`, `'contact'`, and `'group'`
 - **`value`** - The phone number, contact ID, or group ID
 
 ## Examples
@@ -44,7 +44,7 @@ The `notifyre()` helper function returns the NotifyreService, which:
 ```php
 notifyre()->send(new RequestBody(
     body: 'Your order has shipped!',
-    recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+15551234567')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+15551234567')]
 ));
 ```
 
@@ -54,8 +54,8 @@ notifyre()->send(new RequestBody(
 notifyre()->send(new RequestBody(
     body: 'Meeting reminder: 2 PM today',
     recipients: [
-        new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+15551234567'),
-        new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+15559876543'),
+        new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+15551234567'),
+        new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+15559876543'),
     ]
 ));
 ```
@@ -65,7 +65,7 @@ notifyre()->send(new RequestBody(
 ```php
 notifyre()->send(new RequestBody(
     body: 'Your delivery is on its way!',
-    recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+1234567890')],
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')],
     sender: '+1987654321'
 ));
 ```
@@ -93,7 +93,7 @@ The service returns a `ResponseBodyDTO` that you can use to track delivery:
 ```php
 $response = notifyre()->send(new RequestBody(
     body: 'Test message',
-    recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+1234567890')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 
 if ($response && $response->success) {
@@ -119,7 +119,7 @@ All DTOs implement Laravel's `Arrayable` interface for easy data manipulation:
 ```php
 $dto = new RequestBody(
     body: 'Test message',
-    recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, '+1234567890')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 );
 
 $array = $dto->toArray();

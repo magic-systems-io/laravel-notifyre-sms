@@ -13,7 +13,7 @@ php artisan sms:send --from="+1234567890" --recipient="+0987654321" --message="H
 ### Options
 
 - **`--from`** - The number the SMS will be sent from (optional)
-- **`--recipient`** - The number the SMS will be sent to  
+- **`--recipient`** - The number the SMS will be sent to
 - **`--message`** - The message that will be sent
 
 ### Examples
@@ -35,20 +35,20 @@ If you don't specify `--from` or `--recipient`, the command will use your config
 
 ```env
 NOTIFYRE_SMS_FROM=+1234567890
-NOTIFYRE_SMS_RECIPIENT=+0987654321
 ```
 
 ### What Happens
 
 1. Command validates your input
 2. Creates a `RequestBodyDTO` with your message using the new structure
-3. Uses `NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER` for recipient type
+3. Uses `NotifyreRecipientTypes::MOBILE_NUMBER` for recipient type
 4. Sends it through the NotifyreService
 5. Shows success/error message with response details
 
 ### Error Handling
 
 The command will show helpful error messages for:
+
 - Missing message text
 - Invalid phone numbers
 - Configuration issues

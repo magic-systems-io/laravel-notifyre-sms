@@ -13,10 +13,10 @@ use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 // RECIPIENT BUILDERS
 // ============================================================================
 
-function build_recipient_virtual_mobile(): Recipient
+function build_recipient_mobile_number(): Recipient
 {
     return new Recipient(
-        type: NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value,
+        type: NotifyreRecipientTypes::MOBILE_NUMBER->value,
         value: '+61412345678'
     );
 }
@@ -40,7 +40,7 @@ function build_recipient_group(): Recipient
 function build_recipients_multiple(): array
 {
     return [
-        build_recipient_virtual_mobile(),
+        build_recipient_mobile_number(),
         build_recipient_contact(),
         build_recipient_group(),
     ];
@@ -48,7 +48,7 @@ function build_recipients_multiple(): array
 
 function build_recipients_single(): array
 {
-    return [build_recipient_virtual_mobile()];
+    return [build_recipient_mobile_number()];
 }
 
 // ============================================================================
@@ -281,7 +281,7 @@ function build_request_body_whitespace_body(): RequestBody
 function build_recipient_empty_value(): Recipient
 {
     return new Recipient(
-        type: NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value,
+        type: NotifyreRecipientTypes::MOBILE_NUMBER->value,
         value: ''
     );
 }
@@ -289,23 +289,7 @@ function build_recipient_empty_value(): Recipient
 function build_recipient_whitespace_value(): Recipient
 {
     return new Recipient(
-        type: NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value,
+        type: NotifyreRecipientTypes::MOBILE_NUMBER->value,
         value: '   '
-    );
-}
-
-function build_invalid_number_empty_message(): InvalidNumber
-{
-    return new InvalidNumber(
-        number: '+1234567890',
-        message: ''
-    );
-}
-
-function build_invalid_number_whitespace_message(): InvalidNumber
-{
-    return new InvalidNumber(
-        number: '+1234567890',
-        message: '   '
     );
 }

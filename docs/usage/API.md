@@ -1,6 +1,7 @@
 # REST API Usage
 
-The Notifyre Laravel package provides a comprehensive REST API for SMS operations, including sending messages, retrieving message history, and managing recipients.
+The Notifyre Laravel package provides a comprehensive REST API for SMS operations, including sending messages,
+retrieving message history, and managing recipients.
 
 ## 🚀 Quick Start
 
@@ -36,7 +37,7 @@ POST /api/notifyre/sms
     "body": "Hello from the API!",
     "recipients": [
         {
-            "type": "virtual_mobile_number",
+            "type": "mobile_number",
             "value": "+1234567890"
         }
     ],
@@ -47,14 +48,14 @@ POST /api/notifyre/sms
 
 ### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `body` | string | ✅ | SMS message content (max 160 characters) |
-| `recipients` | array | ✅ | Array of recipient objects |
-| `recipients[].type` | string | ✅ | Recipient type: `virtual_mobile_number`, `contact`, or `group` |
-| `recipients[].value` | string | ✅ | Recipient value (phone number, contact ID, or group ID) |
-| `sender` | string | ❌ | Sender phone number (uses default if not provided) |
-| `persist` | boolean | ❌ | Whether to store the message in database (defaults to config) |
+| Parameter            | Type    | Required | Description                                                   |
+|----------------------|---------|----------|---------------------------------------------------------------|
+| `body`               | string  | ✅        | SMS message content (max 160 characters)                      |
+| `recipients`         | array   | ✅        | Array of recipient objects                                    |
+| `recipients[].type`  | string  | ✅        | Recipient type: `mobile_number`, `contact`, or `group`        |
+| `recipients[].value` | string  | ✅        | Recipient value (phone number, contact ID, or group ID)       |
+| `sender`             | string  | ❌        | Sender phone number (uses default if not provided)            |
+| `persist`            | boolean | ❌        | Whether to store the message in database (defaults to config) |
 
 ### Response
 
@@ -64,7 +65,7 @@ POST /api/notifyre/sms
         "body": "Hello from the API!",
         "recipients": [
             {
-                "type": "virtual_mobile_number",
+                "type": "mobile_number",
                 "value": "+1234567890"
             }
         ],
@@ -92,10 +93,10 @@ GET /api/notifyre/sms
 
 #### Query Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `page` | integer | Page number for pagination |
-| `per_page` | integer | Items per page |
+| Parameter  | Type    | Description                |
+|------------|---------|----------------------------|
+| `page`     | integer | Page number for pagination |
+| `per_page` | integer | Items per page             |
 
 #### Response
 
@@ -112,7 +113,7 @@ GET /api/notifyre/sms
             "messageRecipients": [
                 {
                     "id": 1,
-                    "type": "virtual_mobile_number",
+                    "type": "mobile_number",
                     "value": "+1234567890",
                     "created_at": "2024-01-15T10:30:00.000000Z",
                     "updated_at": "2024-01-15T10:30:00.000000Z"
@@ -145,7 +146,7 @@ GET /api/notifyre/sms/{id}
     "messageRecipients": [
         {
             "id": 1,
-            "type": "virtual_mobile_number",
+            "type": "mobile_number",
             "value": "+1234567890",
             "created_at": "2024-01-15T10:30:00.000000Z",
             "updated_at": "2024-01-15T10:30:00.000000Z"
@@ -307,7 +308,7 @@ curl -X POST http://your-app.com/api/notifyre/sms \
     "body": "Hello from cURL!",
     "recipients": [
       {
-        "type": "virtual_mobile_number",
+        "type": "mobile_number",
         "value": "+1234567890"
       }
     ],
@@ -328,7 +329,7 @@ const response = await fetch('/api/notifyre/sms', {
         body: 'Hello from JavaScript!',
         recipients: [
             {
-                type: 'virtual_mobile_number',
+                type: 'mobile_number',
                 value: '+1234567890'
             }
         ],
@@ -349,7 +350,7 @@ $response = Http::post('/api/notifyre/sms', [
     'body' => 'Hello from PHP!',
     'recipients' => [
         [
-            'type' => 'virtual_mobile_number',
+            'type' => 'mobile_number',
             'value' => '+1234567890'
         ]
     ],

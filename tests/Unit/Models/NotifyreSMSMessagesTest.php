@@ -33,6 +33,7 @@ test('has correct fillable attributes', function () {
         'messageId',
         'sender',
         'body',
+        'driver',
     ]);
 });
 

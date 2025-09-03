@@ -181,7 +181,7 @@ test('service returns response data', function () {
 test('dto implements arrayable interface', function () {
     $dto = new RequestBodyDTO(
         body: 'Test message',
-        recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
+        recipients: [new Recipient('mobile_number', '+1234567890')],
         metadata: ['key' => 'value']
     );
     
@@ -204,7 +204,7 @@ test('metadata validation limits', function () {
     
     expect(fn() => new RequestBodyDTO(
         body: 'Test',
-        recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
+        recipients: [new Recipient('mobile_number', '+1234567890')],
         metadata: $metadata
     ))->toThrow(InvalidArgumentException::class, 'Metadata cannot exceed 50 keys');
 });

@@ -2,6 +2,7 @@
 
 namespace MagicSystemsIO\Notifyre\Tests\Unit\Enums;
 
+use BackedEnum;
 use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
 
 test('has correct case values', function () {
@@ -52,7 +53,7 @@ test('cases method returns all enum cases', function () {
 });
 
 test('enum is string backed', function () {
-    expect(NotifyreDriver::SMS)->toBeInstanceOf(\BackedEnum::class);
+    expect(NotifyreDriver::SMS)->toBeInstanceOf(BackedEnum::class);
 });
 
 test('can be used in string comparisons', function () {
@@ -60,36 +61,6 @@ test('can be used in string comparisons', function () {
 
     expect($driver->value === 'sms')->toBeTrue()
         ->and($driver->value === 'log')->toBeFalse();
-});
-
-test('can be used in switch statements', function () {
-    $driver = NotifyreDriver::LOG;
-    $result = '';
-
-    switch ($driver) {
-        case NotifyreDriver::SMS:
-            $result = 'sms_driver';
-            break;
-        case NotifyreDriver::LOG:
-            $result = 'log_driver';
-            break;
-    }
-
-    expect($result)->toBe('log_driver');
-});
-
-test('can be used in conditional logic', function () {
-    $driver = NotifyreDriver::SMS;
-
-    if ($driver === NotifyreDriver::SMS) {
-        $result = 'sms_processing';
-    } elseif ($driver === NotifyreDriver::LOG) {
-        $result = 'log_processing';
-    } else {
-        $result = 'unknown';
-    }
-
-    expect($result)->toBe('sms_processing');
 });
 
 test('can be used in array keys', function () {

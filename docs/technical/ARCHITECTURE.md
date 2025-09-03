@@ -4,7 +4,8 @@ How the Notifyre package is structured and designed.
 
 ## Overview
 
-The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application, with rich DTOs that implement Laravel's Arrayable interface, database persistence, and REST API endpoints.
+The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application,
+with rich DTOs that implement Laravel's Arrayable interface, database persistence, and REST API endpoints.
 
 ## Core Components
 
@@ -50,6 +51,7 @@ class NotifyreService
 ```
 
 **Responsibilities:**
+
 - Delegates SMS sending to appropriate driver
 - Returns response data for tracking and error handling
 - Maintains single responsibility principle
@@ -73,6 +75,7 @@ private function create(): LogDriver|SMSDriver
 ```
 
 **Features:**
+
 - Configuration-based driver selection
 - Validation of driver values
 - Easy extension for custom drivers
@@ -194,6 +197,7 @@ readonly class RequestBody implements Arrayable
 ```
 
 **Features:**
+
 - **Arrayable Interface**: Easy conversion to arrays and JSON
 - **Comprehensive Validation**: Built-in input validation
 - **Type Safety**: Readonly properties with proper typing
@@ -247,7 +251,8 @@ readonly class Recipient implements Arrayable
 ```
 
 **Supported Types:**
-- `virtual_mobile_number` - Direct phone number
+
+- `mobile_number` - Direct phone number
 - `contact` - Contact from Notifyre account
 - `group` - Group from Notifyre account
 
@@ -283,6 +288,7 @@ readonly class Recipient implements Arrayable
 ### Strategy Pattern
 
 Drivers implement different strategies for SMS processing:
+
 - **SMS Strategy**: Send via API and return real response
 - **Log Strategy**: Log to files and return null
 

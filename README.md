@@ -34,8 +34,7 @@ composer require magic-systems-io/laravel-notifyre-sms
 ```env
 NOTIFYRE_DRIVER=log
 NOTIFYRE_API_KEY=your_api_key_here
-NOTIFYRE_SMS_SENDER=+1234567890
-NOTIFYRE_SMS_RECIPIENT=+0987654321
+NOTIFYRE_SMS_SENDER=YourAppName
 ```
 
 ### Basic Usage
@@ -44,13 +43,13 @@ NOTIFYRE_SMS_RECIPIENT=+0987654321
 // Direct SMS (fast)
 notifyre()->send(new RequestBodyDTO(
     body: 'Hello World!',
-    recipients: [new Recipient('virtual_mobile_number', '+1234567890')]
+    recipients: [new Recipient('mobile_number', '+1234567890')]
 ));
 
 // With sender
 notifyre()->send(new RequestBodyDTO(
     body: 'Your order has been shipped!',
-    recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
+    recipients: [new Recipient('mobile_number', '+1234567890')],
     sender: '+1987654321'
 ));
 

@@ -26,7 +26,7 @@ return [
      | You can obtain your API key from the Notifyre dashboard.
      |
      */
-    'api_key' => env('NOTIFYRE_API_KEY', ''),
+    'api_key' => env('NOTIFYRE_API_KEY'),
 
 
     /*
@@ -38,19 +38,7 @@ return [
      | If you leave it empty, Notifyre will auto-assign a sender ID based on
      | your API token. You can set a custom sender ID if you have one.
      */
-    'default_sender' => env('NOTIFYRE_SMS_SENDER', ''),
-
-    /*
-     | ---------------------------------------------------------------------------
-     | Default Recipient
-     | ---------------------------------------------------------------------------
-     |
-     | This is the default recipient number that will be used when sending SMS
-     | messages. Use this for testing purposes or if you want to send SMS
-     | messages to a specific number by default. If left empty, you must specify
-     | the recipient in the notification.
-     */
-    'default_recipient' => env('NOTIFYRE_SMS_RECIPIENT', ''),
+    'default_sender' => env('NOTIFYRE_SMS_SENDER', env('APP_NAME')),
 
     /*
      | ---------------------------------------------------------------------------

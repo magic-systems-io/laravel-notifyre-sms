@@ -9,14 +9,14 @@ use Symfony\Component\Mime\Exception\InvalidArgumentException;
 use function MagicSystemsIO\Notifyre\Tests\Helpers\build_recipient_contact;
 use function MagicSystemsIO\Notifyre\Tests\Helpers\build_recipient_empty_value;
 use function MagicSystemsIO\Notifyre\Tests\Helpers\build_recipient_group;
-use function MagicSystemsIO\Notifyre\Tests\Helpers\build_recipient_virtual_mobile;
+use function MagicSystemsIO\Notifyre\Tests\Helpers\build_recipient_mobile_number;
 use function MagicSystemsIO\Notifyre\Tests\Helpers\build_recipient_whitespace_value;
 
 test('can be instantiated with virtual mobile number type', function () {
-    $recipient = build_recipient_virtual_mobile();
+    $recipient = build_recipient_mobile_number();
 
     expect($recipient)->toBeInstanceOf(Recipient::class)
-        ->and($recipient->type)->toBe(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value)
+        ->and($recipient->type)->toBe(NotifyreRecipientTypes::MOBILE_NUMBER->value)
         ->and($recipient->value)->toBe('+61412345678');
 });
 
@@ -37,12 +37,12 @@ test('can be instantiated with group type', function () {
 });
 
 test('toArray method works correctly', function () {
-    $recipient = build_recipient_virtual_mobile();
+    $recipient = build_recipient_mobile_number();
     $array = $recipient->toArray();
 
     expect($array)->toBeArray()
         ->and($array)->toHaveKeys(['type', 'value'])
-        ->and($array['type'])->toBe(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value)
+        ->and($array['type'])->toBe(NotifyreRecipientTypes::MOBILE_NUMBER->value)
         ->and($array['value'])->toBe('+61412345678');
 });
 
@@ -73,7 +73,7 @@ test('accepts valid recipient types', function () {
 
 test('can handle phone number with special characters', function () {
     $recipient = new Recipient(
-        NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value,
+        NotifyreRecipientTypes::MOBILE_NUMBER->value,
         '+1 (555) 123-4567'
     );
 

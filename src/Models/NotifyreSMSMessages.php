@@ -17,6 +17,7 @@ class NotifyreSMSMessages extends Model
         'messageId',
         'sender',
         'body',
+        'driver',
     ];
 
     public function messageRecipients(): HasMany

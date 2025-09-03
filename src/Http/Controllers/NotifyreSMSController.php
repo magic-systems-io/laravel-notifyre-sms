@@ -7,25 +7,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSMSMessagesRequest;
-use MagicSystemsIO\Notifyre\Http\Services\NotifyreSMSMessageService;
+use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
 use MagicSystemsIO\Notifyre\Services\NotifyreService;
-use Psr\SimpleCache\InvalidArgumentException;
-use RuntimeException;
 use Throwable;
 
 class NotifyreSMSController extends Controller
 {
-    public function __construct(
-        protected NotifyreService $service,
-        protected NotifyreSMSMessageService $notifyreSMSMessageService,
-    ) {
-    }
-
     public function index(Request $request): JsonResponse
     {
-        $messages = $this->notifyreSMSMessageService->getAllMessages($request->user()?->getSender());
+        $sender = $request->user()?->getSender();
+        if (empty($sender) || (empty(trim($sender)))) {
+            return response()->json(['error' => 'Sender parameter is required'], 422);
+        }
+
+        $messages = NotifyreSMSMessages::where('sender', $sender)->get()->toArray();
 
         return response()->json($this->paginate($request, $messages));
     }
@@ -33,36 +30,9 @@ class NotifyreSMSController extends Controller
     public function store(NotifyreSMSMessagesRequest $request): JsonResponse
     {
         try {
-            $messageData = $this->buildMessageData($request);
-            $response = $this->service->send($messageData);
+            $message = NotifyreService::send($this->buildMessageData($request));
 
-            if (empty($response) || !$response->success) {
-                return response()->json(['message' => 'Failed to send SMS'], 422);
-            }
-
-            if (!empty($failedRecipients = $response->payload->invalidToNumbers)) {
-                $successfulRecipients = $this->filterSuccessfulRecipients($messageData->recipients, $failedRecipients);
-                $messageData = new RequestBody(
-                    body:       $messageData->body,
-                    recipients: $successfulRecipients,
-                    sender:     $messageData->sender
-                );
-            }
-
-            if ($request->validated('persist') ?? config('notifyre.api.database.enabled')) {
-                $message = $this->notifyreSMSMessageService->createMessage($messageData);
-            }
-
-            if (config('notifyre.api.cache.enabled')) {
-                $this->cache($response);
-            }
-
-            return response()->json([
-                'data' => $message ?? $messageData->toArray(),
-                'failed_recipients' => $response->payload->invalidToNumbers ?? [],
-            ]);
-        } catch (RuntimeException $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json($message);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -71,11 +41,9 @@ class NotifyreSMSController extends Controller
     private function buildMessageData(NotifyreSMSMessagesRequest $request): RequestBody
     {
         $recipients = array_map(fn ($recipient) => new Recipient(
-            type:  $recipient['type'],
+            type:  $recipient['type'] ?? NotifyreRecipientTypes::MOBILE_NUMBER->value,
             value: $recipient['value']
-        ), $request->validated(
-            'recipients'
-        ));
+        ), $request->validated('recipients'));
 
         return new RequestBody(
             body:       $request->validated('body'),
@@ -84,36 +52,15 @@ class NotifyreSMSController extends Controller
         );
     }
 
-    /**
-     * @param Recipient[] $intendedRecipients
-     * @param array $failedRecipients
-     *
-     * @return array
-     */
-    private function filterSuccessfulRecipients(array $intendedRecipients, array $failedRecipients): array
-    {
-        return array_filter($intendedRecipients, function (Recipient $recipient) use ($failedRecipients) {
-            return !in_array($recipient->value, $failedRecipients);
-        });
-    }
-
-    /**
-     * @throws InvalidArgumentException
-     */
-    private function cache(ResponseBody $responseBodyDTO): void
-    {
-        if (!class_exists(Cache::class) || !Cache::getStore()) {
-            return;
-        }
-
-        $key = config('notifyre.api.cache.prefix');
-        $ttl  = config('notifyre.api.cache.ttl');
-        Cache::set("$key.{$responseBodyDTO->payload->smsMessageID}", $responseBodyDTO, $ttl);
-    }
-
     public function show(int $sms): JsonResponse
     {
-        $message = $this->notifyreSMSMessageService->getMessageById($sms);
+        if (config('notifyre.api.cache.enabled')) {
+            $key = config('notifyre.api.cache.prefix');
+            $message = Cache::get("$key.$sms");
+        } else {
+            $message = NotifyreSMSMessages::with('messageRecipients.recipient')->find($sms);
+        }
+
         if (!$message) {
             return response()->json(['error' => 'Message not found'], 404);
         }

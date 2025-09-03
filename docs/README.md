@@ -39,19 +39,18 @@ composer require magic-systems-io/laravel-notifyre-sms
 # Configure (basic setup)
 NOTIFYRE_DRIVER=log
 NOTIFYRE_API_KEY=your_api_key
-NOTIFYRE_SMS_SENDER=+1234567890
-NOTIFYRE_SMS_RECIPIENT=+0987654321
+NOTIFYRE_SMS_SENDER=YourAppName
 
 # Basic SMS
 notifyre()->send(new RequestBodyDTO(
     body: 'Hello World!',
-    recipients: [new Recipient('virtual_mobile_number', '+1234567890')]
+    recipients: [new Recipient('mobile_number', '+1234567890')]
 ));
 
 # With sender
 notifyre()->send(new RequestBodyDTO(
     body: 'Your order has been shipped!',
-    recipients: [new Recipient('virtual_mobile_number', '+1234567890')],
+    recipients: [new Recipient('mobile_number', '+1234567890')],
     sender: '+1987654321'
 ));
 ```
@@ -124,7 +123,6 @@ docs/
 ### Optional
 
 - `NOTIFYRE_SMS_SENDER` - Default sender number
-- `NOTIFYRE_SMS_RECIPIENT` - Default recipient number
 - `NOTIFYRE_DEFAULT_NUMBER_PREFIX` - Country code prefix
 - `NOTIFYRE_BASE_URL` - API base URL
 - `NOTIFYRE_TIMEOUT` - HTTP timeout

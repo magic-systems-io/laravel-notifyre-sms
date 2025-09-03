@@ -18,10 +18,7 @@ NOTIFYRE_API_KEY=your_api_key_here
 
 ```env
 # Default sender number
-NOTIFYRE_SMS_SENDER=+1234567890
-
-# Default recipient (for testing)
-NOTIFYRE_SMS_RECIPIENT=+1234567890
+NOTIFYRE_SMS_SENDER=YourAppName
 
 # Country code prefix for numbers
 NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
@@ -75,8 +72,7 @@ The package creates `config/notifyre.php` with these sections:
 ### Default Settings
 
 ```php
-'default_sender' => env('NOTIFYRE_SMS_SENDER', ''),
-'default_recipient' => env('NOTIFYRE_SMS_RECIPIENT', ''),
+'default_sender' => env('NOTIFYRE_SMS_SENDER', env('APP_NAME')),
 'default_number_prefix' => env('NOTIFYRE_DEFAULT_NUMBER_PREFIX', ''),
 ```
 
@@ -153,8 +149,7 @@ php artisan vendor:publish --provider="MagicSystemsIO\Notifyre\Providers\Notifyr
 
 ```env
 NOTIFYRE_DRIVER=log
-NOTIFYRE_SMS_SENDER=+1234567890
-NOTIFYRE_SMS_RECIPIENT=+1234567890
+NOTIFYRE_SMS_SENDER=YourAppName
 ```
 
 ### Production
@@ -162,7 +157,7 @@ NOTIFYRE_SMS_RECIPIENT=+1234567890
 ```env
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_production_key
-NOTIFYRE_SMS_SENDER=+1234567890
+NOTIFYRE_SMS_SENDER=YourAppName
 NOTIFYRE_BASE_URL=https://api.notifyre.com
 NOTIFYRE_TIMEOUT=30
 ```
@@ -171,8 +166,7 @@ NOTIFYRE_TIMEOUT=30
 
 ```env
 NOTIFYRE_DRIVER=log
-NOTIFYRE_SMS_SENDER=+1234567890
-NOTIFYRE_SMS_RECIPIENT=+1234567890
+NOTIFYRE_SMS_SENDER=YourAppName
 ```
 
 ## Validation

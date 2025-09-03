@@ -2,6 +2,8 @@
 
 namespace MagicSystemsIO\Notifyre\Tests;
 
+use MagicSystemsIO\Notifyre\Facades\Notifyre;
+use MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -9,27 +11,27 @@ abstract class TestCase extends Orchestra
     /**
      * Get package providers.
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
-            \MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider::class,
+            NotifyreServiceProvider::class,
         ];
     }
 
     /**
      * Get package aliases.
      */
-    protected function getPackageAliases($app)
+    protected function getPackageAliases($app): array
     {
         return [
-            'Notifyre' => \MagicSystemsIO\Notifyre\Facades\Notifyre::class,
+            'Notifyre' => Notifyre::class,
         ];
     }
 
     /**
      * Define environment setup.
      */
-    protected function defineEnvironment($app)
+    protected function defineEnvironment($app): void
     {
         // Set up testing environment
         $app['config']->set('notifyre.base_url', 'https://api.notifyre.com');
@@ -50,7 +52,7 @@ abstract class TestCase extends Orchestra
     /**
      * Define database migrations.
      */
-    protected function defineDatabaseMigrations()
+    protected function defineDatabaseMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }

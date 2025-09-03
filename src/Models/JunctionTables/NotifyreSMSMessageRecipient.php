@@ -19,11 +19,15 @@ class NotifyreSMSMessageRecipient extends Model
     protected $fillable = [
         'sms_message_id',
         'recipient_id',
+        'sent',
+        'message',
     ];
 
     protected $casts = [
         'sms_message_id' => 'integer',
         'recipient_id' => 'integer',
+        'sent' => 'boolean',
+        'message' => 'string',
     ];
 
     public function recipient(): BelongsTo

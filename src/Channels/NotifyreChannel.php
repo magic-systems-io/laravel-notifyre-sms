@@ -7,17 +7,16 @@ use Illuminate\Notifications\Notification;
 use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Services\NotifyreService;
+use Throwable;
 
 readonly class NotifyreChannel
 {
-    public function __construct(
-        protected NotifyreService $service
-    ) {
-    }
-
     /**
-     * @throws InvalidArgumentException
+     * @param object $notifiable
+     * @param Notification $notification
+     *
      * @throws ConnectionException
+     * @throws Throwable
      */
     public function send(object $notifiable, Notification $notification): void
     {
@@ -29,11 +28,11 @@ readonly class NotifyreChannel
             throw new InvalidArgumentException('Notification does not have a toNotifyre method.');
         }
 
-        $request = $notification->toNotifyre();
-        if (!$request instanceof RequestBody) {
+        $requestBody = $notification->toNotifyre();
+        if (!$requestBody instanceof RequestBody) {
             throw new InvalidArgumentException('Method `toNotifyre` must return RequestBodyDTO object.');
         }
 
-        $this->service->send($request);
+        NotifyreService::send($requestBody);
     }
 }

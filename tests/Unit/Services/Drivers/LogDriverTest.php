@@ -98,7 +98,7 @@ test('send method logs recipient details correctly', function () {
             return $context['body'] === 'Hello, this is a test SMS message!' &&
                    is_array($recipients) &&
                    count($recipients) === 1 &&
-                   $recipients[0]['type'] === 'virtual_mobile_number' &&
+                   $recipients[0]['type'] === 'mobile_number' &&
                    $recipients[0]['value'] === '+61412345678';
         }))
         ->andReturnNull();
@@ -120,7 +120,7 @@ test('send method logs multiple recipients with correct structure', function () 
             return $context['body'] === 'Hello, this is a test SMS message for multiple recipients!' &&
                    is_array($recipients) &&
                    count($recipients) === 3 &&
-                   $recipients[0]['type'] === 'virtual_mobile_number' &&
+                   $recipients[0]['type'] === 'mobile_number' &&
                    $recipients[0]['value'] === '+61412345678' &&
                    $recipients[1]['type'] === 'contact' &&
                    $recipients[1]['value'] === 'contact-123' &&

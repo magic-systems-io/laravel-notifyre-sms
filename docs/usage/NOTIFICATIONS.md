@@ -25,7 +25,7 @@ class WelcomeNotification extends Notification
     {
         return new RequestBody(
             body: 'Welcome to our app!',
-            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)]
+            recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number)]
         );
     }
 }
@@ -63,7 +63,7 @@ public function toNotifyre(): RequestBodyDTO
 {
     return new RequestBodyDTO(
         body: 'Your message here',
-        recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)]
+        recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number)]
     );
 }
 ```
@@ -89,7 +89,7 @@ class OrderConfirmationNotification extends Notification
     {
         return new RequestBodyDTO(
             body: "Order #{$this->orderNumber} confirmed! Total: \${$this->total}",
-            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+            recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number)],
             metadata: [
                 'order_number' => $this->orderNumber,
                 'total_amount' => (string) $this->total,
@@ -123,7 +123,7 @@ class MeetingReminderNotification extends Notification
     {
         return new RequestBodyDTO(
             body: "Meeting reminder: {$this->meetingTime} at {$this->location}",
-            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+            recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number)],
             metadata: [
                 'meeting_time' => $this->meetingTime,
                 'location' => $this->location,
@@ -153,7 +153,7 @@ class BirthdayNotification extends Notification
     {
         return new RequestBodyDTO(
             body: "Happy Birthday {$this->name}! 🎉",
-            recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+            recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number)],
             scheduledDate: strtotime($this->birthday . ' 9:00 AM'),
             addUnsubscribeLink: true,
             metadata: [
@@ -222,7 +222,7 @@ public function toNotifyre(): RequestBodyDTO
         body: 'Welcome to our service!',
         recipients: [
             // Send to phone number
-            new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number),
+            new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number),
             // Or send to a contact in your Notifyre account
             new Recipient(NotifyreRecipientTypes::CONTACT->value, 'contact_123'),
             // Or send to a group
@@ -239,7 +239,7 @@ public function toNotifyre(): RequestBodyDTO
 {
     return new RequestBodyDTO(
         body: 'Your delivery is on its way!',
-        recipients: [new Recipient(NotifyreRecipientTypes::VIRTUAL_MOBILE_NUMBER->value, $notifiable->phone_number)],
+        recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, $notifiable->phone_number)],
         callbackUrl: 'https://yourapp.com/sms-delivery-status',
         metadata: [
             'customer_id' => $notifiable->id,

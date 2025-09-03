@@ -2,6 +2,7 @@
 
 namespace MagicSystemsIO\Notifyre\Tests\Unit\DTO\SMS;
 
+use MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 
 use function MagicSystemsIO\Notifyre\Tests\Helpers\build_response_payload_long_ids;
@@ -36,7 +37,7 @@ test('can be instantiated with invalid numbers', function () {
 
     expect($response_payload)->toBeInstanceOf(ResponsePayload::class)
         ->and($response_payload->invalidToNumbers)->toHaveCount(3)
-        ->and($response_payload->invalidToNumbers[0])->toBeInstanceOf(\MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber::class);
+        ->and($response_payload->invalidToNumbers[0])->toBeInstanceOf(InvalidNumber::class);
 });
 
 test('can be instantiated with single invalid number', function () {

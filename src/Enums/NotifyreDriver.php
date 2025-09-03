@@ -20,6 +20,6 @@ enum NotifyreDriver: string
      */
     public static function isValid(string $driver): bool
     {
-        return in_array($driver, self::values());
+        return in_array($driver, self::values(), true);
     }
 }
