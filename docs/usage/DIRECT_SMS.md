@@ -21,12 +21,12 @@ The `notifyre()` helper function returns the NotifyreService, which:
 
 1. Creates the appropriate driver (SMS or Log)
 2. Sends your message through that driver
-3. Returns a `ResponseBodyDTO` with delivery status
+3. Returns a `ResponseBody` with delivery status
 4. Handles any errors automatically
 
 ## Parameters
 
-### RequestBodyDTO
+### RequestBody
 
 - **`body`** (required) - The SMS message text (max 160 characters)
 - **`recipients`** (required) - Array of Recipient objects
@@ -88,7 +88,7 @@ notifyre()->send(new RequestBody(
 
 ## Response Handling
 
-The service returns a `ResponseBodyDTO` that you can use to track delivery:
+The service returns a `ResponseBody` that you can use to track delivery:
 
 ```php
 $response = notifyre()->send(new RequestBody(
@@ -99,71 +99,67 @@ $response = notifyre()->send(new RequestBody(
 if ($response && $response->success) {
     echo "Message sent successfully!";
     echo "Message ID: " . $response->payload->smsMessageID;
-    echo "Friendly ID: " . $response->payload->friendlyID;
-    
-    if (!empty($response->payload->invalidToNumbers)) {
-        echo "Some numbers were invalid:";
-        foreach ($response->payload->invalidToNumbers as $invalid) {
-            echo "Number: {$invalid->number}, Reason: {$invalid->message}";
-        }
-    }
+} else {
+    echo "Failed to send message: " . $response->message;
 }
 ```
 
-## DTO Features
-
-### Arrayable Interface
-
-All DTOs implement Laravel's `Arrayable` interface for easy data manipulation:
-
-```php
-$dto = new RequestBody(
-    body: 'Test message',
-    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
-);
-
-$array = $dto->toArray();
-// Convert to JSON
-$json = json_encode($dto->toArray());
-```
-
-### Validation
-
-The DTOs include comprehensive validation:
-
-- Message body cannot be empty
-- Recipients array cannot be empty
-- Recipient type must be valid
-- Recipient value cannot be empty
-
 ## Error Handling
 
-The service automatically handles:
+The service throws exceptions for various error conditions:
 
-- Invalid phone numbers
-- Empty message bodies
-- Invalid recipient types
-- API connection issues
-- Validation errors with detailed messages
-
-## What Happens Next
-
-- **SMS Driver**: Message is sent to Notifyre API and returns response data
-- **Log Driver**: Message is logged to Laravel logs (for testing) and returns null
+```php
+try {
+    $response = notifyre()->send(new RequestBody(
+        body: 'Test message',
+        recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
+    ));
+} catch (InvalidArgumentException $e) {
+    // Configuration errors (missing API key, invalid driver, etc.)
+    echo "Configuration error: " . $e->getMessage();
+} catch (RequestException $e) {
+    // Network errors (timeout, connection failed, etc.)
+    echo "Network error: " . $e->getMessage();
+} catch (Exception $e) {
+    // Other errors
+    echo "Error: " . $e->getMessage();
+}
+```
 
 ## Configuration
 
 Make sure you have the required environment variables set:
 
 ```env
-NOTIFYRE_DRIVER=sms  # or 'log' for testing
+NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key_here
 NOTIFYRE_BASE_URL=https://api.notifyre.com
 ```
 
-## Next Steps
+For testing, use the log driver:
 
-- Learn about [Laravel notifications](./NOTIFICATIONS.md)
-- Explore [CLI commands](./COMMANDS.md)
-- Check out [REST API usage](./API.md)
-- Review [Configuration options](../getting-started/CONFIGURATION.md)
+```env
+NOTIFYRE_DRIVER=log
+```
+
+## Database Persistence
+
+When database persistence is enabled, SMS messages and recipients are automatically stored:
+
+```php
+// This will store the message in the database if NOTIFYRE_DB_ENABLED=true
+$response = notifyre()->send(new RequestBody(
+    body: 'Stored message',
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
+));
+
+// You can then retrieve the message
+$message = NotifyreSMSMessages::where('messageId', $response->payload->smsMessageID)->first();
+```
+
+## Performance Tips
+
+- Use the log driver for testing to avoid API calls
+- Enable caching for better performance: `NOTIFYRE_CACHE_ENABLED=true`
+- Set appropriate timeouts: `NOTIFYRE_TIMEOUT=30`
+- Configure retry logic: `NOTIFYRE_RETRY_TIMES=3`

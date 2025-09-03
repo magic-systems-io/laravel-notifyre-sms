@@ -3,6 +3,9 @@
 A comprehensive Laravel-native SMS package that integrates with Notifyre's SMS service. Send SMS directly, through
 Laravel notifications, or via REST API with database persistence and advanced features.
 
+[![Tests](https://github.com/magic-systems-io/laravel-notifyre-sms/workflows/Tests/badge.svg)](https://github.com/magic-systems-io/laravel-notifyre-sms/actions)
+[![Code Coverage](https://img.shields.io/badge/coverage-62%25-yellow.svg)](https://github.com/magic-systems-io/laravel-notifyre-sms)
+
 ## ✨ Features
 
 - 🚀 **Direct SMS Sending** - Fast, simple SMS without notification overhead
@@ -17,7 +20,6 @@ Laravel notifications, or via REST API with database persistence and advanced fe
 - 🧪 **Testing Ready** - Log driver for development and testing
 - ⚙️ **Flexible Configuration** - Extensive configuration options
 - 📊 **Advanced DTOs** - Rich data transfer objects with Arrayable interface
-- 🔗 **Webhook Support** - Handle delivery status callbacks
 - 🏷️ **Recipient Types** - Support for virtual mobile numbers, contacts, and groups
 - 📝 **Message Tracking** - Track SMS messages with unique IDs
 
@@ -39,16 +41,20 @@ NOTIFYRE_API_KEY=your_api_key_here
 ### Basic Usage
 
 ```php
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
+
 // Direct SMS (fast)
-notifyre()->send(new RequestBodyDTO(
+notifyre()->send(new RequestBody(
     body: 'Hello World!',
-    recipients: [new Recipient('mobile_number', '+1234567890')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 
 // With sender
-notifyre()->send(new RequestBodyDTO(
+notifyre()->send(new RequestBody(
     body: 'Your order has been shipped!',
-    recipients: [new Recipient('mobile_number', '+1234567890')],
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')],
     sender: '+1987654321'
 ));
 
@@ -59,7 +65,7 @@ $user->notify(new WelcomeNotification());
 ### Test Your Installation
 
 ```bash
-php artisan sms:send --message="Hello from Notifyre!"
+php artisan sms:send --message="Hello from Notifyre!" --recipient="+1234567890"
 ```
 
 ## 📚 Documentation
@@ -111,12 +117,12 @@ php artisan sms:send --message="Hello from Notifyre!"
 The package provides REST API endpoints for SMS operations:
 
 - `POST /api/notifyre/sms` - Send SMS messages
-- `GET /api/notifyre/sms` - List SMS messages
+- `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
 - `GET /api/notifyre/sms/{id}` - Get specific SMS message
 
 ## 📋 Requirements
 
-- PHP 8.4+
+- PHP 8.3+
 - Laravel 12.20+
 - Notifyre API account
 

@@ -54,7 +54,7 @@ test('toArray method works with basic request', function () {
 
     expect($array)->toBeArray()
         ->and($array)->toHaveKeys(['Body', 'Recipients'])
-        ->and($array['From'])->toBeEmpty()
+        ->and($array)->not->toHaveKey('From')
         ->and($array['Body'])->toBe('Hello, this is a test SMS message!')
         ->and($array['Recipients'])->toHaveCount(1);
 });

@@ -2,6 +2,12 @@
 
 Get the Notifyre Laravel package up and running in your application.
 
+## Requirements
+
+- PHP 8.3+
+- Laravel 12.20+
+- Notifyre API account (for production use)
+
 ## Step 1: Install via Composer
 
 ```bash
@@ -41,7 +47,7 @@ php artisan migrate
 Send a test SMS using the command line:
 
 ```bash
-php artisan sms:send --message="Hello from Notifyre!"
+php artisan sms:send --message="Hello from Notifyre!" --recipient="+1234567890"
 ```
 
 ## Driver Options
@@ -52,7 +58,7 @@ php artisan sms:send --message="Hello from Notifyre!"
 NOTIFYRE_DRIVER=log
 ```
 
-Messages are logged to `storage/logs/laravel.log` instead of being sent. The log driver returns `null` for testing
+Messages are logged to `storage/logs/laravel.log` instead of being sent. The log driver returns a mock response for testing
 purposes.
 
 ### Production
@@ -91,43 +97,73 @@ $response = notifyre()->send(new RequestBody(
     recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 
-// Check response (log driver returns null, SMS driver returns ResponseBody)
+// Check response
 if ($response && $response->success) {
     echo "Message sent successfully!";
     echo "Message ID: " . $response->payload->smsMessageID;
-} else if ($response === null) {
-    echo "Message logged successfully (check Laravel logs)";
+} else if ($response && !$response->success) {
+    echo "Message failed: " . $response->message;
 } else {
-    echo "Failed: " . $response->message;
+    echo "Message logged successfully (check Laravel logs)";
 }
 ```
 
-## API Endpoints
+## Troubleshooting
 
-The package automatically registers these API routes:
+### Common Issues
 
-- `POST /api/notifyre/sms` - Send SMS messages
-- `GET /api/notifyre/sms` - List SMS messages
-- `GET /api/notifyre/sms/{id}` - Get specific SMS message
+#### "Invalid Notifyre driver" Error
 
-To enable the API, ensure these environment variables are set:
+Make sure you have set the `NOTIFYRE_DRIVER` environment variable:
 
 ```env
-NOTIFYRE_API_ENABLED=true
-NOTIFYRE_DB_ENABLED=true
+NOTIFYRE_DRIVER=log  # for testing
+# or
+NOTIFYRE_DRIVER=sms  # for production
 ```
 
-## Configuration Files
+#### "Notifyre API key is not configured" Error
 
-The package creates several configuration files:
+For production use, you need to set your API key:
 
-- `config/notifyre.php` - Main package configuration
-- Database migrations for SMS storage
-- Service provider registrations
+```env
+NOTIFYRE_API_KEY=your_actual_api_key_here
+```
+
+#### "Notifyre base URL is not configured" Error
+
+The base URL should be automatically set, but you can override it:
+
+```env
+NOTIFYRE_BASE_URL=https://api.notifyre.com
+```
+
+### Check Configuration
+
+Verify your configuration is correct:
+
+```bash
+php artisan config:show notifyre
+```
+
+### Test with Log Driver
+
+Always test with the log driver first:
+
+```bash
+# Set log driver
+export NOTIFYRE_DRIVER=log
+
+# Test command
+php artisan sms:send --message="Test message" --recipient="+1234567890"
+
+# Check logs
+tail -f storage/logs/laravel.log
+```
 
 ## Next Steps
 
-- [Learn how to send SMS directly](./../usage/DIRECT_SMS.md)
-- [Set up Laravel notifications](./../usage/NOTIFICATIONS.md)
-- [Explore the REST API](./../usage/API.md)
-- [Configure advanced options](./CONFIGURATION.md)
+- Learn about [Direct SMS usage](../usage/DIRECT_SMS.md)
+- Explore [Laravel notifications](../usage/NOTIFICATIONS.md)
+- Check out [CLI commands](../usage/COMMANDS.md)
+- Review [Configuration options](./CONFIGURATION.md)

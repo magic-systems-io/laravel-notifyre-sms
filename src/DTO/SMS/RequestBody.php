@@ -14,12 +14,12 @@ readonly class RequestBody implements Arrayable
     public function __construct(
         public string $body,
         public array $recipients,
-        public string $sender = '',
-        public int $scheduledDate = 0,
-        public bool $addUnsubscribeLink = false,
-        public string $callbackUrl = '',
-        public array $metadata = [],
-        public string $campaignName = '',
+        public ?string $sender = null,
+        public ?int $scheduledDate = null,
+        public ?bool $addUnsubscribeLink = null,
+        public ?string $callbackUrl = null,
+        public ?array $metadata = null,
+        public ?string $campaignName = null,
     ) {
         if (empty(trim($body))) {
             throw new InvalidArgumentException('Body cannot be empty');
@@ -33,7 +33,7 @@ readonly class RequestBody implements Arrayable
     {
         $recipients = array_map(fn (Recipient $recipient) => $recipient->toArray(), $this->recipients);
 
-        return [
+        $data = [
             'Body' => $this->body,
             'Recipients' => $recipients,
             'From' => $this->sender,
@@ -43,5 +43,7 @@ readonly class RequestBody implements Arrayable
             'Metadata' => $this->metadata,
             'CampaignName' => $this->campaignName,
         ];
+
+        return array_filter($data, fn ($value) => $value !== null);
     }
 }

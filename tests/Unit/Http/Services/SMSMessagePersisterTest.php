@@ -178,19 +178,6 @@ test('createMessage handles special characters in message body', function () {
     expect($result['body'])->toBe($specialBody);
 });
 
-test('createMessage handles empty sender correctly', function () {
-    $requestData = new RequestBody(
-        body: 'Test message',
-        recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+61412345678')],
-    );
-
-    $service = new SMSMessagePersister();
-
-    $result = $service->persist($requestData, build_success_response_body());
-
-    expect($result['sender'])->toBe('');
-});
-
 test('createMessage updates existing recipient timestamps', function () {
     $existingRecipient = NotifyreRecipients::create([
         'type' => NotifyreRecipientTypes::MOBILE_NUMBER->value,

@@ -26,8 +26,8 @@ readonly class SMSDriver implements NotifyreManager
 
         $response = Http::timeout(config('notifyre.timeout'))
             ->retry(
-                config('notifyre.retry.times', 3),
-                config('notifyre.retry.sleep', 1000)
+                times:             config('notifyre.retry.times', 3),
+                sleepMilliseconds: config('notifyre.retry.sleep', 1000),
             )
             ->withHeaders([
                 'x-api-token' => $apiKey,

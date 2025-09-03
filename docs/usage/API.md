@@ -19,7 +19,7 @@ NOTIFYRE_API_PREFIX=notifyre
 The package automatically registers these API routes:
 
 - `POST /api/notifyre/sms` - Send SMS messages
-- `GET /api/notifyre/sms` - List SMS messages
+- `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
 - `GET /api/notifyre/sms/{id}` - Get specific SMS message
 
 ## 📤 Sending SMS
@@ -41,8 +41,7 @@ POST /api/notifyre/sms
             "value": "+1234567890"
         }
     ],
-    "sender": "+1987654321",
-    "persist": true
+    "sender": "+1987654321"
 }
 ```
 
@@ -55,23 +54,20 @@ POST /api/notifyre/sms
 | `recipients[].type`  | string  | ✅        | Recipient type: `mobile_number`, `contact`, or `group`        |
 | `recipients[].value` | string  | ✅        | Recipient value (phone number, contact ID, or group ID)       |
 | `sender`             | string  | ❌        | Sender phone number (uses default if not provided)            |
-| `persist`            | boolean | ❌        | Whether to store the message in database (defaults to config) |
 
 ### Response
 
 ```json
 {
-    "data": {
-        "body": "Hello from the API!",
-        "recipients": [
-            {
-                "type": "mobile_number",
-                "value": "+1234567890"
-            }
-        ],
-        "sender": "+1987654321"
+    "success": true,
+    "statusCode": 200,
+    "message": "OK",
+    "payload": {
+        "smsMessageID": "sms-123",
+        "friendlyID": "friendly-123",
+        "invalidToNumbers": []
     },
-    "failed_recipients": []
+    "errors": []
 }
 ```
 
@@ -91,12 +87,13 @@ POST /api/notifyre/sms
 GET /api/notifyre/sms
 ```
 
+**Note**: This endpoint requires a sender parameter to filter messages by sender.
+
 #### Query Parameters
 
-| Parameter  | Type    | Description                |
-|------------|---------|----------------------------|
-| `page`     | integer | Page number for pagination |
-| `per_page` | integer | Items per page             |
+| Parameter  | Type    | Required | Description                |
+|------------|---------|----------|----------------------------|
+| `sender`   | string  | ✅        | Sender phone number to filter by |
 
 #### Response
 
@@ -108,17 +105,9 @@ GET /api/notifyre/sms
             "messageId": "sms-123",
             "sender": "+1987654321",
             "body": "Hello from the API!",
+            "driver": "sms",
             "created_at": "2024-01-15T10:30:00.000000Z",
-            "updated_at": "2024-01-15T10:30:00.000000Z",
-            "messageRecipients": [
-                {
-                    "id": 1,
-                    "type": "mobile_number",
-                    "value": "+1234567890",
-                    "created_at": "2024-01-15T10:30:00.000000Z",
-                    "updated_at": "2024-01-15T10:30:00.000000Z"
-                }
-            ]
+            "updated_at": "2024-01-15T10:30:00.000000Z"
         }
     ],
     "current_page": 1,
@@ -141,58 +130,34 @@ GET /api/notifyre/sms/{id}
     "messageId": "sms-123",
     "sender": "+1987654321",
     "body": "Hello from the API!",
+    "driver": "sms",
     "created_at": "2024-01-15T10:30:00.000000Z",
     "updated_at": "2024-01-15T10:30:00.000000Z",
     "messageRecipients": [
         {
             "id": 1,
-            "type": "mobile_number",
-            "value": "+1234567890",
+            "message_id": 1,
+            "recipient_id": 1,
             "created_at": "2024-01-15T10:30:00.000000Z",
-            "updated_at": "2024-01-15T10:30:00.000000Z"
+            "updated_at": "2024-01-15T10:30:00.000000Z",
+            "recipient": {
+                "id": 1,
+                "type": "mobile_number",
+                "value": "+1234567890",
+                "created_at": "2024-01-15T10:30:00.000000Z",
+                "updated_at": "2024-01-15T10:30:00.000000Z"
+            }
         }
     ]
 }
 ```
 
-#### Error Response
-
-```json
-{
-    "error": "Message not found"
-}
-```
-
 ## 🔧 Configuration
-
-### API Settings
-
-```php
-// config/notifyre.php
-'api' => [
-    'enabled' => env('NOTIFYRE_API_ENABLED', true),
-    'prefix' => env('NOTIFYRE_API_PREFIX', 'notifyre'),
-    'middleware' => explode(',', env('NOTIFYRE_API_MIDDLEWARE', 'api')),
-    'rate_limit' => [
-        'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
-        'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX_REQUESTS', 60),
-        'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_DECAY_MINUTES', 1),
-    ],
-    'database' => [
-        'enabled' => env('NOTIFYRE_DB_ENABLED', true),
-    ],
-    'cache' => [
-        'enabled' => env('NOTIFYRE_CACHE_ENABLED', true),
-        'ttl' => env('NOTIFYRE_CACHE_TTL', 3600),
-        'prefix' => env('NOTIFYRE_CACHE_PREFIX', 'notifyre_'),
-    ],
-],
-```
 
 ### Environment Variables
 
 ```env
-# API Configuration
+# API Settings
 NOTIFYRE_API_ENABLED=true
 NOTIFYRE_API_PREFIX=notifyre
 NOTIFYRE_API_MIDDLEWARE=api
@@ -202,7 +167,7 @@ NOTIFYRE_RATE_LIMIT_ENABLED=true
 NOTIFYRE_RATE_LIMIT_MAX_REQUESTS=60
 NOTIFYRE_RATE_LIMIT_DECAY_MINUTES=1
 
-# Database
+# Database Persistence
 NOTIFYRE_DB_ENABLED=true
 
 # Caching
@@ -211,94 +176,35 @@ NOTIFYRE_CACHE_TTL=3600
 NOTIFYRE_CACHE_PREFIX=notifyre_
 ```
 
-## 🛡️ Security & Middleware
+### Rate Limiting
 
-### Default Middleware
+The API includes built-in rate limiting:
 
-The API uses Laravel's `api` middleware by default, which includes:
+- **Default**: 60 requests per minute
+- **Configurable**: Via environment variables
+- **Per IP**: Rate limiting is applied per IP address
 
-- Authentication (if configured)
-- Rate limiting
-- CORS handling
-- JSON validation
+### Caching
 
-### Custom Middleware
+Response caching is available for improved performance:
 
-You can customize the middleware stack:
+- **Message retrieval**: Cached responses for individual messages
+- **TTL**: Configurable cache time-to-live
+- **Prefix**: Customizable cache key prefix
 
-```env
-NOTIFYRE_API_MIDDLEWARE=auth:sanctum,throttle:60,1
-```
+## 🔐 Authentication
 
-## 📊 Rate Limiting
-
-### Default Limits
-
-- **60 requests per minute** per user/IP
-- **Configurable** via environment variables
-
-### Custom Limits
+The API uses Laravel's standard authentication middleware. You can configure custom middleware:
 
 ```env
-NOTIFYRE_RATE_LIMIT_MAX_REQUESTS=100
-NOTIFYRE_RATE_LIMIT_DECAY_MINUTES=5
+NOTIFYRE_API_MIDDLEWARE=api,auth:sanctum
 ```
 
-## 💾 Database Persistence
+## 📝 Examples
 
-### Automatic Storage
+### cURL Examples
 
-When `persist` is `true` or `NOTIFYRE_DB_ENABLED=true`, messages are automatically stored in the database.
-
-### Database Schema
-
-The package creates these tables:
-
-- `notifyre_sms_messages` - Stores SMS message details
-- `notifyre_recipients` - Stores recipient information
-- `notifyre_sms_message_recipients` - Junction table for many-to-many relationship
-
-## 🚀 Caching
-
-### Response Caching
-
-API responses are cached when enabled:
-
-```env
-NOTIFYRE_CACHE_ENABLED=true
-NOTIFYRE_CACHE_TTL=3600
-NOTIFYRE_CACHE_PREFIX=notifyre_
-```
-
-### Cache Keys
-
-- `{prefix}.{sms_message_id}` - Caches individual SMS responses
-
-## 🔍 Error Handling
-
-### Validation Errors
-
-The API validates all input and returns detailed error messages for invalid data.
-
-### SMS Sending Errors
-
-If SMS sending fails, the API returns:
-
-- HTTP 422 status for validation failures
-- HTTP 500 status for server errors
-- Detailed error messages in the response
-
-### Common Error Scenarios
-
-- Invalid recipient phone numbers
-- Empty message body
-- Invalid recipient types
-- API authentication failures
-- Rate limit exceeded
-
-## 📱 Example Usage
-
-### cURL Example
+#### Send SMS
 
 ```bash
 curl -X POST http://your-app.com/api/notifyre/sms \
@@ -316,53 +222,101 @@ curl -X POST http://your-app.com/api/notifyre/sms \
   }'
 ```
 
-### JavaScript Example
+#### List Messages
+
+```bash
+curl -X GET "http://your-app.com/api/notifyre/sms?sender=%2B1987654321" \
+  -H "Accept: application/json"
+```
+
+#### Get Specific Message
+
+```bash
+curl -X GET http://your-app.com/api/notifyre/sms/1 \
+  -H "Accept: application/json"
+```
+
+### JavaScript Examples
+
+#### Send SMS
 
 ```javascript
 const response = await fetch('/api/notifyre/sms', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-    },
-    body: JSON.stringify({
-        body: 'Hello from JavaScript!',
-        recipients: [
-            {
-                type: 'mobile_number',
-                value: '+1234567890'
-            }
-        ],
-        sender: '+1987654321'
-    })
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  body: JSON.stringify({
+    body: 'Hello from JavaScript!',
+    recipients: [
+      {
+        type: 'mobile_number',
+        value: '+1234567890'
+      }
+    ],
+    sender: '+1987654321'
+  })
 });
 
 const result = await response.json();
 console.log(result);
 ```
 
-### PHP Example
+#### List Messages
 
-```php
-use Illuminate\Support\Facades\Http;
+```javascript
+const response = await fetch('/api/notifyre/sms?sender=%2B1987654321', {
+  headers: {
+    'Accept': 'application/json',
+  }
+});
 
-$response = Http::post('/api/notifyre/sms', [
-    'body' => 'Hello from PHP!',
-    'recipients' => [
-        [
-            'type' => 'mobile_number',
-            'value' => '+1234567890'
-        ]
-    ],
-    'sender' => '+1987654321'
-]);
-
-$result = $response->json();
+const messages = await response.json();
+console.log(messages.data);
 ```
 
-## 🔗 Next Steps
+## 🚨 Error Handling
 
-- Learn about [Direct SMS usage](./DIRECT_SMS.md)
-- Explore [Laravel notifications](./NOTIFICATIONS.md)
-- Check out [CLI commands](./COMMANDS.md)
-- Review [Configuration options](../getting-started/CONFIGURATION.md)
+### Common Error Responses
+
+#### 422 - Validation Error
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "body": ["The body field is required."],
+    "recipients": ["The recipients field is required."]
+  }
+}
+```
+
+#### 404 - Message Not Found
+
+```json
+{
+  "error": "Message not found"
+}
+```
+
+#### 500 - Server Error
+
+```json
+{
+  "message": "Failed to send SMS"
+}
+```
+
+## 🔄 Response Codes
+
+| Code | Description                    |
+|------|--------------------------------|
+| 200  | Success                        |
+| 201  | Created (SMS sent successfully) |
+| 400  | Bad Request                    |
+| 401  | Unauthorized                   |
+| 404  | Not Found                      |
+| 422  | Validation Error               |
+| 429  | Too Many Requests (Rate Limit) |
+| 500  | Server Error                   |

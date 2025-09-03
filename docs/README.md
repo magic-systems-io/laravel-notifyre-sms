@@ -41,15 +41,19 @@ NOTIFYRE_DRIVER=log
 NOTIFYRE_API_KEY=your_api_key
 
 # Basic SMS
-notifyre()->send(new RequestBodyDTO(
+use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
+use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
+
+notifyre()->send(new RequestBody(
     body: 'Hello World!',
-    recipients: [new Recipient('mobile_number', '+1234567890')]
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 
 # With sender
-notifyre()->send(new RequestBodyDTO(
+notifyre()->send(new RequestBody(
     body: 'Your order has been shipped!',
-    recipients: [new Recipient('mobile_number', '+1234567890')],
+    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')],
     sender: '+1987654321'
 ));
 ```
@@ -131,6 +135,11 @@ docs/
 
 - `NOTIFYRE_API_ENABLED` - Enable/disable API
 - `NOTIFYRE_API_PREFIX` - API route prefix
+- `NOTIFYRE_API_MIDDLEWARE` - API middleware
 - `NOTIFYRE_RATE_LIMIT_ENABLED` - Enable rate limiting
+- `NOTIFYRE_RATE_LIMIT_MAX_REQUESTS` - Max requests per minute
+- `NOTIFYRE_RATE_LIMIT_DECAY_MINUTES` - Rate limit time window
 - `NOTIFYRE_DB_ENABLED` - Enable database persistence
 - `NOTIFYRE_CACHE_ENABLED` - Enable response caching
+- `NOTIFYRE_CACHE_TTL` - Cache time to live
+- `NOTIFYRE_CACHE_PREFIX` - Cache key prefix

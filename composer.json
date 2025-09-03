@@ -55,10 +55,10 @@
                 "MagicSystemsIO\\Notifyre\\Providers\\NotifyreServiceProvider"
             ],
             "config": {
-                "abac": "config/notifyre.php"
+                "notifyre": "config/notifyre.php"
             },
             "aliases": {
-                "Abac": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
+                "Notifyre": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
             }
         }
     },
