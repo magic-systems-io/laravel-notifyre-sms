@@ -70,7 +70,7 @@ class VersionUpdater
             return;
         }
 
-        $version = "v.$version";
+        $version = "v$version";
 
         exec('git add composer.json');
         exec(sprintf('git commit -m "Version bump to %s"', $version));
@@ -84,4 +84,4 @@ if (!in_array($type, ['major', 'minor', 'patch'])) {
     exit("Usage: composer version-[major|minor|patch]\n");
 }
 
-new VersionUpdater()->update($type);
+(new VersionUpdater())->update($type);
