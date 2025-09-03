@@ -34,7 +34,7 @@ This package provides **three ways to send SMS**:
 
 ```bash
 # Install
-composer require magic-systems-io/notifyre-laravel
+composer require magic-systems-io/laravel-notifyre-sms
 
 # Configure (basic setup)
 NOTIFYRE_DRIVER=log

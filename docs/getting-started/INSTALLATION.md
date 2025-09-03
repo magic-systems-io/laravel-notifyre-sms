@@ -5,7 +5,7 @@ Get the Notifyre Laravel package up and running in your application.
 ## Step 1: Install via Composer
 
 ```bash
-composer require magic-systems-io/notifyre-laravel
+composer require magic-systems-io/laravel-notifyre-sms
 ```
 
 ## Step 2: Configure Environment Variables

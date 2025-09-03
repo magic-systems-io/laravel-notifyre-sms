@@ -26,7 +26,7 @@ Laravel notifications, or via REST API with database persistence and advanced fe
 ### Installation
 
 ```bash
-composer require magic-systems-io/notifyre-laravel
+composer require magic-systems-io/laravel-notifyre-sms
 ```
 
 ### Basic Setup
