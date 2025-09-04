@@ -19,13 +19,6 @@ return new class () extends Migration
             $table->string('driver', 50)->default(NotifyreDriver::SMS);
         });
 
-        Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
-            $table->foreignId('sms_message_id')->constrained('notifyre_sms_messages')->cascadeOnDelete();
-            $table->foreignId('recipient_id')->constrained('notifyre_recipients')->cascadeOnDelete();
-            $table->boolean('sent')->default(true);
-            $table->string('message', 255)->nullable();
-        });
-
         Schema::create('notifyre_recipients', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
@@ -34,6 +27,14 @@ return new class () extends Migration
 
             $table->unique(['type', 'value']);
         });
+
+        Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
+            $table->foreignId('sms_message_id')->constrained('notifyre_sms_messages')->cascadeOnDelete();
+            $table->foreignId('recipient_id')->constrained('notifyre_recipients')->cascadeOnDelete();
+            $table->boolean('sent')->default(true);
+            $table->string('message', 255)->nullable();
+        });
+
     }
 
     public function down(): void
