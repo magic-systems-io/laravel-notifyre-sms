@@ -1,7 +1,7 @@
 {
     "name": "magic-systems-io/laravel-notifyre-sms",
     "description": "A Notifyre wrapper for laravel",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "type": "library",
     "license": "MIT",
     "keywords": [
