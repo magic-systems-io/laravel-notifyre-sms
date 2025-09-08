@@ -47,7 +47,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Execute tests via Pest with coverage
-        run: vendor/bin/pest --coverage 2>&1 | tee test-output.txt
+        run: vendor/bin/pest --coverage --coverage-xml=coverage.xml 2>&1 | tee test-output.txt
 
       - name: Calculate coverage percentage
         id: coverage
@@ -70,21 +70,3 @@ jobs:
           echo "coverage=$COVERAGE_INT" >> $GITHUB_OUTPUT
           echo "color=$COLOR" >> $GITHUB_OUTPUT
 
-      - name: Update README with coverage badge
-        run: |
-          # Create the badge URL
-          BADGE_URL="https://img.shields.io/badge/coverage-${{ steps.coverage.outputs.coverage }}%25-${{ steps.coverage.outputs.color }}.svg"
-          
-          # Update README.md with the new badge
-          sed -i "s|https://img.shields.io/badge/coverage-[0-9]*%25-[a-z]*.svg|$BADGE_URL|g" README.md
-          
-          # Commit the changes if they were made
-          if git diff --quiet README.md; then
-            echo "No changes to README.md"
-          else
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git add README.md
-            git commit -m "Update coverage badge to ${{ steps.coverage.outputs.coverage }}%"
-            git push
-          fi
