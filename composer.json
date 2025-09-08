@@ -27,6 +27,7 @@
     ],
     "require": {
         "php": "^8.3",
+        "giggsey/libphonenumber-for-php": "^9.0",
         "laravel/framework": "^12.20.0"
     },
     "require-dev": {

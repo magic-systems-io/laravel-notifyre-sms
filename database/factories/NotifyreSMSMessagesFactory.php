@@ -4,16 +4,16 @@ namespace MagicSystemsIO\Notifyre\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
-use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
+use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
 
 class NotifyreSMSMessagesFactory extends Factory
 {
-    protected $model = NotifyreSMSMessages::class;
+    protected $model = NotifyreSmsMessages::class;
 
     public function definition(): array
     {
         return [
-            'messageId' => $this->faker->uuid,
+            'id' => $this->faker->uuid,
             'sender' => $this->faker->name,
             'body' => $this->faker->text,
             'created_at' => Carbon::now(),

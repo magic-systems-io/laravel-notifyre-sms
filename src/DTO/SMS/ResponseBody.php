@@ -6,13 +6,6 @@ use Illuminate\Contracts\Support\Arrayable;
 
 readonly class ResponseBody implements Arrayable
 {
-    /**
-     * @param bool $success Shows if the API call has been successful
-     * @param int $statusCode The status of the HTTP call
-     * @param string $message A detailed message providing more information
-     * @param ResponsePayload $payload Response data
-     * @param array $errors Detailed error information if any
-     */
     public function __construct(
         public bool $success,
         public int $statusCode,

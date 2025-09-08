@@ -11,28 +11,32 @@ return new class () extends Migration
     public function up(): void
     {
         Schema::create('notifyre_sms_messages', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('messageId', 255);
-            $table->string('sender', 50)->nullable();
+            $table->string('id')->primary();
+            $table->string('sender', 50)->nullable()->index();
             $table->string('body', 160)->nullable();
-            $table->string('driver', 50)->default(NotifyreDriver::SMS);
+            $table->string('driver', 50)->default(NotifyreDriver::SMS)->index();
+            $table->timestamps();
         });
 
         Schema::create('notifyre_recipients', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('type', 255)->default(NotifyreRecipientTypes::MOBILE_NUMBER->value);
+            $table->string('id')->primary();
+            $table->uuid('tmp_id')->nullable()->unique()->index();
+            $table->string('type', 255)->default(NotifyreRecipientTypes::MOBILE_NUMBER->value)->index();
             $table->string('value', 255);
+            $table->timestamps();
 
             $table->unique(['type', 'value']);
         });
 
         Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
-            $table->foreignId('sms_message_id')->constrained('notifyre_sms_messages')->cascadeOnDelete();
-            $table->foreignId('recipient_id')->constrained('notifyre_recipients')->cascadeOnDelete();
-            $table->boolean('sent')->default(true);
-            $table->string('message', 255)->nullable();
+            $table->string('sms_message_id');
+            $table->string('recipient_id');
+            $table->boolean('sent')->default(false);
+
+            $table->foreign('sms_message_id')->references('id')->on('notifyre_sms_messages')->cascadeOnDelete();
+            $table->foreign('recipient_id')->references('id')->on('notifyre_recipients')->cascadeOnDelete();
+
+            $table->unique(['sms_message_id', 'recipient_id']);
         });
 
     }

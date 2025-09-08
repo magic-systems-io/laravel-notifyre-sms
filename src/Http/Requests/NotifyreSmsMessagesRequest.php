@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
-class NotifyreSMSMessagesRequest extends FormRequest
+class NotifyreSmsMessagesRequest extends FormRequest
 {
     public function rules(): array
     {

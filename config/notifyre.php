@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'driver' => env('NOTIFYRE_DRIVER', 'log'), // 'api' or 'log'
+    'driver' => env('NOTIFYRE_DRIVER', 'sms'), // 'sms' or 'log'
 
     /*
      | ---------------------------------------------------------------------------
@@ -35,11 +35,9 @@ return [
      | ---------------------------------------------------------------------------
      |
      | This is the default prefix that will be added to recipient numbers if they
-     | do not already include a country code. For example, if you set it to '+49',
-     | all numbers will be prefixed with '+49' unless they already start with a
-     | country code.
+     | do not already include a country code.
      */
-    'default_number_prefix' => env('NOTIFYRE_DEFAULT_NUMBER_PREFIX', ''), // e.g. '+49' for German numbers
+    'default_number_prefix' => env('NOTIFYRE_DEFAULT_NUMBER_PREFIX', ''),
 
     /*
      | ---------------------------------------------------------------------------
@@ -52,11 +50,11 @@ return [
      */
     'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
 
-    'timeout' => env('NOTIFYRE_TIMEOUT', 30), // HTTP request timeout in seconds
+    'timeout' => 30, // HTTP request timeout in seconds
 
     'retry' => [
-        'times' => env('NOTIFYRE_RETRY_TIMES', 3),
-        'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1000), // milliseconds between retries
+        'times' => 3,
+        'sleep' => 1000, // milliseconds between retries
     ],
 
 
@@ -73,21 +71,30 @@ return [
 
     'api' => [
         'enabled' => env('NOTIFYRE_API_ENABLED', true),
-        'prefix' => env('NOTIFYRE_API_PREFIX', 'notifyre'),
-        'middleware' => explode(',', env('NOTIFYRE_API_MIDDLEWARE', 'api')),
+        'prefix' => 'notifyre',
+        'middleware' => 'api',
         'rate_limit' => [
-            'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
-            'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX_REQUESTS', 60), // Maximum requests per minute
-            'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_DECAY_MINUTES', 1), // Time window for rate limiting in minutes
+            'enabled' => true,
+            'max_requests' => 60, // Maximum requests per minute
+            'decay_minutes' =>  1, // Time window for rate limiting in minutes
         ],
         'database' => [
             'enabled' => env('NOTIFYRE_DB_ENABLED', true),
         ],
-        'cache' => [
-            'enabled' => env('NOTIFYRE_CACHE_ENABLED', true),
-            'ttl' => env('NOTIFYRE_CACHE_TTL', 3600), // Time to live in seconds
-            'prefix' => env('NOTIFYRE_CACHE_PREFIX', 'notifyre_'),
-        ],
     ],
 
+    /*
+     | ---------------------------------------------------------------------------
+     | Logging Configuration
+     | ---------------------------------------------------------------------------
+     |
+     | This section contains configuration options for custom logging behavior.
+     | The logger uses your application's default logging configuration but
+     | adds a prefix to make it easier to identify Notifyre-related logs.
+     |
+     */
+    'logging' => [
+        'prefix' => 'notifyre_sms',
+        'enabled' => env('NOTIFYRE_LOGGING_ENABLED', true),
+    ],
 ];

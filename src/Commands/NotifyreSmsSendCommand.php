@@ -13,8 +13,8 @@ use Throwable;
 
 class NotifyreSmsSendCommand extends Command
 {
-    public $signature = 'sms:send 
-		{--r|recipient=* : The number and optional type, e.g. +123456789:mobile_number,+987654321:contact} 
+    public $signature = 'sms:send
+		{--r|recipient=* : The number and optional type, e.g. +123456789:mobile_number,+987654321:contact}
 		{--m|message= : The message that will be sent}';
 
     public $description = 'Send an SMS to a specified phone number using Notifyre';
@@ -23,11 +23,13 @@ class NotifyreSmsSendCommand extends Command
     {
         try {
             $this->info('Sending SMS...');
+
             NotifyreService::send(new RequestBody(
                 body: $this->parseMessage(),
                 recipients: $this->parseRecipients(),
             ));
-            $this->info('SMS sent successfully!');
+
+            $this->info('SMS is being sent');
 
             return  CommandStatus::SUCCESS;
         } catch (Throwable $e) {

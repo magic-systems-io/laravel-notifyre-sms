@@ -5,10 +5,9 @@ namespace MagicSystemsIO\Notifyre\Services;
 use Illuminate\Http\Client\ConnectionException;
 use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
+use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreDriver;
-use MagicSystemsIO\Notifyre\Http\Services\SMSMessagePersister;
-use MagicSystemsIO\Notifyre\Services\Drivers\LogDriver;
-use MagicSystemsIO\Notifyre\Services\Drivers\SMSDriver;
+use MagicSystemsIO\Notifyre\Services\Drivers\SmsDriver;
 use Throwable;
 
 class NotifyreService
@@ -20,25 +19,27 @@ class NotifyreService
      * @throws ConnectionException
      * @throws Throwable
      */
-    public static function send(RequestBody $request): array
+    public static function send(RequestBody $request): void
     {
-        $driverName = self::getDriverName();
-        $driver = self::createDriver($driverName);
-        $response = $driver->send($request);
+        try {
+            $response = self::createDriver(self::getDriverName())->send($request);
 
-        if (empty($response)) {
-            return [
-                'message' => "Message sent via the $driverName driver",
-                'request' => $request->toArray(),
-                'response' => $response,
-            ];
+            NotifyreMessagePersister::persist($request, $response);
+        } catch (Throwable $e) {
+            NotifyreLogger::error("Failed to send SMS: {$e->getMessage()}", ['exception' => $e]);
+
+            throw $e;
         }
+    }
 
-        if (config('notifyre.api.database.enabled')) {
-            return SMSMessagePersister::persist($request, $response);
-        }
-
-        return $response->toArray();
+    /**
+     * Create driver instance based on driver name
+     */
+    private static function createDriver(string $driver): SmsDriver
+    {
+        return match ($driver) {
+            NotifyreDriver::SMS->value => new SmsDriver(),
+        };
     }
 
     /**
@@ -59,13 +60,31 @@ class NotifyreService
     }
 
     /**
-     * Create driver instance based on driver name
+     * @throws ConnectionException
      */
-    private static function createDriver(string $driver): LogDriver|SMSDriver
+    public static function get(string $messageId): ?ResponseBody
     {
-        return match ($driver) {
-            NotifyreDriver::LOG->value => new LogDriver(),
-            NotifyreDriver::SMS->value => new SMSDriver(),
-        };
+        try {
+            return self::createDriver(self::getDriverName())->get($messageId);
+        } catch (ConnectionException $e) {
+            NotifyreLogger::error("Failed to retrieve SMS: {$e->getMessage()}", ['exception' => $e]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws ConnectionException
+     * @return ResponseBody[]
+     */
+    public static function list(array $queryParams = []): array
+    {
+        try {
+            return self::createDriver(self::getDriverName())->list($queryParams) ?? [];
+        } catch (ConnectionException $e) {
+            NotifyreLogger::error("Failed to list SMS messages: {$e->getMessage()}", ['exception' => $e]);
+
+            throw $e;
+        }
     }
 }

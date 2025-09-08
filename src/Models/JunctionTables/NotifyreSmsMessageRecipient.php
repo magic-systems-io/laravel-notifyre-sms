@@ -6,28 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
-use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
+use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
 
-class NotifyreSMSMessageRecipient extends Model
+class NotifyreSmsMessageRecipient extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
 
-    protected $table = 'notifyre_sms_message_recipients';
-
     protected $fillable = [
         'sms_message_id',
         'recipient_id',
         'sent',
-        'message',
     ];
 
     protected $casts = [
-        'sms_message_id' => 'integer',
-        'recipient_id' => 'integer',
+        'sms_message_id' => 'string',
+        'recipient_id' => 'string',
         'sent' => 'boolean',
-        'message' => 'string',
     ];
 
     public function recipient(): BelongsTo
@@ -37,6 +33,6 @@ class NotifyreSMSMessageRecipient extends Model
 
     public function message(): BelongsTo
     {
-        return $this->belongsTo(NotifyreSMSMessages::class, 'sms_message_id');
+        return $this->belongsTo(NotifyreSmsMessages::class, 'sms_message_id');
     }
 }

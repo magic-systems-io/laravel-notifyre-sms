@@ -8,7 +8,6 @@ use InvalidArgumentException;
 readonly class RequestBody implements Arrayable
 {
     /**
-     * @param string $body The body of the SMS message
      * @param Recipient[] $recipients A collection of recipient objects
      */
     public function __construct(

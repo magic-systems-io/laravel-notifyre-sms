@@ -3,19 +3,19 @@
 namespace MagicSystemsIO\Notifyre\Database\Factories\Junction;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSMSMessageRecipient;
+use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSmsMessageRecipient;
 use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
-use MagicSystemsIO\Notifyre\Models\NotifyreSMSMessages;
+use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
 
 class NotifyreSMSMessageRecipientFactory extends Factory
 {
-    protected $model = NotifyreSMSMessageRecipient::class;
+    protected $model = NotifyreSmsMessageRecipient::class;
 
     public function definition(): array
     {
         return [
-            'recipient_id' => NotifyreRecipients::factory()->create()->getKey(),
-            'sms_message_id' => NotifyreSMSMessages::factory()->create()->getKey(),
+            'recipient_id' => NotifyreRecipients::factory()->create()->id,
+            'sms_message_id' => NotifyreSmsMessages::factory()->create()->id,
         ];
     }
 }

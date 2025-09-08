@@ -6,15 +6,11 @@ use BadMethodCallException;
 use Illuminate\Support\Facades\Facade;
 use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
-use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 
 /**
  * Facade for the Notifyre service.
  *
  * Provides methods for sending SMS through the Notifyre API
- *
- * @method static ResponseBody send(RequestBody $request)
  *
  * @throws InvalidArgumentException
  * @throws BadMethodCallException

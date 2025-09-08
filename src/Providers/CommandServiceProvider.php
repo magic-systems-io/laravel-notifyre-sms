@@ -3,6 +3,7 @@
 namespace MagicSystemsIO\Notifyre\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use MagicSystemsIO\Notifyre\Commands\NotifyreSmsListCommand;
 use MagicSystemsIO\Notifyre\Commands\NotifyreSmsSendCommand;
 use MagicSystemsIO\Notifyre\Commands\PublishNotifyreAllCommand;
 use MagicSystemsIO\Notifyre\Commands\PublishNotifyreConfigCommand;
@@ -15,6 +16,7 @@ class CommandServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 NotifyreSmsSendCommand::class,
+                NotifyreSmsListCommand::class,
                 PublishNotifyreAllCommand::class,
                 PublishNotifyreConfigCommand::class,
                 PublishNotifyreEnvCommand::class,

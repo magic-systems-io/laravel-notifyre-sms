@@ -3,7 +3,7 @@
 namespace MagicSystemsIO\Notifyre\DTO\SMS;
 
 use Illuminate\Contracts\Support\Arrayable;
-use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
+use MagicSystemsIO\Notifyre\Utils\RecipientVerificationUtils;
 use Symfony\Component\Mime\Exception\InvalidArgumentException;
 
 readonly class Recipient implements Arrayable
@@ -12,13 +12,18 @@ readonly class Recipient implements Arrayable
         public string $type,
         public string $value,
     ) {
-        if (!NotifyreRecipientTypes::isValid($this->type)) {
-            throw new InvalidArgumentException("Invalid type '$type'. Valid types are: " . implode(', ', NotifyreRecipientTypes::values()));
+        if (!RecipientVerificationUtils::validateRecipient($this->normalizeCountryCode($this->value), $this->type)) {
+            throw new InvalidArgumentException("Invalid recipient '$value' for type '$type'.");
+        }
+    }
+
+    private function normalizeCountryCode(string $value): string
+    {
+        if (str_starts_with($value, '+')) {
+            return $value;
         }
 
-        if (empty(trim($value))) {
-            throw new InvalidArgumentException('Value cannot be empty');
-        }
+        return preg_replace('/^0/', config('notifyre.default_number_prefix'), $value);
     }
 
     public function toArray(): array

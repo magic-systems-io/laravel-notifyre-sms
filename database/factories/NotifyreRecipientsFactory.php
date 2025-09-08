@@ -14,6 +14,7 @@ class NotifyreRecipientsFactory extends Factory
     public function definition(): array
     {
         return [
+            'id' => $this->faker->uuid,
             'type' => $this->faker->randomElement(NotifyreRecipientTypes::values()),
             'value' => $this->faker->phoneNumber,
             'created_at' => Carbon::now(),
