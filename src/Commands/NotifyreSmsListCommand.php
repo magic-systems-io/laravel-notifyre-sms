@@ -3,8 +3,8 @@
 namespace MagicSystemsIO\Notifyre\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
-use MagicSystemsIO\Notifyre\Services\NotifyreLogger;
 use Symfony\Component\Console\Command\Command as CommandStatus;
 use Throwable;
 
@@ -52,7 +52,7 @@ class NotifyreSmsListCommand extends Command
             }
             $this->displaySMSList($results);
 
-            NotifyreLogger::info('testing log channel');
+            Log::channel('notifyre')->info('testing log channel');
 
             return CommandStatus::SUCCESS;
 

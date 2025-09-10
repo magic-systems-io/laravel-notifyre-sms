@@ -30,7 +30,7 @@ class ApiUrlBuilder
      */
     private static function getBaseUrl(): string
     {
-        $url = config('notifyre.base_url') ?? '';
+        $url = config('notifyre.http.base_url') ?? '';
         if (empty(trim($url))) {
             throw new InvalidArgumentException('Notifyre base URL is not configured.');
         }

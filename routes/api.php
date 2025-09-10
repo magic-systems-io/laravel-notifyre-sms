@@ -2,18 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use MagicSystemsIO\Notifyre\Http\Controllers\NotifyreSmsController;
+use MagicSystemsIO\Notifyre\Http\Middlewares\EnsureDatabaseIsEnabledMiddleware;
 
-if (!config('notifyre.api.enabled', false)) {
-    return;
-}
+Route::controller(NotifyreSmsController::class)->name('notifyre.sms.')->group(function () {
+    Route::get('sms/notifyre', 'indexFromNotifyre')->name('api.index');
+    Route::get('sms/notifyre/{sms}', 'getFromNotifyre')->name('api.show');
 
-Route::controller(NotifyreSmsController::class)->name('sms.')->group(function () {
-    Route::get('sms/list-api', 'listApi')->name('list-api');
-    Route::get('sms/api/{sms}', 'getApi')->name('get-api');
+    Route::middleware(EnsureDatabaseIsEnabledMiddleware::class)->group(function () {
+        Route::get('sms', 'indexMessages')->name('local.index');
+        Route::post('sms', 'sendMessage')->name('send');
+        Route::get('sms/{sms}', 'showMessage')->name('local.show');
+        Route::get('recipient/{recipient}', 'showMessagesSentToRecipient')->name('recipient.history');
+        Route::post('sms/webhook', 'handleWebhook')->name('webhook');
+    });
 });
-
-Route::apiResource('sms', NotifyreSmsController::class)
-    ->only(['index', 'show', 'store']);
-
-Route::post('callback/sms', [NotifyreSmsController::class, 'callback'])
-    ->name('notifyre.sms.callback');

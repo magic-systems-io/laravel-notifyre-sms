@@ -6,8 +6,12 @@ use Illuminate\Support\ServiceProvider;
 
 class MigrationServiceProvider extends ServiceProvider
 {
-    public function register(): void
+    public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations/create_notifyre_tables.php');
+        if (!config('notifyre.database.enabled')) {
+            return;
+        }
+
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
     }
 }

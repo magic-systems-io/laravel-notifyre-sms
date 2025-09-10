@@ -24,11 +24,7 @@ class NotifyreMessagePersister
         DB::transaction(function () use ($request, $response) {
             $message = self::createSmsMessage($request, $response->payload->id);
             $recipients = self::createRecipients($request->recipients);
-            self::linkMessageToRecipients(
-                message:    $message,
-                recipients: $recipients,
-                response:   $response
-            );
+            self::linkMessageToRecipients($message, $recipients);
         });
     }
 
@@ -41,7 +37,7 @@ class NotifyreMessagePersister
             'driver' => config('services.notifyre.driver') ?? config('notifyre.driver'),
         ]);
 
-        if (!$message->id) {
+        if (!$message->wasRecentlyCreated) {
             throw new RuntimeException('Failed to create SMS message');
         }
 
@@ -49,35 +45,44 @@ class NotifyreMessagePersister
     }
 
     /**
-     * @var Recipient[] $recipients
+     * @param Recipient[] $recipients
      */
     private static function createRecipients(array $recipients): Collection
     {
-        $recipientData = array_map(function ($recipient) {
-            $id = Str::uuid()->toString();
+        $batchId = Str::uuid()->toString();
 
+        $recipientData = array_map(function (Recipient $recipient, int $index) use ($batchId) {
             return [
-                'id' => $id,
-                'tmp_id' => $id,
+                'id' => Str::uuid()->toString(),
+                'tmp_id' => $batchId . '-' . $index,
                 'type' => $recipient->type,
                 'value' => $recipient->value,
-                'created_at' => now(),
-                'updated_at' => now(),
             ];
-        }, $recipients);
+        }, $recipients, array_keys($recipients));
 
-        NotifyreRecipients::upsert(
-            values:   $recipientData,
+        $affectedRows = NotifyreRecipients::upsert(
+            values: $recipientData,
             uniqueBy: ['type', 'value'],
-            update:   ['tmp_id', 'updated_at']
+            update: ['tmp_id']
         );
 
-        return NotifyreRecipients::whereIn('tmp_id', array_column($recipientData, 'tmp_id'))->get();
+        $expectedRows = count($recipientData);
+
+        if ($affectedRows !== $expectedRows) {
+            throw new RuntimeException(
+                'Failed to process all recipients. Expected ' . $expectedRows .
+                ', but got ' . $affectedRows
+            );
+        }
+
+        return NotifyreRecipients::where('tmp_id', 'LIKE', $batchId . '-%')->get();
     }
 
-    private static function linkMessageToRecipients(NotifyreSmsMessages $message, Collection $recipients, ResponseBody $response): void
-    {
-        $messageRecipients = $recipients->map(function (NotifyreRecipients $recipient) use ($message, $response) {
+    private static function linkMessageToRecipients(
+        NotifyreSmsMessages $message,
+        Collection $recipients
+    ): void {
+        $messageRecipients = $recipients->map(function (NotifyreRecipients $recipient) use ($message) {
             return [
                 'sms_message_id' => $message->id,
                 'recipient_id' => $recipient->id,
@@ -85,14 +90,19 @@ class NotifyreMessagePersister
             ];
         })->toArray();
 
-        $junctionCreated = NotifyreSmsMessageRecipient::upsert(
-            values:   $messageRecipients,
+        $affectedRows = NotifyreSmsMessageRecipient::upsert(
+            values: $messageRecipients,
             uniqueBy: ['sms_message_id', 'recipient_id'],
-            update:   ['sent']
+            update: ['sent']
         );
 
-        if (!$junctionCreated) {
-            throw new RuntimeException('Failed to create message-recipient relationships');
+        $expectedRows = count($messageRecipients);
+
+        if ($affectedRows !== $expectedRows) {
+            throw new RuntimeException(
+                'Failed to create all message-recipient relationships. Expected ' .
+                $expectedRows . ', but affected ' . $affectedRows . ' rows'
+            );
         }
     }
 }

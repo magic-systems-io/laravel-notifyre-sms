@@ -34,10 +34,10 @@ class ApiClientUtils
      */
     public static function createHttpClient(): PendingRequest
     {
-        return Http::timeout(config('notifyre.timeout', 30))
+        return Http::timeout(config('notifyre.http.timeout'))
             ->retry(
-                times: config('notifyre.retry.times', 3),
-                sleepMilliseconds: config('notifyre.retry.sleep', 1000),
+                times: config('notifyre.http.retry.times'),
+                sleepMilliseconds: config('notifyre.http.retry.sleep') * 1000,
             )
             ->withHeaders([
                 'x-api-token' => self::getApiKey(),

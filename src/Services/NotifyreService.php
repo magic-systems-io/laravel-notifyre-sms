@@ -3,6 +3,7 @@
 namespace MagicSystemsIO\Notifyre\Services;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
@@ -25,9 +26,13 @@ class NotifyreService implements NotifyreManager
         try {
             $response = $this->createDriver($this->getDriverName())->send($request);
 
+            if (!config('notifyre.database.enabled')) {
+                return;
+            }
+
             NotifyreMessagePersister::persist($request, $response);
         } catch (Throwable $e) {
-            NotifyreLogger::error("Failed to send SMS: {$e->getMessage()}", ['exception' => $e]);
+            Log::channel('notifyre')->error("Failed to send SMS: {$e->getMessage()}", ['exception' => $e]);
 
             throw $e;
         }
@@ -68,7 +73,7 @@ class NotifyreService implements NotifyreManager
         try {
             return $this->createDriver($this->getDriverName())->get($messageId);
         } catch (ConnectionException $e) {
-            NotifyreLogger::error("Failed to retrieve SMS: {$e->getMessage()}", ['exception' => $e]);
+            Log::channel('notifyre')->error("Failed to retrieve SMS: {$e->getMessage()}", ['exception' => $e]);
 
             throw $e;
         }
@@ -83,7 +88,7 @@ class NotifyreService implements NotifyreManager
         try {
             return $this->createDriver($this->getDriverName())->list($queryParams) ?? [];
         } catch (ConnectionException $e) {
-            NotifyreLogger::error("Failed to list SMS messages: {$e->getMessage()}", ['exception' => $e]);
+            Log::channel('notifyre')->error("Failed to list SMS messages: {$e->getMessage()}", ['exception' => $e]);
 
             throw $e;
         }

@@ -4,8 +4,7 @@ namespace MagicSystemsIO\Notifyre\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSmsMessageRecipient;
 
 class NotifyreSmsMessages extends Model
@@ -14,6 +13,8 @@ class NotifyreSmsMessages extends Model
 
     public $incrementing = false;
 
+    protected $keyType = 'string';
+
     protected $fillable = [
         'id',
         'sender',
@@ -21,20 +22,24 @@ class NotifyreSmsMessages extends Model
         'driver',
     ];
 
-    public function messageRecipients(): HasMany
-    {
-        return $this->hasMany(NotifyreSmsMessageRecipient::class, 'sms_message_id');
-    }
+    protected $casts = [
+        'id' => 'string',
+        'sender' => 'string',
+        'body' => 'string',
+        'driver' => 'string',
+    ];
 
-    public function recipients(): HasManyThrough
+    protected $hidden = [
+        'driver',
+    ];
+
+    public function recipients(): BelongsToMany
     {
-        return $this->hasManyThrough(
+        return $this->belongsToMany(
             NotifyreRecipients::class,
             NotifyreSmsMessageRecipient::class,
             'sms_message_id',
-            'id',
-            'id',
             'recipient_id'
-        );
+        )->withPivot('sent');
     }
 }

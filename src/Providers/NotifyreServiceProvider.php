@@ -29,7 +29,7 @@ class NotifyreServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/../../config/notifyre.php' => config_path('notifyre.php'),
-                __DIR__ . '/../../database/migrations/create_notifyre_tables.php' => database_path('migrations/' . date('Y_m_d_His') . '_create_notifyre_tables.php'),
+                __DIR__ . '/../database/migrations/create_notifyre_tables.php' => database_path('migrations/' . date('Y_m_d_His') . '_create_notifyre_tables.php'),
             ], 'notifyre');
         }
     }

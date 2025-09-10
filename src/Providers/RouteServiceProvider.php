@@ -9,16 +9,30 @@ class RouteServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        if (!config('notifyre.api.enabled', false)) {
+        if (!config('notifyre.routes.enabled')) {
             return;
         }
 
-        $this->routes(function () {
-            Route::middleware(config('notifyre.api.middleware', ['api']))
-                ->prefix(config('notifyre.api.prefix', 'notifyre'))
+        $middlewares = array_filter([
+            ...config('notifyre.routes.middleware'),
+            $this->createRateLimiters(),
+        ]);
+
+        $this->routes(function () use ($middlewares) {
+            Route::middleware(...$middlewares)
+                ->prefix(config('notifyre.routes.prefix', 'notifyre'))
                 ->group(function () {
                     $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
                 });
         });
+    }
+
+    private function createRateLimiters(): ?string
+    {
+        if (!config('notifyre.routes.rate_limit.enabled')) {
+            return null;
+        }
+
+        return 'throttle:' . config('notifyre.routes.rate_limit.max_requests') . ',' . config('notifyre.routes.rate_limit.decay_minutes');
     }
 }

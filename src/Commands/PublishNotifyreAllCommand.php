@@ -22,7 +22,7 @@ class PublishNotifyreAllCommand extends Command
         $this->info('All Notifyre files published successfully!');
         $this->newLine();
         $this->line('Next steps:');
-        $this->line('1. Update NOTIFYRE_API_TOKEN in your .env file');
+        $this->line('1. Update NOTIFYRE_API_KEY in your .env file');
         $this->line('2. Set NOTIFYRE_DRIVER=sms for production use');
         $this->line('3. Test with: php artisan sms:send "" "" "Test message"');
     }

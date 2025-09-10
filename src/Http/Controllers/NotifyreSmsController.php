@@ -15,12 +15,11 @@ use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsMessagesRequest;
 use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSmsMessageRecipient;
 use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
 use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
-use RuntimeException;
 use Throwable;
 
 class NotifyreSmsController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function indexMessages(Request $request): JsonResponse
     {
         $sender = $request->user()?->getSender();
         if (empty($sender) || (empty(trim($sender)))) {
@@ -32,7 +31,7 @@ class NotifyreSmsController extends Controller
         return response()->json($this->paginate($request, $messages));
     }
 
-    public function store(NotifyreSmsMessagesRequest $request): JsonResponse
+    public function sendMessage(NotifyreSmsMessagesRequest $request): JsonResponse
     {
         try {
             app(NotifyreManager::class)->send($this->buildMessageData($request));
@@ -57,16 +56,25 @@ class NotifyreSmsController extends Controller
         );
     }
 
-    public function show(string $sms): JsonResponse
+    public function showMessage(string $sms): JsonResponse
     {
-        if (!$message = NotifyreSmsMessages::with('messageRecipients.recipient')->find($sms)) {
+        if (!$message = NotifyreSmsMessages::with('recipients')->find($sms)) {
             return response()->json(['error' => 'Message not found'], 404);
         }
 
         return response()->json($message);
     }
 
-    public function getApi(string $sms): JsonResponse
+    public function showMessagesSentToRecipient(string $recipient): JsonResponse
+    {
+        if (!$recipient = NotifyreRecipients::with('smsMessages')->find($recipient)) {
+            return response()->json('Recipient not found', 404);
+        }
+
+        return response()->json($recipient);
+    }
+
+    public function getFromNotifyre(string $sms): JsonResponse
     {
         try {
             $response = app(NotifyreManager::class)->get($sms);
@@ -77,7 +85,7 @@ class NotifyreSmsController extends Controller
         }
     }
 
-    public function listApi(Request $request): JsonResponse
+    public function indexFromNotifyre(Request $request): JsonResponse
     {
         try {
             $response = app(NotifyreManager::class)->list($request->query());
@@ -88,22 +96,32 @@ class NotifyreSmsController extends Controller
         }
     }
 
-    public function callback(NotifyreSmsCallbackRequest $request): JsonResponse
+    public function handleWebhook(NotifyreSmsCallbackRequest $request): JsonResponse
     {
         try {
-            $responseBody = $request->toResponseBody();
+            $maxRetries = config('notifyre.webhook.retry_attempts');
+            $delaySeconds = config('notifyre.webhook.retry_delay');
 
-            $message = NotifyreSmsMessages::find($responseBody->payload->id);
-            if (!$message) {
-                throw new RuntimeException('Message not found');
+            for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+                $responseBody = $request->toResponseBody();
+                $message = NotifyreSmsMessages::find($responseBody->payload->id);
+
+                if (!$message) {
+                    sleep($delaySeconds);
+
+                    continue;
+                }
+
+                DB::transaction(function () use ($message, $responseBody) {
+                    $this->updateRecipientIdentStatus($message->recipients()->get()->toArray(), $responseBody->payload->recipients);
+                    $this->updateRecipientSentStatus($message, $responseBody->payload->recipients);
+                });
+
+                return response()->json($message->fresh('recipients'));
             }
 
-            DB::transaction(function () use ($message, $responseBody) {
-                $this->updateRecipientIdentStatus($message->recipients()->get()->toArray(), $responseBody->payload->recipients);
-                $this->updateRecipientSentStatus($message, $responseBody->payload->recipients);
-            });
+            return response()->json(['message' => 'Message not found after ' . $maxRetries . ' attempts'], 404);
 
-            return response()->json($message->fresh('recipients'));
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -118,16 +136,16 @@ class NotifyreSmsController extends Controller
         $payloadMap = collect($payloadRecipients)->keyBy('toNumber');
 
         $upsertData = array_filter(array_map(function ($recipient) use ($payloadMap) {
-            if ($payloadRecipient = $payloadMap->get($recipient->value)) {
-                return [
-                    'id' => $payloadRecipient->id,
-                    'tmp_id' => $recipient->tmp_id,
-                    'type' => $recipient->type,
-                    'value' => $recipient->value,
-                ];
+            if (!$payloadRecipient = $payloadMap->get($recipient->value)) {
+                return null;
             }
 
-            return null;
+            return [
+                'id' => $payloadRecipient->id,
+                'tmp_id' => $recipient->tmp_id,
+                'type' => $recipient->type,
+                'value' => $recipient->value,
+            ];
         }, $recipients));
 
         if (!empty($upsertData)) {
@@ -144,29 +162,16 @@ class NotifyreSmsController extends Controller
 
     private function updateRecipientSentStatus(NotifyreSmsMessages $message, array $callbackRecipients): void
     {
-        $callbackStatusMap = [];
-        foreach ($callbackRecipients as $callbackRecipient) {
-            $callbackStatusMap[$callbackRecipient->toNumber] = $callbackRecipient->status;
-        }
+        $callbackStatusMap = array_column($callbackRecipients, 'status', 'toNumber');
 
-        $recipients = NotifyreRecipients::whereHas('notifyreSmsMessageRecipients', function ($query) use ($message) {
-            $query->where('sms_message_id', $message->id);
-        })->get();
-
-        $upsertData = [];
-        foreach ($recipients as $recipient) {
-            $isSent = false;
-
-            if (isset($callbackStatusMap[$recipient->value])) {
-                $isSent = in_array($callbackStatusMap[$recipient->value], ['sent', 'delivered']);
-            }
-
-            $upsertData[] = [
+        $upsertData = array_map(function ($recipient) use ($message, $callbackStatusMap) {
+            return [
                 'sms_message_id' => $message->id,
                 'recipient_id' => $recipient->id,
-                'sent' => $isSent,
+                'sent' => isset($callbackStatusMap[$recipient->value]) &&
+                    in_array($callbackStatusMap[$recipient->value], ['sent', 'delivered']),
             ];
-        }
+        }, $message->recipients);
 
         NotifyreSmsMessageRecipient::upsert(
             $upsertData,

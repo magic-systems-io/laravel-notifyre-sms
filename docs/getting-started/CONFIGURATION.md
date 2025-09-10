@@ -22,11 +22,25 @@ NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 
 # API settings
 NOTIFYRE_BASE_URL=https://api.notifyre.com
+NOTIFYRE_TIMEOUT=30
+NOTIFYRE_RETRY_TIMES=3
+NOTIFYRE_RETRY_SLEEP=1
+
+# Routes configuration
+NOTIFYRE_ROUTES_ENABLED=true
+NOTIFYRE_ROUTE_PREFIX=notifyre
+NOTIFYRE_RATE_LIMIT_ENABLED=true
+NOTIFYRE_RATE_LIMIT_MAX=60
+NOTIFYRE_RATE_LIMIT_WINDOW=1
 
 # Feature toggles
-NOTIFYRE_API_ENABLED=true
 NOTIFYRE_DB_ENABLED=true
 NOTIFYRE_LOGGING_ENABLED=true
+NOTIFYRE_LOG_PREFIX=notifyre_sms
+
+# Webhook configuration
+NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
+NOTIFYRE_WEBHOOK_RETRY_DELAY=1
 ```
 
 ## Configuration File
@@ -46,32 +60,39 @@ The package creates `config/notifyre.php` with these sections:
 'default_number_prefix' => env('NOTIFYRE_DEFAULT_NUMBER_PREFIX', ''),
 ```
 
-### API Settings
+### HTTP Configuration
 
 ```php
-'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
-'timeout' => 30,
-'retry' => [
-    'times' => 3,
-    'sleep' => 1000, // milliseconds between retries
+'http' => [
+    'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
+    'timeout' => env('NOTIFYRE_TIMEOUT', 30), // seconds
+    'retry' => [
+        'times' => env('NOTIFYRE_RETRY_TIMES', 3),
+        'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1), // seconds between retries
+    ],
 ],
 ```
 
-### API Configuration
+### Routes Configuration
 
 ```php
-'api' => [
-    'enabled' => env('NOTIFYRE_API_ENABLED', true),
-    'prefix' => 'notifyre',
-    'middleware' => 'api',
+'routes' => [
+    'enabled' => env('NOTIFYRE_ROUTES_ENABLED', true),
+    'prefix' => env('NOTIFYRE_ROUTE_PREFIX', 'notifyre'),
+    'middleware' => ['api'],
     'rate_limit' => [
-        'enabled' => true,
-        'max_requests' => 60, // Maximum requests per minute
-        'decay_minutes' => 1, // Time window for rate limiting in minutes
+        'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
+        'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX', 60), // per minute
+        'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_WINDOW', 1),
     ],
-    'database' => [
-        'enabled' => env('NOTIFYRE_DB_ENABLED', true),
-    ],
+],
+```
+
+### Database Configuration
+
+```php
+'database' => [
+    'enabled' => env('NOTIFYRE_DB_ENABLED', true),
 ],
 ```
 
@@ -79,8 +100,17 @@ The package creates `config/notifyre.php` with these sections:
 
 ```php
 'logging' => [
-    'prefix' => 'notifyre_sms',
     'enabled' => env('NOTIFYRE_LOGGING_ENABLED', true),
+    'prefix' => env('NOTIFYRE_LOG_PREFIX', 'notifyre_sms'),
+],
+```
+
+### Webhook Configuration
+
+```php
+'webhook' => [
+    'retry_attempts' => env('NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS', 3),
+    'retry_delay' => env('NOTIFYRE_WEBHOOK_RETRY_DELAY', 1), // seconds between retries
 ],
 ```
 
@@ -130,9 +160,21 @@ NOTIFYRE_LOGGING_ENABLED=true
 ```env
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_production_key
+NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_API_ENABLED=true
+NOTIFYRE_TIMEOUT=30
+NOTIFYRE_RETRY_TIMES=3
+NOTIFYRE_RETRY_SLEEP=1
+NOTIFYRE_ROUTES_ENABLED=true
+NOTIFYRE_ROUTE_PREFIX=notifyre
+NOTIFYRE_RATE_LIMIT_ENABLED=true
+NOTIFYRE_RATE_LIMIT_MAX=60
+NOTIFYRE_RATE_LIMIT_WINDOW=1
 NOTIFYRE_DB_ENABLED=true
+NOTIFYRE_LOGGING_ENABLED=true
+NOTIFYRE_LOG_PREFIX=notifyre_sms
+NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
+NOTIFYRE_WEBHOOK_RETRY_DELAY=1
 ```
 
 ### Testing

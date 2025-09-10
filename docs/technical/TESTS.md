@@ -14,29 +14,68 @@ The testing strategy follows these principles:
 
 ## Test Structure
 
-### Unit Tests (`tests/Unit/`)
+The package includes comprehensive test scaffolding with **41 test files** covering all components:
+
+### Unit Tests (`tests/Unit/`) - 25 files
 
 Unit tests focus on testing individual classes and methods in isolation:
 
 - **Channels/**: Test the NotifyreChannel for Laravel notifications
 - **Contracts/**: Test the NotifyreManager contract
-- **DTO/SMS/**: Test data transfer objects for SMS requests and responses
+- **DTO/SMS/**: Test data transfer objects for SMS requests and responses (7 files)
 - **Enums/**: Test enum classes (NotifyreDriver, NotifyreRecipientTypes)
 - **Facades/**: Test the Notifyre facade
-- **Models/**: Test Eloquent models and relationships
-- **Services/**: Test core services and drivers
-- **Utils/**: Test utility classes and helper functions
+- **Models/**: Test Eloquent models and relationships (3 files)
+- **Services/**: Test core services and drivers (4 files)
+- **Utils/**: Test utility classes and helper functions (4 files)
 - **Helpers**: Test global helper functions
 
-### Feature Tests (`tests/Feature/`)
+### Feature Tests (`tests/Feature/`) - 16 files
 
 Feature tests focus on testing complete workflows and integrations:
 
-- **Commands/**: Test Artisan commands for SMS operations
-- **Http/Controllers/**: Test API endpoints and request handling
-- **Http/Requests/**: Test form request validation
-- **Providers/**: Test service provider registration and configuration
-- **Channels/**: Test notification channel integration
+- **Commands/**: Test Artisan commands for SMS operations (5 files)
+- **Http/Controllers/**: Test API endpoints and request handling (1 file)
+- **Http/Requests/**: Test form request validation (2 files)
+- **Http/Middlewares/**: Test custom middleware functionality (1 file)
+- **Providers/**: Test service provider registration and configuration (7 files)
+- **Channels/**: Test notification channel integration (1 file)
+
+## Test Scaffolding
+
+All test files include comprehensive scaffolding with:
+
+- **Descriptive Test Names**: Clear, readable test descriptions
+- **TODO Placeholders**: `// TODO: Add test implementation` for easy identification
+- **Proper Structure**: Follows Pest PHP conventions
+- **Database Traits**: `uses(RefreshDatabase::class)` for database tests
+- **Logical Grouping**: Tests organized by functionality (instantiation, validation, error handling, etc.)
+
+### Test Pattern Example
+
+```php
+<?php
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+it('can be instantiated', function () {
+    // TODO: Add test implementation
+});
+
+it('can store data', function () {
+    // TODO: Add test implementation
+});
+
+it('can be serialized', function () {
+    // TODO: Add test implementation
+});
+
+it('can be converted to array', function () {
+    // TODO: Add test implementation
+});
+```
 
 ## Test Configuration
 
@@ -53,9 +92,23 @@ The `tests/TestCase.php` extends Orchestra Testbench and provides:
 
 Tests use the following environment variables (defined in `phpunit.xml`):
 
-- `NOTIFYRE_API_KEY`: Test API key
-- `NOTIFYRE_API_URL`: Test API URL  
 - `NOTIFYRE_DRIVER`: Test driver (set to 'sms')
+- `NOTIFYRE_API_KEY`: Test API key
+- `NOTIFYRE_DEFAULT_NUMBER_PREFIX`: Empty string for testing
+- `NOTIFYRE_BASE_URL`: Test API URL
+- `NOTIFYRE_TIMEOUT`: 30 seconds
+- `NOTIFYRE_RETRY_TIMES`: 3 retries
+- `NOTIFYRE_RETRY_SLEEP`: 1 second between retries
+- `NOTIFYRE_ROUTES_ENABLED`: true
+- `NOTIFYRE_ROUTE_PREFIX`: 'notifyre'
+- `NOTIFYRE_RATE_LIMIT_ENABLED`: true
+- `NOTIFYRE_RATE_LIMIT_MAX`: 60 requests per minute
+- `NOTIFYRE_RATE_LIMIT_WINDOW`: 1 minute window
+- `NOTIFYRE_DB_ENABLED`: true
+- `NOTIFYRE_LOGGING_ENABLED`: true
+- `NOTIFYRE_LOG_PREFIX`: 'notifyre_sms'
+- `NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS`: 3 attempts
+- `NOTIFYRE_WEBHOOK_RETRY_DELAY`: 1 second delay
 
 ## Running Tests
 
