@@ -3,8 +3,6 @@
 namespace MagicSystemsIO\Notifyre\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
-use MagicSystemsIO\Notifyre\Services\NotifyreService;
 
 class NotifyreServiceProvider extends ServiceProvider
 {
@@ -16,10 +14,6 @@ class NotifyreServiceProvider extends ServiceProvider
         $this->app->register(CommandServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(NotifyreLoggingServiceProvider::class);
-
-        $this->app->bind(NotifyreManager::class, function ($app) {
-            return $app->make(NotifyreService::class);
-        });
     }
 
     public function boot(): void

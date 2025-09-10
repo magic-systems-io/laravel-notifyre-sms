@@ -6,7 +6,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Notifications\Notification;
 use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
-use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Throwable;
 
 readonly class NotifyreChannel
@@ -33,6 +32,6 @@ readonly class NotifyreChannel
             throw new InvalidArgumentException('Method `toNotifyre` must return RequestBodyDTO object.');
         }
 
-        NotifyreService::send($requestBody);
+        app(NotifyreManager::class)->send($requestBody);
     }
 }

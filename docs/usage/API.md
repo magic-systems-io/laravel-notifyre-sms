@@ -1,9 +1,8 @@
 # REST API Usage
 
-The Notifyre Laravel package provides a comprehensive REST API for SMS operations, including sending messages,
-retrieving message history, and managing recipients.
+The Notifyre Laravel package provides REST API endpoints for SMS operations, including sending messages and retrieving message history.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Enable API
 
@@ -11,7 +10,6 @@ Make sure the API is enabled in your configuration:
 
 ```env
 NOTIFYRE_API_ENABLED=true
-NOTIFYRE_API_PREFIX=notifyre
 ```
 
 ### Routes
@@ -21,8 +19,11 @@ The package automatically registers these API routes:
 - `POST /api/notifyre/sms` - Send SMS messages
 - `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
 - `GET /api/notifyre/sms/{id}` - Get specific SMS message
+- `GET /api/notifyre/sms/list-api` - List SMS via Notifyre API
+- `GET /api/notifyre/sms/api/{id}` - Get SMS via Notifyre API
+- `POST /api/notifyre/callback/sms` - Handle delivery callbacks
 
-## 📤 Sending SMS
+## Sending SMS
 
 ### Endpoint
 
@@ -49,7 +50,7 @@ POST /api/notifyre/sms
 
 | Parameter            | Type    | Required | Description                                                   |
 |----------------------|---------|----------|---------------------------------------------------------------|
-| `body`               | string  | ✅        | SMS message content (max 160 characters)                      |
+| `body`               | string  | ✅        | SMS message content                                           |
 | `recipients`         | array   | ✅        | Array of recipient objects                                    |
 | `recipients[].type`  | string  | ✅        | Recipient type: `mobile_number`, `contact`, or `group`        |
 | `recipients[].value` | string  | ✅        | Recipient value (phone number, contact ID, or group ID)       |
@@ -58,17 +59,7 @@ POST /api/notifyre/sms
 ### Response
 
 ```json
-{
-    "success": true,
-    "statusCode": 200,
-    "message": "OK",
-    "payload": {
-        "smsMessageID": "sms-123",
-        "friendlyID": "friendly-123",
-        "invalidToNumbers": []
-    },
-    "errors": []
-}
+"Message is being sent"
 ```
 
 ### Error Response
@@ -79,7 +70,7 @@ POST /api/notifyre/sms
 }
 ```
 
-## 📥 Retrieving Messages
+## Retrieving Messages
 
 ### List All Messages
 
@@ -152,28 +143,16 @@ GET /api/notifyre/sms/{id}
 }
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
 ```env
 # API Settings
 NOTIFYRE_API_ENABLED=true
-NOTIFYRE_API_PREFIX=notifyre
-NOTIFYRE_API_MIDDLEWARE=api
-
-# Rate Limiting
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX_REQUESTS=60
-NOTIFYRE_RATE_LIMIT_DECAY_MINUTES=1
 
 # Database Persistence
 NOTIFYRE_DB_ENABLED=true
-
-# Caching
-NOTIFYRE_CACHE_ENABLED=true
-NOTIFYRE_CACHE_TTL=3600
-NOTIFYRE_CACHE_PREFIX=notifyre_
 ```
 
 ### Rate Limiting
@@ -181,26 +160,14 @@ NOTIFYRE_CACHE_PREFIX=notifyre_
 The API includes built-in rate limiting:
 
 - **Default**: 60 requests per minute
-- **Configurable**: Via environment variables
+- **Configurable**: Via configuration file
 - **Per IP**: Rate limiting is applied per IP address
 
-### Caching
+## Authentication
 
-Response caching is available for improved performance:
+The API uses Laravel's standard authentication middleware. You can configure custom middleware in the configuration file.
 
-- **Message retrieval**: Cached responses for individual messages
-- **TTL**: Configurable cache time-to-live
-- **Prefix**: Customizable cache key prefix
-
-## 🔐 Authentication
-
-The API uses Laravel's standard authentication middleware. You can configure custom middleware:
-
-```env
-NOTIFYRE_API_MIDDLEWARE=api,auth:sanctum
-```
-
-## 📝 Examples
+## Examples
 
 ### cURL Examples
 
@@ -276,7 +243,7 @@ const messages = await response.json();
 console.log(messages.data);
 ```
 
-## 🚨 Error Handling
+## Error Handling
 
 ### Common Error Responses
 
@@ -308,7 +275,7 @@ console.log(messages.data);
 }
 ```
 
-## 🔄 Response Codes
+## Response Codes
 
 | Code | Description                    |
 |------|--------------------------------|

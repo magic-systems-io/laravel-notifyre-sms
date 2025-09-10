@@ -1,44 +1,49 @@
 # Notifyre Laravel Package - Documentation
 
-Comprehensive documentation for the Notifyre Laravel package with all its features and capabilities.
+Complete documentation for the Notifyre Laravel package with all features and capabilities.
 
-## 📚 What This Package Does
+## What This Package Does
 
-This package provides **three ways to send SMS**:
+This package provides multiple ways to send SMS messages:
 
-1. **Direct SMS** - Send SMS immediately using the `notifyre()` helper
-2. **Laravel Notifications** - Send SMS through Laravel's notification system
+1. **Direct SMS** - Send SMS immediately using the `notifyre()` helper function
+2. **Laravel Notifications** - Send SMS through Laravel's notification system via NotifyreChannel
 3. **REST API** - Send SMS via HTTP endpoints with full CRUD operations
+4. **CLI Commands** - Send and manage SMS from Artisan commands
 
-## 📖 Documentation
+## Documentation
 
-### 🚀 Getting Started
+### Getting Started
 
 - **[Installation](./getting-started/INSTALLATION.md)** - How to install and configure the package
 - **[Configuration](./getting-started/CONFIGURATION.md)** - Environment variables and config options
 
-### 💡 How to Use
+### How to Use
 
 - **[Direct SMS](./usage/DIRECT_SMS.md)** - Send SMS immediately using the helper function
 - **[Notifications](./usage/NOTIFICATIONS.md)** - Send SMS through Laravel notifications
 - **[Commands](./usage/COMMANDS.md)** - Send SMS from the command line
 - **[API Usage](./usage/API.md)** - Use the REST API endpoints
 
-### 🔧 Technical Details
+### Technical Details
 
 - **[Drivers](./technical/DRIVERS.md)** - How SMS and Log drivers work
 - **[Architecture](./technical/ARCHITECTURE.md)** - Package structure and design
 - **[Testing](./technical/TESTS.md)** - Testing strategies and examples
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install
 composer require magic-systems-io/laravel-notifyre-sms
 
-# Configure (basic setup)
-NOTIFYRE_DRIVER=log
+# Publish configuration
+php artisan notifyre:publish
+
+# Set environment variables
+NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key
+NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 
 # Basic SMS
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
@@ -49,55 +54,45 @@ notifyre()->send(new RequestBody(
     body: 'Hello World!',
     recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
-
-# With sender
-notifyre()->send(new RequestBody(
-    body: 'Your order has been shipped!',
-    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')],
-    sender: '+1987654321'
-));
 ```
 
-## 🎯 What You Need to Know
-
-- **Multiple environment variables** for comprehensive configuration
-- **1 helper function** for direct SMS
-- **1 notification channel** for Laravel notifications
-- **2 drivers**: `sms` (production) and `log` (testing)
-- **Rich DTOs** with Arrayable interface for easy data manipulation
-- **Database persistence** for storing SMS messages and recipients
-- **REST API** with rate limiting and authentication
-- **Caching support** for improved performance
-- **Recipient types** including virtual mobile numbers, contacts, and groups
-
-## 🏗️ Package Features
+## Package Features
 
 ### Core Functionality
 
-- **SMS Sending** - Direct SMS via helper function
-- **Notification Channel** - Laravel notification integration
+- **SMS Sending** - Direct SMS via `notifyre()` helper function
+- **Notification Channel** - Laravel notification integration via NotifyreChannel
 - **CLI Commands** - Artisan commands for SMS operations
-- **Driver System** - Pluggable SMS and logging drivers
+- **Driver System** - SMS driver for production, log driver for testing
 
 ### Advanced Features
 
-- **Database Models** - Store and retrieve SMS messages
-- **HTTP Controllers** - REST API endpoints
+- **Database Models** - Store and retrieve SMS messages and recipients
+- **HTTP Controllers** - REST API endpoints with rate limiting
 - **Request Validation** - Comprehensive input validation
 - **Error Handling** - Detailed error messages and exceptions
 - **Configuration Management** - Extensive configuration options
-- **Rate Limiting** - Built-in API rate limiting
-- **Caching** - Response caching for performance
+- **Message Tracking** - Track SMS delivery status with callbacks
+- **Recipient Types** - Support for mobile numbers, contacts, and groups
 
-### Configuration Options
+### Available Commands
 
-- **Driver Selection** - Choose between SMS and log drivers
-- **API Settings** - Base URL, timeout, retry logic
-- **Database Options** - Enable/disable persistence
-- **Cache Settings** - TTL and prefix configuration
-- **Rate Limiting** - Request limits and decay windows
+- `php artisan sms:send` - Send SMS messages
+- `php artisan sms:list` - List SMS messages with filtering options
+- `php artisan notifyre:publish` - Publish all configuration files
+- `php artisan notifyre:publish-config` - Publish configuration file
+- `php artisan notifyre:publish-env` - Add environment variables to .env
 
-## 📁 Documentation Structure
+### API Endpoints
+
+- `POST /api/notifyre/sms` - Send SMS messages
+- `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
+- `GET /api/notifyre/sms/{id}` - Get specific SMS message
+- `GET /api/notifyre/sms/list-api` - List SMS via Notifyre API
+- `GET /api/notifyre/sms/api/{id}` - Get SMS via Notifyre API
+- `POST /api/notifyre/callback/sms` - Handle delivery callbacks
+
+## Documentation Structure
 
 ```
 docs/
@@ -116,7 +111,7 @@ docs/
     └── TESTS.md               # Testing strategies
 ```
 
-## 🔧 Environment Variables
+## Environment Variables
 
 ### Required
 
@@ -125,21 +120,8 @@ docs/
 
 ### Optional
 
-- `NOTIFYRE_DEFAULT_NUMBER_PREFIX` - Country code prefix
-- `NOTIFYRE_BASE_URL` - API base URL
-- `NOTIFYRE_TIMEOUT` - HTTP timeout
-- `NOTIFYRE_RETRY_TIMES` - Retry attempts
-- `NOTIFYRE_RETRY_SLEEP` - Retry delay
-
-### API Configuration
-
-- `NOTIFYRE_API_ENABLED` - Enable/disable API
-- `NOTIFYRE_API_PREFIX` - API route prefix
-- `NOTIFYRE_API_MIDDLEWARE` - API middleware
-- `NOTIFYRE_RATE_LIMIT_ENABLED` - Enable rate limiting
-- `NOTIFYRE_RATE_LIMIT_MAX_REQUESTS` - Max requests per minute
-- `NOTIFYRE_RATE_LIMIT_DECAY_MINUTES` - Rate limit time window
-- `NOTIFYRE_DB_ENABLED` - Enable database persistence
-- `NOTIFYRE_CACHE_ENABLED` - Enable response caching
-- `NOTIFYRE_CACHE_TTL` - Cache time to live
-- `NOTIFYRE_CACHE_PREFIX` - Cache key prefix
+- `NOTIFYRE_DEFAULT_NUMBER_PREFIX` - Country code prefix for numbers without country code
+- `NOTIFYRE_BASE_URL` - API base URL (default: https://api.notifyre.com)
+- `NOTIFYRE_API_ENABLED` - Enable/disable API endpoints
+- `NOTIFYRE_DB_ENABLED` - Enable/disable database persistence
+- `NOTIFYRE_LOGGING_ENABLED` - Enable/disable custom logging

@@ -1,31 +1,67 @@
-# Notifyre Laravel Package Tests
+# Notifyre Laravel Package Testing
 
-This directory contains comprehensive tests for the Notifyre Laravel package using Pest PHP testing framework.
+This document outlines the testing approach and structure for the Notifyre Laravel package using Pest PHP testing framework with Orchestra Testbench.
+
+## Testing Philosophy
+
+The testing strategy follows these principles:
+
+- **Comprehensive Coverage**: Every class and method should have corresponding tests
+- **Isolation**: Tests should be independent and not affect each other
+- **Realistic Scenarios**: Tests should cover both happy path and edge cases
+- **Laravel Package Standards**: Use Orchestra Testbench for proper Laravel package testing
+- **Fast Execution**: Tests should run quickly with minimal external dependencies
 
 ## Test Structure
 
 ### Unit Tests (`tests/Unit/`)
 
-- **DTO Tests**: Test data transfer objects for SMS requests and responses
-- **Enum Tests**: Test the NotifyreRecipientTypes enum
-- **Service Tests**: Test core services like NotifyreService and DriverFactory
-- **Driver Tests**: Test SMS and Log drivers with response handling
-- **Channel Tests**: Test the NotifyreChannel for Laravel notifications
-- **Exception Tests**: Test custom exceptions
-- **Facade Tests**: Test the Notifyre facade
-- **Provider Tests**: Test the service provider
-- **Helper Tests**: Test helper functions
+Unit tests focus on testing individual classes and methods in isolation:
+
+- **Channels/**: Test the NotifyreChannel for Laravel notifications
+- **Contracts/**: Test the NotifyreManager contract
+- **DTO/SMS/**: Test data transfer objects for SMS requests and responses
+- **Enums/**: Test enum classes (NotifyreDriver, NotifyreRecipientTypes)
+- **Facades/**: Test the Notifyre facade
+- **Models/**: Test Eloquent models and relationships
+- **Services/**: Test core services and drivers
+- **Utils/**: Test utility classes and helper functions
+- **Helpers**: Test global helper functions
 
 ### Feature Tests (`tests/Feature/`)
 
-- **Command Tests**: Test Artisan commands with response handling
-- **Integration Tests**: Test complete package workflows including response data
+Feature tests focus on testing complete workflows and integrations:
+
+- **Commands/**: Test Artisan commands for SMS operations
+- **Http/Controllers/**: Test API endpoints and request handling
+- **Http/Requests/**: Test form request validation
+- **Providers/**: Test service provider registration and configuration
+- **Channels/**: Test notification channel integration
+
+## Test Configuration
+
+### TestCase Setup
+
+The `tests/TestCase.php` extends Orchestra Testbench and provides:
+
+- **Package Provider Registration**: Automatically registers the NotifyreServiceProvider
+- **Database Configuration**: Sets up in-memory SQLite database for testing
+- **Configuration Loading**: Loads the notifyre configuration file
+- **Laravel Package Environment**: Proper Laravel package testing environment
+
+### Environment Variables
+
+Tests use the following environment variables (defined in `phpunit.xml`):
+
+- `NOTIFYRE_API_KEY`: Test API key
+- `NOTIFYRE_API_URL`: Test API URL  
+- `NOTIFYRE_DRIVER`: Test driver (set to 'sms')
 
 ## Running Tests
 
 ### Prerequisites
 
-Make sure you have the required dependencies installed:
+Install dependencies:
 
 ```bash
 composer install
@@ -34,238 +70,335 @@ composer install
 ### Run All Tests
 
 ```bash
-./vendor/bin/pest
+composer test
+# or
+vendor/bin/pest
 ```
 
 ### Run Specific Test Suites
 
 ```bash
 # Run only unit tests
-./vendor/bin/pest --testsuite=Unit
+vendor/bin/pest tests/Unit
 
-# Run only feature tests
-./vendor/bin/pest --testsuite=Feature
+# Run only feature tests  
+vendor/bin/pest tests/Feature
 ```
 
 ### Run Tests with Coverage
 
 ```bash
-# Generate HTML coverage report
-./vendor/bin/pest --coverage-html=coverage
-
-# Generate text coverage report
-./vendor/bin/pest --coverage-text
+# Generate coverage report
+vendor/bin/pest --coverage
 ```
 
 ### Run Tests in Parallel
 
 ```bash
-./vendor/bin/pest --parallel
+vendor/bin/pest --parallel
 ```
-
-### Run Tests with Sharding (for CI/CD)
-
-```bash
-# Run first shard
-./vendor/bin/pest --shard=1/4
-
-# Run second shard
-./vendor/bin/pest --shard=2/4
-```
-
-## Test Configuration
-
-The tests use a test configuration that:
-
-- Sets the driver to `log` by default (to avoid actual SMS sending)
-- Uses test API keys and URLs
-- Disables caching
-- Sets reasonable timeouts and retry settings
-
-## Mocking
-
-Tests use Mockery for mocking dependencies:
-
-- **Services**: Mock NotifyreService to avoid actual SMS sending
-- **HTTP Client**: Mock HTTP requests in SMSDriver tests
-- **Logging**: Mock Laravel's Log facade in LogDriver tests
-- **Response DTOs**: Mock ResponseBodyDTO for testing response handling
 
 ## Test Helpers
 
 The `tests/Pest.php` file provides global helper functions:
 
-- `notifyreTestConfig()`: Create test configuration
-- `createTestMessage()`: Create test RequestBodyDTO
-- `createTestRecipient()`: Create test Recipient
-- `createMockResponse()`: Create mock ResponseBodyDTO for testing
+- `notifyreConfig($key, $default)`: Access notifyre configuration
+- `createNotifyreTestUser($attributes)`: Create test recipients
+- `createNotifyreTestMessage($attributes)`: Create test SMS messages
 
-## Test Coverage
+## Testing Approach
 
-The test suite covers:
+### Unit Testing Strategy
 
-- ✅ **100% DTO Coverage**: All data transfer objects including Arrayable interface
-- ✅ **100% Enum Coverage**: All enum values and methods
-- ✅ **100% Service Coverage**: All service classes with response handling
-- ✅ **100% Driver Coverage**: SMS and Log drivers with response returns
-- ✅ **100% Channel Coverage**: Notification channel
-- ✅ **100% Exception Coverage**: Custom exceptions
-- ✅ **100% Facade Coverage**: Facade functionality
-- ✅ **100% Provider Coverage**: Service provider
-- ✅ **100% Helper Coverage**: Helper functions
-- ✅ **100% Command Coverage**: Artisan commands with response handling
-- ✅ **Integration Coverage**: Complete workflows including response data
+**Models**: Test Eloquent models with database interactions
+- Factory creation and relationships
+- Fillable attributes and casts
+- Model methods and scopes
 
-## Test Scenarios
+**Services**: Test business logic in isolation
+- Mock external dependencies
+- Test error handling and edge cases
+- Verify configuration usage
 
-### DTO Tests
+**DTOs**: Test data transfer objects
+- Constructor validation
+- Array conversion methods
+- Serialization/deserialization
 
-- Valid data creation with all new parameters
-- Validation errors for metadata limits
-- Edge cases (empty values, special characters)
-- Multiple recipients with different types
-- **Arrayable interface testing** (`toArray()` method)
-- **Metadata validation** (key/value length limits)
-- **Response DTO testing** with payload and error handling
+**Enums**: Test enum values and methods
+- Value validation
+- String conversion
+- Comparison operations
 
-### Service Tests
+### Feature Testing Strategy
 
-- Driver factory creation
-- Service delegation with response handling
-- Configuration handling
-- Error scenarios
-- **Response data validation**
-
-### Driver Tests
-
-- SMS driver HTTP requests with response parsing
-- Log driver logging with mock response generation
-- Configuration validation
-- Error handling
-- **Response DTO creation and validation**
-
-### Channel Tests
-
-- Notification sending with response handling
-- Method validation
-- Error handling
-- Multiple recipients
-- **Response data flow through notifications**
-
-### Command Tests
-
-- Argument handling
-- Default value usage
-- Error handling
+**Commands**: Test Artisan commands end-to-end
+- Argument and option handling
 - Service integration
-- **Response output formatting**
+- Output formatting
 
-## Response Testing
+**Controllers**: Test HTTP endpoints
+- Request validation
+- Response formatting
+- Error handling
 
-### Testing Response DTOs
+**Providers**: Test service provider registration
+- Service binding
+- Configuration publishing
+- Command registration
+
+## Test Examples
+
+### Unit Test Example
 
 ```php
-test('service returns response data', function () {
-    $response = notifyre()->send($testMessage);
+// tests/Unit/Services/NotifyreServiceTest.php
+it('can send SMS', function () {
+    $service = new NotifyreService();
+    $recipient = new Recipient('mobile_number', '+1234567890');
+    $message = new RequestBody('Test message', [$recipient]);
     
-    expect($response)->toBeInstanceOf(ResponseBodyDTO::class);
-    expect($response->success)->toBeTrue();
-    expect($response->payload)->toBeInstanceOf(ResponsePayload::class);
-    expect($response->payload->smsMessageID)->not->toBeEmpty();
+    $result = $service->send($message);
+    
+    expect($result)->toBeInstanceOf(ResponseBody::class);
 });
 ```
 
-### Testing Arrayable Interface
+### Feature Test Example
 
 ```php
-test('dto implements arrayable interface', function () {
-    $dto = new RequestBodyDTO(
-        body: 'Test message',
-        recipients: [new Recipient('mobile_number', '+1234567890')],
-        metadata: ['key' => 'value']
-    );
-    
-    $array = $dto->toArray();
-    
-    expect($array)->toHaveKey('Body');
-    expect($array)->toHaveKey('Recipients');
-    expect($array)->toHaveKey('Metadata');
+// tests/Feature/Commands/NotifyreSmsSendCommandTest.php
+it('can send SMS via command', function () {
+    $this->artisan('notifyre:sms:send', [
+        'message' => 'Test message',
+        'recipients' => '+1234567890'
+    ])
+    ->assertExitCode(0);
 });
 ```
 
-### Testing Metadata Validation
+### Model Test Example
 
 ```php
-test('metadata validation limits', function () {
-    $metadata = [];
-    for ($i = 0; $i < 51; $i++) {
-        $metadata["key_{$i}"] = "value_{$i}";
-    }
+// tests/Unit/Models/NotifyreRecipientsTest.php
+it('can be created with factory', function () {
+    $recipient = NotifyreRecipients::factory()->create([
+        'phone_number' => '+1234567890'
+    ]);
     
-    expect(fn() => new RequestBodyDTO(
-        body: 'Test',
-        recipients: [new Recipient('mobile_number', '+1234567890')],
-        metadata: $metadata
-    ))->toThrow(InvalidArgumentException::class, 'Metadata cannot exceed 50 keys');
+    expect($recipient->phone_number)->toBe('+1234567890');
 });
 ```
 
 ## Best Practices
 
-1. **Isolation**: Each test is independent and doesn't affect others
-2. **Mocking**: External dependencies are mocked to avoid side effects
-3. **Configuration**: Tests use isolated configuration
-4. **Coverage**: Aim for 100% code coverage
-5. **Readability**: Tests are descriptive and easy to understand
-6. **Maintainability**: Tests are organized and well-structured
-7. **Response Testing**: Always test response data structure and content
-8. **Arrayable Testing**: Test `toArray()` methods for all DTOs
+1. **Isolation**: Each test should be independent and not affect others
+2. **Mocking**: Mock external dependencies to avoid side effects
+3. **Database**: Use RefreshDatabase trait for tests that interact with the database
+4. **Naming**: Use descriptive test names that explain what is being tested
+5. **Structure**: Follow the existing directory structure and naming conventions
+6. **Configuration**: Use test-specific configuration and environment variables
+7. **Assertions**: Use appropriate Pest assertions for clear test failures
+
+## Database Testing
+
+Tests that interact with the database should:
+
+- Use the `RefreshDatabase` trait
+- Create test data using factories
+- Test both creation and retrieval of data
+- Verify relationships between models
+
+```php
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+it('can create a recipient', function () {
+    $recipient = NotifyreRecipients::factory()->create();
+    
+    expect($recipient)->toBeInstanceOf(NotifyreRecipients::class);
+    expect($recipient->exists)->toBeTrue();
+});
+```
+
+## Mocking External Services
+
+For tests that interact with external APIs:
+
+- Mock HTTP clients to avoid actual API calls
+- Test both success and error scenarios
+- Verify that correct data is sent to external services
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Mockery not found**: Ensure Mockery is installed and imported
-2. **Configuration errors**: Check that test configuration is set up correctly
-3. **HTTP client errors**: Ensure HTTP facade is properly mocked
-4. **Logging errors**: Ensure Log facade is properly mocked
-5. **Response DTO errors**: Ensure ResponseBodyDTO is properly imported and mocked
+1. **Orchestra Testbench not found**: Ensure it's installed as a dev dependency
+2. **Database connection errors**: Check that testbench database is configured
+3. **Configuration errors**: Verify that notifyre config is loaded in TestCase
+4. **Factory errors**: Ensure model factories are properly registered
 
 ### Debug Mode
 
 Run tests with verbose output:
 
 ```bash
-./vendor/bin/pest --verbose
+vendor/bin/pest --verbose
 ```
 
-### Test Database
+## Testing GitHub Actions Workflow Locally
 
-Tests use an in-memory SQLite database by default. If you need a different database:
+You can test the GitHub Actions workflow locally using tools like `act` to ensure your CI/CD pipeline works correctly before pushing changes.
 
-1. Update `phpunit.xml` configuration
-2. Ensure database connection is properly configured
-3. Run database migrations before tests
+### Prerequisites
+
+Install `act` (GitHub Actions local runner):
+
+```bash
+# macOS
+brew install act
+
+# Linux (using curl)
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# Windows (using Chocolatey)
+choco install act-cli
+
+# Or download from GitHub releases
+# https://github.com/nektos/act/releases
+```
+
+### Running the Workflow Locally
+
+#### Basic Test Run
+
+```bash
+# Run the entire workflow
+act
+
+# Run only specific job
+act -j validation
+```
+
+#### With Environment Variables
+
+```bash
+# Run with environment variables
+act --env NOTIFYRE_API_KEY=test-key --env NOTIFYRE_API_URL=https://api.test.com
+```
+
+#### Dry Run (List Actions)
+
+```bash
+# See what would run without executing
+act --list
+```
+
+#### Using Specific Event
+
+```bash
+# Simulate a push event
+act push
+
+# Simulate a pull request event
+act pull_request
+```
+
+### Workflow Configuration
+
+The workflow is configured to run on:
+- **Push to main branch**
+- **Pull requests to main branch**
+
+### Local Testing Benefits
+
+- **Fast Feedback**: Test CI changes without pushing to GitHub
+- **Debug Issues**: Easily debug workflow problems locally
+- **Validate Changes**: Ensure workflow modifications work correctly
+- **Save CI Minutes**: Avoid using GitHub Actions minutes for testing
+
+### Common Act Commands
+
+```bash
+# Run with verbose output
+act -v
+
+# Run with specific PHP version
+act --env PHP_VERSION=8.4
+
+# Run with custom working directory
+act --workdir /path/to/your/project
+
+# Run and keep containers for debugging
+act --rm=false
+```
+
+### Troubleshooting Act
+
+#### Docker Issues
+```bash
+# Ensure Docker is running
+docker --version
+
+# Check if act can access Docker
+act --list
+```
+
+#### Permission Issues
+```bash
+# Run with sudo if needed (Linux)
+sudo act
+
+# Or add user to docker group
+sudo usermod -aG docker $USER
+```
+
+#### Workflow Not Found
+```bash
+# Specify workflow file explicitly
+act -W .github/workflows/tests.yml
+```
+
+### Workflow Structure
+
+The current workflow includes a single **validation** job that runs:
+
+1. **Code Checkout**: Checkout the repository code
+2. **PHP Setup**: Configure PHP 8.4 with required extensions
+3. **Dependencies**: Install dependencies using `composer fresh`
+4. **Code Style**: Run Pint code style checks using `composer format-test`
+5. **Tests**: Execute tests using `composer test`
+
+### Customizing for Local Testing
+
+You can create a local-specific workflow file for testing:
+
+```yaml
+# .github/workflows/tests-local.yml
+name: Tests (Local)
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    # ... same as main workflow
+```
+
+Then run with:
+```bash
+act -W .github/workflows/tests-local.yml
+```
 
 ## Contributing
 
 When adding new tests:
 
-1. Follow the existing test structure
-2. Use descriptive test names
-3. Ensure proper mocking
-4. Add to appropriate test suite
-5. Update this README if needed
-6. Maintain 100% coverage for new code
-7. **Test response handling** for new features
-8. **Test Arrayable interface** for new DTOs
-
-## CI/CD Integration
-
-The test suite is designed to work with CI/CD pipelines:
-
-- **Parallel execution**: Use `--parallel` flag
-- **Sharding**: Use `--shard` flag for large test suites
-- **Coverage reporting**: Generate coverage reports for quality gates
-- **Exit codes**: Tests exit with proper codes for CI/CD integration
-- **Response validation**: Automated testing of response data structure
+1. Follow the existing test structure and naming conventions
+2. Use descriptive test names that explain the scenario
+3. Add appropriate mocking for external dependencies
+4. Place tests in the correct directory (Unit vs Feature)
+5. Test the workflow locally with `act` before pushing
+6. Update this documentation if adding new test patterns

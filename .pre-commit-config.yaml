@@ -1,16 +1,11 @@
 repos:
   - repo: local
     hooks:
-      - id: pint-check
-        name: Run pint check
-        entry: composer pint
-        language: system
-        pass_filenames: false
-        stages: [ pre-commit ]
-
-      - id: pest-check
-        name: Run pest tests
-        entry: composer test
+      - id: ci
+        name: Run Composer CI
+        description: Run the Composer CI command to ensure code quality and standards.
+        types: [ php ]
+        entry: composer ci
         language: system
         pass_filenames: false
         stages: [ pre-commit ]

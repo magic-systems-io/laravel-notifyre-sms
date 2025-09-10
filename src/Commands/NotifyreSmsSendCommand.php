@@ -4,10 +4,10 @@ namespace MagicSystemsIO\Notifyre\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
-use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Symfony\Component\Console\Command\Command as CommandStatus;
 use Throwable;
 
@@ -24,7 +24,7 @@ class NotifyreSmsSendCommand extends Command
         try {
             $this->info('Sending SMS...');
 
-            NotifyreService::send(new RequestBody(
+            app(NotifyreManager::class)->send(new RequestBody(
                 body: $this->parseMessage(),
                 recipients: $this->parseRecipients(),
             ));

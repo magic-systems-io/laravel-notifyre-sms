@@ -5,6 +5,7 @@ namespace MagicSystemsIO\Notifyre\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
@@ -14,7 +15,6 @@ use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsMessagesRequest;
 use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSmsMessageRecipient;
 use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
 use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
-use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use RuntimeException;
 use Throwable;
 
@@ -35,7 +35,7 @@ class NotifyreSmsController extends Controller
     public function store(NotifyreSmsMessagesRequest $request): JsonResponse
     {
         try {
-            NotifyreService::send($this->buildMessageData($request));
+            app(NotifyreManager::class)->send($this->buildMessageData($request));
 
             return response()->json('Message is being sent', 201);
         } catch (Throwable $e) {
@@ -69,7 +69,7 @@ class NotifyreSmsController extends Controller
     public function getApi(string $sms): JsonResponse
     {
         try {
-            $response = NotifyreService::get($sms);
+            $response = app(NotifyreManager::class)->get($sms);
 
             return response()->json($response);
         } catch (Throwable $e) {
@@ -80,7 +80,7 @@ class NotifyreSmsController extends Controller
     public function listApi(Request $request): JsonResponse
     {
         try {
-            $response = NotifyreService::list($request->query());
+            $response = app(NotifyreManager::class)->list($request->query());
 
             return response()->json($response);
         } catch (Throwable $e) {

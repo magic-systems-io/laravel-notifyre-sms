@@ -23,50 +23,12 @@ jobs:
           tools: composer:v2
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer fresh
 
       - name: Run Pint Check (Code Style)
-        run: composer pint --test
+        run: composer format-test
 
-  tests:
-    runs-on: ubuntu-latest
-    name: PHP 8.4 - Laravel 12.x
+      - name: Run Tests
+        run: composer test
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.4
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, iconv, intl
-          tools: composer:v2
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Execute tests via Pest with coverage
-        run: vendor/bin/pest --coverage --coverage-xml=coverage.xml 2>&1 | tee test-output.txt
-
-      - name: Calculate coverage percentage
-        id: coverage
-        run: |
-          # Extract coverage percentage from Pest output
-          COVERAGE=$(grep -o 'Total: [0-9]*\.[0-9]* %' test-output.txt | grep -o '[0-9]*\.[0-9]*' || echo "0.0")
-          
-          # Convert to integer
-          COVERAGE_INT=$(printf "%.0f" $COVERAGE)
-          
-          # Determine color based on coverage
-          if [ $COVERAGE_INT -ge 80 ]; then
-            COLOR="brightgreen"
-          elif [ $COVERAGE_INT -ge 60 ]; then
-            COLOR="yellow"
-          else
-            COLOR="red"
-          fi
-          
-          echo "coverage=$COVERAGE_INT" >> $GITHUB_OUTPUT
-          echo "color=$COLOR" >> $GITHUB_OUTPUT
 

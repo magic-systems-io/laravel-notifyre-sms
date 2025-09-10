@@ -2,7 +2,7 @@
 
 Send SMS messages directly from the command line using Artisan commands.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic Usage
 
@@ -17,7 +17,7 @@ php artisan sms:send --message="Meeting reminder" --recipient="+1234567890" --re
 php artisan sms:send --message="Welcome!" --recipient="+1234567890:mobile_number" --recipient="contact_123:contact"
 ```
 
-## 📋 Command Reference
+## Command Reference
 
 ### `sms:send`
 
@@ -52,7 +52,61 @@ Recipients can be specified in two formats:
    +1234567890:group
    ```
 
-## 📝 Examples
+### `sms:list`
+
+Lists SMS messages with filtering options.
+
+#### Signature
+
+```bash
+php artisan sms:list {--queries= : JSON string of query parameters (e.g. {"FromDate":1676253560,"Limit":10}} {--messageId= : The message ID to get specific SMS details} {--day : Filter for the selected number of days back (e.g. --day=4 for last 4 days)} {--week : Filter for the selected number of weeks back (e.g. --week=2 for last 2 weeks)} {--month : Filter for the selected number of months back (e.g. --month=1 for last month)} {--from-date= : Filter from this date (Unix timestamp)} {--to-date= : Filter to this date (Unix timestamp)} {--status= : Filter by status type} {--to-number= : Filter by recipient number} {--from-number= : Filter by sender number} {--search= : Search term} {--sort=desc : Sort order (asc/desc)} {--limit= : Number of results to return (default 10, max 100)}
+```
+
+#### Options
+
+| Option | Description |
+|--------|-------------|
+| `--queries` | JSON string of query parameters |
+| `--messageId` | Get specific SMS by ID |
+| `--day` | Filter for last N days |
+| `--week` | Filter for last N weeks |
+| `--month` | Filter for last N months |
+| `--from-date` | Filter from this date (Unix timestamp) |
+| `--to-date` | Filter to this date (Unix timestamp) |
+| `--status` | Filter by status type |
+| `--to-number` | Filter by recipient number |
+| `--from-number` | Filter by sender number |
+| `--search` | Search term |
+| `--sort` | Sort order (asc/desc) |
+| `--limit` | Number of results (default 10, max 100) |
+
+### Publishing Commands
+
+#### `notifyre:publish`
+
+Publishes all Notifyre configuration files.
+
+```bash
+php artisan notifyre:publish
+```
+
+#### `notifyre:publish-config`
+
+Publishes the configuration file.
+
+```bash
+php artisan notifyre:publish-config
+```
+
+#### `notifyre:publish-env`
+
+Adds environment variables to your .env file.
+
+```bash
+php artisan notifyre:publish-env
+```
+
+## Examples
 
 ### Basic SMS
 
@@ -93,7 +147,26 @@ php artisan sms:send \
   --recipient="+1234567890"
 ```
 
-## 🔧 Configuration
+### List SMS Messages
+
+```bash
+# List recent SMS messages
+php artisan sms:list
+
+# List messages from last 7 days
+php artisan sms:list --day=7
+
+# List messages with specific status
+php artisan sms:list --status=sent
+
+# List messages to specific number
+php artisan sms:list --to-number="+1234567890"
+
+# Get specific message by ID
+php artisan sms:list --messageId="msg_123456"
+```
+
+## Configuration
 
 ### Environment Variables
 
@@ -121,7 +194,7 @@ NOTIFYRE_DRIVER=log
 
 This will log the SMS to Laravel logs instead of sending via API.
 
-## 🚨 Error Handling
+## Error Handling
 
 ### Common Errors
 
@@ -154,7 +227,7 @@ Sending SMS...
 SMS sent successfully!
 ```
 
-## 🔍 Debugging
+## Debugging
 
 ### Verbose Output
 
@@ -187,7 +260,7 @@ php artisan sms:send --message="Test message" --recipient="+1234567890"
 tail -f storage/logs/laravel.log
 ```
 
-## 📊 Integration
+## Integration
 
 ### In Scripts
 
@@ -234,22 +307,7 @@ php artisan sms:send \
   --recipient="+1234567890"
 ```
 
-## 🔗 Related Commands
-
-The package also includes publishing commands for configuration:
-
-```bash
-# Publish all configuration files
-php artisan notifyre:publish-all
-
-# Publish configuration only
-php artisan notifyre:publish-config
-
-# Publish environment variables
-php artisan notifyre:publish-env
-```
-
-## 📚 Next Steps
+## Next Steps
 
 - Learn about [Direct SMS usage](./DIRECT_SMS.md)
 - Explore [Laravel notifications](./NOTIFICATIONS.md)

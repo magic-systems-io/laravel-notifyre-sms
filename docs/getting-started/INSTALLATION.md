@@ -14,29 +14,44 @@ Get the Notifyre Laravel package up and running in your application.
 composer require magic-systems-io/laravel-notifyre-sms
 ```
 
-## Step 2: Configure Environment Variables
+## Step 2: Publish Configuration
 
-Add these to your `.env` file:
+Publish all configuration files and environment variables:
+
+```bash
+php artisan notifyre:publish
+```
+
+This command will:
+- Publish the configuration file to `config/notifyre.php`
+- Add environment variables to your `.env` file
+
+## Step 3: Configure Environment Variables
+
+The publish command adds these variables to your `.env` file:
 
 ```env
 # Required: Choose your driver
 NOTIFYRE_DRIVER=log
 
 # Required for SMS driver (production)
-NOTIFYRE_API_KEY=your_api_key_here
+NOTIFYRE_API_KEY=your_api_token_here
+
+# Optional: Default country code prefix
+NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
+
+# Optional: API base URL
+NOTIFYRE_BASE_URL=https://api.notifyre.com
+
+# Optional: Feature toggles
+NOTIFYRE_API_ENABLED=true
+NOTIFYRE_DB_ENABLED=true
+NOTIFYRE_LOGGING_ENABLED=true
 ```
 
-## Step 3: Publish Configuration (Optional)
+## Step 4: Run Migrations
 
-Publish the configuration file to customize settings:
-
-```bash
-php artisan vendor:publish --provider="MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider"
-```
-
-## Step 4: Run Migrations (Optional)
-
-If you want to use the database persistence features:
+Run the package migrations to set up database tables:
 
 ```bash
 php artisan migrate
@@ -73,14 +88,19 @@ Messages are sent through the Notifyre API and return real response data with de
 ## What Gets Installed
 
 - **Service Providers**: Automatically registered
-- **Facade**: `Notifyre` facade available
 - **Helper Function**: `notifyre()` function available
-- **Commands**: `sms:send` command available
+- **Commands**: 
+  - `sms:send` - Send SMS messages
+  - `sms:list` - List SMS messages with filtering
+  - `notifyre:publish` - Publish all configuration files
+  - `notifyre:publish-config` - Publish configuration file
+  - `notifyre:publish-env` - Add environment variables
 - **Configuration**: `config/notifyre.php` available
 - **DTOs**: Rich data transfer objects with Arrayable interface
 - **Database Models**: SMS messages and recipients storage
 - **HTTP Controllers**: REST API endpoints
 - **Migrations**: Database schema for persistence
+- **Routes**: API routes for SMS operations
 
 ## Verify Installation
 
@@ -92,20 +112,13 @@ use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 // In tinker or a test
-$response = notifyre()->send(new RequestBody(
+notifyre()->send(new RequestBody(
     body: 'Test message',
     recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
 
-// Check response
-if ($response && $response->success) {
-    echo "Message sent successfully!";
-    echo "Message ID: " . $response->payload->smsMessageID;
-} else if ($response && !$response->success) {
-    echo "Message failed: " . $response->message;
-} else {
-    echo "Message logged successfully (check Laravel logs)";
-}
+// For log driver, check Laravel logs
+// For SMS driver, the message will be sent to Notifyre API
 ```
 
 ## Troubleshooting

@@ -9,7 +9,7 @@ use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 class RecipientVerificationUtils
 {
-    /**n
+    /**
      * Check if phone number is valid
      *
      * @throws InvalidArgumentException

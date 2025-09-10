@@ -17,42 +17,16 @@ NOTIFYRE_API_KEY=your_api_key_here
 ### Optional
 
 ```env
-# Country code prefix for numbers
+# Country code prefix for numbers without country code
 NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 
 # API settings
 NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
 
-# Retry settings
-NOTIFYRE_RETRY_TIMES=3
-NOTIFYRE_RETRY_SLEEP=1000
-```
-
-### API Configuration
-
-```env
-# Enable/disable API endpoints
+# Feature toggles
 NOTIFYRE_API_ENABLED=true
-
-# API route prefix
-NOTIFYRE_API_PREFIX=notifyre
-
-# API middleware
-NOTIFYRE_API_MIDDLEWARE=api
-
-# Rate limiting
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX_REQUESTS=60
-NOTIFYRE_RATE_LIMIT_DECAY_MINUTES=1
-
-# Database persistence
 NOTIFYRE_DB_ENABLED=true
-
-# Caching
-NOTIFYRE_CACHE_ENABLED=true
-NOTIFYRE_CACHE_TTL=3600
-NOTIFYRE_CACHE_PREFIX=notifyre_
+NOTIFYRE_LOGGING_ENABLED=true
 ```
 
 ## Configuration File
@@ -62,8 +36,8 @@ The package creates `config/notifyre.php` with these sections:
 ### Driver Settings
 
 ```php
-'driver' => env('NOTIFYRE_DRIVER', 'log'),
-'api_key' => env('NOTIFYRE_API_KEY', ''),
+'driver' => env('NOTIFYRE_DRIVER', 'sms'),
+'api_key' => env('NOTIFYRE_API_KEY'),
 ```
 
 ### Default Settings
@@ -76,15 +50,10 @@ The package creates `config/notifyre.php` with these sections:
 
 ```php
 'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
-'timeout' => env('NOTIFYRE_TIMEOUT', 30),
-```
-
-### Retry Logic
-
-```php
+'timeout' => 30,
 'retry' => [
-    'times' => env('NOTIFYRE_RETRY_TIMES', 3),
-    'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1000),
+    'times' => 3,
+    'sleep' => 1000, // milliseconds between retries
 ],
 ```
 
@@ -93,21 +62,25 @@ The package creates `config/notifyre.php` with these sections:
 ```php
 'api' => [
     'enabled' => env('NOTIFYRE_API_ENABLED', true),
-    'prefix' => env('NOTIFYRE_API_PREFIX', 'notifyre'),
-    'middleware' => explode(',', env('NOTIFYRE_API_MIDDLEWARE', 'api')),
+    'prefix' => 'notifyre',
+    'middleware' => 'api',
     'rate_limit' => [
-        'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
-        'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX_REQUESTS', 60),
-        'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_DECAY_MINUTES', 1),
+        'enabled' => true,
+        'max_requests' => 60, // Maximum requests per minute
+        'decay_minutes' => 1, // Time window for rate limiting in minutes
     ],
     'database' => [
         'enabled' => env('NOTIFYRE_DB_ENABLED', true),
     ],
-    'cache' => [
-        'enabled' => env('NOTIFYRE_CACHE_ENABLED', true),
-        'ttl' => env('NOTIFYRE_CACHE_TTL', 3600),
-        'prefix' => env('NOTIFYRE_CACHE_PREFIX', 'notifyre_'),
-    ],
+],
+```
+
+### Logging Configuration
+
+```php
+'logging' => [
+    'prefix' => 'notifyre_sms',
+    'enabled' => env('NOTIFYRE_LOGGING_ENABLED', true),
 ],
 ```
 
@@ -119,8 +92,6 @@ The package creates `config/notifyre.php` with these sections:
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key
 NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
-NOTIFYRE_RETRY_TIMES=3
 ```
 
 ### Log Driver
@@ -136,7 +107,13 @@ NOTIFYRE_DRIVER=log
 Publish the configuration file:
 
 ```bash
-php artisan vendor:publish --provider="MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider"
+php artisan notifyre:publish-config
+```
+
+Or publish all configuration files:
+
+```bash
+php artisan notifyre:publish
 ```
 
 ## Environment-Specific Configs
@@ -145,6 +122,7 @@ php artisan vendor:publish --provider="MagicSystemsIO\Notifyre\Providers\Notifyr
 
 ```env
 NOTIFYRE_DRIVER=log
+NOTIFYRE_LOGGING_ENABLED=true
 ```
 
 ### Production
@@ -153,13 +131,15 @@ NOTIFYRE_DRIVER=log
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_production_key
 NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
+NOTIFYRE_API_ENABLED=true
+NOTIFYRE_DB_ENABLED=true
 ```
 
 ### Testing
 
 ```env
 NOTIFYRE_DRIVER=log
+NOTIFYRE_LOGGING_ENABLED=true
 ```
 
 ## Validation
@@ -168,31 +148,21 @@ The package validates your configuration:
 
 - **Driver**: Must be `sms` or `log`
 - **API Key**: Required when using `sms` driver
-- **Base URL**: Must be a valid URL
-- **Timeout**: Must be a positive integer
-- **Retry Times**: Must be a positive integer
-- **Recipient Types**: Must be valid enum values
+- **Recipient Types**: Must be valid enum values (mobile_number, contact, group)
+- **Recipient Values**: Must be valid phone numbers or contact/group identifiers
 
 ## Advanced Configuration
 
 ### API Features
 
-The package provides comprehensive API functionality:
+The package provides REST API functionality:
 
 ```env
 # Enable REST API endpoints
 NOTIFYRE_API_ENABLED=true
 
-# Customize API routes
-NOTIFYRE_API_PREFIX=notifyre
-
-# Configure middleware
-NOTIFYRE_API_MIDDLEWARE=auth:sanctum,throttle:60,1
-
-# Rate limiting
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX_REQUESTS=100
-NOTIFYRE_RATE_LIMIT_DECAY_MINUTES=5
+# Database persistence
+NOTIFYRE_DB_ENABLED=true
 ```
 
 ### Database Persistence
@@ -204,27 +174,21 @@ Store SMS messages and recipients in your database:
 NOTIFYRE_DB_ENABLED=true
 ```
 
-### Caching
+### Logging
 
-Cache API responses for improved performance:
+Custom logging for Notifyre operations:
 
 ```env
-# Enable response caching
-NOTIFYRE_CACHE_ENABLED=true
-
-# Cache TTL in seconds
-NOTIFYRE_CACHE_TTL=3600
-
-# Cache key prefix
-NOTIFYRE_CACHE_PREFIX=notifyre_
+# Enable custom logging
+NOTIFYRE_LOGGING_ENABLED=true
 ```
 
 ## Response Handling
 
-Both drivers return appropriate responses:
+Both drivers handle responses differently:
 
-- **SMS Driver**: Returns real API response data with delivery status
-- **Log Driver**: Returns null (logs to Laravel logs for testing)
+- **SMS Driver**: Sends real SMS via Notifyre API and persists to database
+- **Log Driver**: Logs messages to Laravel logs for testing
 
 ## Next Steps
 

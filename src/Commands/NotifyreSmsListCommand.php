@@ -3,8 +3,8 @@
 namespace MagicSystemsIO\Notifyre\Commands;
 
 use Illuminate\Console\Command;
+use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\Services\NotifyreLogger;
-use MagicSystemsIO\Notifyre\Services\NotifyreService;
 use Symfony\Component\Console\Command\Command as CommandStatus;
 use Throwable;
 
@@ -33,7 +33,7 @@ class NotifyreSmsListCommand extends Command
             if ($messageId = $this->option('messageId')) {
                 $this->info("Getting SMS with ID: $messageId...");
 
-                if ($result = NotifyreService::get($messageId)) {
+                if ($result = app(NotifyreManager::class)->get($messageId)) {
                     $this->displaySMSDetails($result);
                 } else {
                     $this->warn('No SMS found with that ID.');
@@ -44,7 +44,7 @@ class NotifyreSmsListCommand extends Command
 
             $this->info('Getting SMS list...');
 
-            $results = NotifyreService::list($this->buildQueryParams());
+            $results = app(NotifyreManager::class)->list($this->buildQueryParams());
             if (empty($results)) {
                 $this->warn('No SMS messages found.');
 

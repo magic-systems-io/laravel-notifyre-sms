@@ -4,34 +4,20 @@ How the Notifyre package is structured and designed.
 
 ## Overview
 
-The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application,
-with rich DTOs that implement Laravel's Arrayable interface, database persistence, and REST API endpoints.
+The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application, with database persistence and REST API endpoints.
 
 ## Core Components
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│ NotifyreService │───▶│  DriverFactory   │───▶│  SMSDriver      │
-│  (Direct SMS)   │    │                  │    │  LogDriver      │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐
-                       │ NotifyreChannel  │
-                       │ (Notifications)  │
-                       └──────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐
-                       │ HTTP Controllers │
-                       │ (REST API)       │
-                       └──────────────────┘
-                                │
-                                ▼
-                       ┌──────────────────┐
-                       │ Database Models  │
-                       │ (Persistence)    │
-                       └──────────────────┘
+NotifyreService (Direct SMS)
+    ↓
+SmsDriver (Production)
+    ↓
+NotifyreChannel (Notifications)
+    ↓
+NotifyreSmsController (REST API)
+    ↓
+Database Models (Persistence)
 ```
 
 ## Key Classes
@@ -43,9 +29,10 @@ The main service for direct SMS sending:
 ```php
 class NotifyreService
 {
-    public function send(RequestBody $message): ?ResponseBody
+    public static function send(RequestBody $request): void
     {
-        return $this->create()->send($message);
+        $response = self::createDriver(self::getDriverName())->send($request);
+        NotifyreMessagePersister::persist($request, $response);
     }
 }
 ```
@@ -53,23 +40,19 @@ class NotifyreService
 **Responsibilities:**
 
 - Delegates SMS sending to appropriate driver
-- Returns response data for tracking and error handling
+- Persists messages to database if enabled
+- Handles errors and logging
 - Maintains single responsibility principle
-- Readonly for immutability
 
-### DriverFactory
+### Driver Creation
 
 Creates the appropriate driver based on configuration:
 
 ```php
-private function create(): LogDriver|SMSDriver
+private static function createDriver(string $driver): SmsDriver
 {
-    $driver = config('services.notifyre.driver') ?? config('notifyre.driver');
-    
     return match ($driver) {
-        NotifyreDriver::LOG->value => new LogDriver(),
-        NotifyreDriver::SMS->value => new SMSDriver(),
-        default => throw new InvalidArgumentException("Invalid driver: {$driver}")
+        NotifyreDriver::SMS->value => new SmsDriver(),
     };
 }
 ```
@@ -85,27 +68,18 @@ private function create(): LogDriver|SMSDriver
 Implement the driver pattern:
 
 ```php
-// Both drivers implement similar interfaces
-class SMSDriver
+class SmsDriver
 {
-    public function send(RequestBody $message): ?ResponseBody
+    public function send(RequestBody $request): ResponseBody
     {
-        // Send via Notifyre API
-    }
-}
-
-class LogDriver
-{
-    public function send(RequestBody $message): ?ResponseBody
-    {
-        // Log to Laravel logs
-        return null;
+        $response = ApiClientUtils::request(ApiUrlBuilder::buildSmsUrl(), $request, 'POST');
+        return ResponseParser::parseSmsResponse($response->json(), $response->status());
     }
 }
 ```
 
-- **SMSDriver**: Sends real SMS via Notifyre API and returns response data
-- **LogDriver**: Logs SMS to Laravel logs and returns null
+- **SmsDriver**: Sends real SMS via Notifyre API and returns response data
+- **Log Driver**: Currently not implemented in the codebase
 
 ### NotifyreChannel
 
@@ -116,8 +90,11 @@ class NotifyreChannel
 {
     public function send(object $notifiable, Notification $notification): void
     {
-        $request = $notification->toNotifyre();
-        $this->service->send($request);
+        $requestBody = $notification->toNotifyre();
+        if (!$requestBody instanceof RequestBody) {
+            throw new InvalidArgumentException('Method `toNotifyre` must return RequestBodyDTO object.');
+        }
+        NotifyreService::send($requestBody);
     }
 }
 ```
@@ -127,21 +104,25 @@ class NotifyreChannel
 Provide REST API endpoints:
 
 ```php
-class NotifyreSMSController extends Controller
+class NotifyreSmsController extends Controller
 {
-    public function store(NotifyreSMSMessagesRequest $request): JsonResponse
+    public function store(NotifyreSmsMessagesRequest $request): JsonResponse
     {
-        // Send SMS and optionally persist to database
+        NotifyreService::send($this->buildMessageData($request));
+        return response()->json('Message is being sent', 201);
     }
     
     public function index(Request $request): JsonResponse
     {
-        // List SMS messages with pagination
+        $sender = $request->user()?->getSender();
+        $messages = NotifyreSmsMessages::where('sender', $sender)->get()->toArray();
+        return response()->json($this->paginate($request, $messages));
     }
     
-    public function show(int $sms): JsonResponse
+    public function show(string $sms): JsonResponse
     {
-        // Get specific SMS message
+        $message = NotifyreSmsMessages::with('messageRecipients.recipient')->find($sms);
+        return response()->json($message);
     }
 }
 ```
@@ -151,17 +132,30 @@ class NotifyreSMSController extends Controller
 Store SMS messages and recipients:
 
 ```php
-class NotifyreSMSMessages extends Model
+class NotifyreSmsMessages extends Model
 {
     protected $fillable = [
-        'messageId',
+        'id',
         'sender',
         'body',
+        'driver',
     ];
     
     public function messageRecipients(): HasMany
     {
-        return $this->hasMany(NotifyreSMSMessageRecipient::class, 'sms_message_id');
+        return $this->hasMany(NotifyreSmsMessageRecipient::class, 'sms_message_id');
+    }
+    
+    public function recipients(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            NotifyreRecipients::class,
+            NotifyreSmsMessageRecipient::class,
+            'sms_message_id',
+            'id',
+            'id',
+            'recipient_id'
+        );
     }
 }
 ```
@@ -179,8 +173,12 @@ readonly class RequestBody implements Arrayable
         public string $body,
         public array $recipients,
         public ?string $sender = null,
+        public ?int $scheduledDate = null,
+        public ?bool $addUnsubscribeLink = null,
+        public ?string $callbackUrl = null,
+        public ?array $metadata = null,
+        public ?string $campaignName = null,
     ) {
-        // Validation
         if (empty(trim($body))) {
             throw new InvalidArgumentException('Body cannot be empty');
         }
@@ -191,7 +189,17 @@ readonly class RequestBody implements Arrayable
     
     public function toArray(): array
     {
-        // Convert to API format
+        $recipients = array_map(fn (Recipient $recipient) => $recipient->toArray(), $this->recipients);
+        return array_filter([
+            'Body' => $this->body,
+            'Recipients' => $recipients,
+            'From' => $this->sender,
+            'ScheduledDate' => $this->scheduledDate,
+            'AddUnsubscribeLink' => $this->addUnsubscribeLink,
+            'CallbackUrl' => $this->callbackUrl,
+            'Metadata' => $this->metadata,
+            'CampaignName' => $this->campaignName,
+        ], fn ($value) => $value !== null);
     }
 }
 ```
@@ -202,44 +210,31 @@ readonly class RequestBody implements Arrayable
 - **Comprehensive Validation**: Built-in input validation
 - **Type Safety**: Readonly properties with proper typing
 
-### ResponseBody
-
-Structured response data:
-
-```php
-readonly class ResponseBody implements Arrayable
-{
-    public function __construct(
-        public bool $success,
-        public int $statusCode,
-        public string $message,
-        public ResponsePayload $payload,
-        public array $errors,
-    ) {}
-    
-    public function toArray(): array
-    {
-        // Convert to array format
-    }
-}
-```
-
 ### Recipient
 
 Enhanced recipient object:
 
 ```php
-readonly class Recipient implements Arrayable
+class Recipient implements Arrayable
 {
     public function __construct(
         public string $type,
         public string $value,
     ) {
-        if (!in_array($type, NotifyreRecipientTypes::values())) {
-            throw new InvalidArgumentException("Invalid type '$type'");
+        $this->normalizeCountryCode();
+        if (!RecipientVerificationUtils::validateRecipient($this->value, $this->type)) {
+            throw new InvalidArgumentException("Invalid recipient '$value' for type '$type'.");
         }
-        if (empty(trim($value))) {
-            throw new InvalidArgumentException('Value cannot be empty');
+    }
+    
+    private function normalizeCountryCode(): void
+    {
+        if (!str_starts_with($this->value, '+')) {
+            $defaultPrefix = config('notifyre.default_number_prefix');
+            if (empty($defaultPrefix)) {
+                throw new InvalidArgumentException('Recipient number must include country code or set a default prefix in configuration.');
+            }
+            $this->value = preg_replace('/^0/', $defaultPrefix, $this->value);
         }
     }
     
@@ -261,27 +256,26 @@ readonly class Recipient implements Arrayable
 ### Direct SMS
 
 1. `notifyre()->send($message)` calls `NotifyreService::send()`
-2. Service gets driver from `DriverFactory`
-3. Driver processes the message (API call or logging)
-4. Response data is returned to caller
-5. Caller can handle success/failure and access message details
+2. Service creates appropriate driver based on configuration
+3. Driver processes the message (API call)
+4. Message is persisted to database if enabled
+5. Response data is returned to caller
 
 ### Notifications
 
 1. `$user->notify($notification)` triggers Laravel's notification system
 2. `NotifyreChannel` receives the notification
 3. Channel calls `$notification->toNotifyre()` to get message data
-4. Message is sent through the appropriate driver
-5. Response data is available for error handling
+4. Message is sent through `NotifyreService`
+5. Message is persisted to database if enabled
 
 ### REST API
 
-1. HTTP request comes to `NotifyreSMSController`
-2. Request is validated using `NotifyreSMSMessagesRequest`
+1. HTTP request comes to `NotifyreSmsController`
+2. Request is validated using `NotifyreSmsMessagesRequest`
 3. Message is sent via `NotifyreService`
-4. Optionally persisted to database if enabled
-5. Response is cached if caching is enabled
-6. JSON response returned to client
+4. Message is persisted to database if enabled
+5. JSON response returned to client
 
 ## Design Patterns
 
@@ -290,15 +284,14 @@ readonly class Recipient implements Arrayable
 Drivers implement different strategies for SMS processing:
 
 - **SMS Strategy**: Send via API and return real response
-- **Log Strategy**: Log to files and return null
 
 ### Factory Pattern
 
-`DriverFactory` creates the right driver based on configuration.
+Driver creation based on configuration.
 
 ### Facade Pattern
 
-`Notifyre` facade provides easy access to the service.
+`notifyre()` helper function provides easy access to the service.
 
 ### Repository Pattern
 
@@ -321,24 +314,10 @@ Create your own driver by implementing the driver pattern:
 ```php
 class CustomDriver
 {
-    public function send(RequestBody $message): ?ResponseBody
+    public function send(RequestBody $request): ResponseBody
     {
         // Your custom SMS logic
         return new ResponseBody(/* ... */);
-    }
-}
-```
-
-### Custom Services
-
-Extend `NotifyreService` for additional functionality:
-
-```php
-class CustomNotifyreService extends NotifyreService
-{
-    public function sendWithRetry(RequestBody $message, int $retries): ?ResponseBody
-    {
-        // Custom retry logic
     }
 }
 ```
@@ -352,13 +331,14 @@ The package registers itself through:
 - **`MigrationServiceProvider`**: Database migrations
 - **`ServicesServiceProvider`**: Service bindings
 - **`CommandServiceProvider`**: Artisan commands
+- **`RouteServiceProvider`**: API routes
+- **`NotifyreLoggingServiceProvider`**: Logging configuration
 
 ## Contracts
 
 Key interfaces that define the package's API:
 
 - `NotifyreManager`: Main service contract
-- Driver contracts for SMS and logging operations
 
 ## Benefits
 
@@ -368,10 +348,8 @@ Key interfaces that define the package's API:
 - **Extensibility**: Add custom drivers easily
 - **Laravel Integration**: Follows Laravel conventions
 - **Rich DTOs**: Comprehensive data objects with validation
-- **Response Handling**: Full response data for tracking and debugging
-- **Arrayable Interface**: Easy data manipulation and serialization
 - **Database Persistence**: Store SMS messages and recipients
-- **REST API**: Full HTTP API with rate limiting and caching
+- **REST API**: Full HTTP API with rate limiting
 - **Rate Limiting**: Built-in protection against abuse
 
 ## Performance Considerations
@@ -383,10 +361,6 @@ Services are registered as singletons to avoid repeated instantiation.
 ### Lazy Loading
 
 Drivers are created only when needed.
-
-### Caching
-
-Optional response caching for API calls.
 
 ### Database Optimization
 
@@ -401,7 +375,7 @@ The package is designed for easy testing:
 ```php
 // Mock the service
 $mockService = Mockery::mock(NotifyreService::class);
-$mockService->shouldReceive('send')->once()->andReturn($mockResponse);
+$mockService->shouldReceive('send')->once();
 
 // Bind mock to container
 $this->app->instance('notifyre', $mockService);
@@ -455,14 +429,12 @@ Customizable middleware stack for API endpoints.
 - **Clear Messages**: Provide helpful error messages
 - **Graceful Degradation**: Handle errors without crashing
 - **Logging**: Log errors for debugging
-- **Response Data**: Use response DTOs for detailed error information
 
 ### API Design
 
 - **RESTful**: Follow REST conventions
 - **Validation**: Comprehensive input validation
 - **Rate Limiting**: Protect against abuse
-- **Caching**: Improve performance where appropriate
 - **Error Handling**: Consistent error responses
 
 ## Next Steps
