@@ -1,163 +1,121 @@
 # Notifyre Laravel Package
 
-A Laravel package for sending SMS messages through the Notifyre API. Provides direct SMS sending, Laravel notification integration, and REST API endpoints with database persistence.
+A Laravel package for sending SMS messages through the Notifyre API. Provides direct SMS sending, Laravel notification
+integration, CLI commands, and REST API endpoints with optional database persistence.
 
 [![Tests](https://github.com/magic-systems-io/laravel-notifyre-sms/actions/workflows/tests.yml/badge.svg)](https://github.com/magic-systems-io/laravel-notifyre-sms/actions)
 [![Coverage Status](https://codecov.io/gh/magic-systems-io/laravel-notifyre-sms/branch/main/graph/badge.svg)](https://codecov.io/gh/magic-systems-io/laravel-notifyre-sms)
 
-## Features
+## Jumpstart
 
-- **Direct SMS Sending** - Send SMS messages using the `notifyre()` helper function
-- **Laravel Notifications** - Integration with Laravel's notification system via NotifyreChannel
-- **Driver System** - SMS driver for production, log driver for testing
-- **CLI Commands** - Send and list SMS messages from Artisan commands
-- **REST API** - HTTP endpoints for SMS operations with rate limiting
-- **Database Persistence** - Store SMS messages and recipients in database
-- **Recipient Types** - Support for mobile numbers, contacts, and groups
-- **Message Tracking** - Track SMS delivery status with callbacks
-- **Configuration Management** - Comprehensive configuration options
-- **Error Handling** - Detailed error messages and validation
-
-## Quick Start
-
-### Installation
+### 1) Install
 
 ```bash
 composer require magic-systems-io/laravel-notifyre-sms
 ```
 
-### Configuration
-
-Publish configuration and environment variables:
+### 2) Publish config
 
 ```bash
 php artisan notifyre:publish
 ```
 
-Set your environment variables in `.env`:
+### 3) Configure `.env`
 
 ```env
+# Driver: sms (real API) or log (testing)
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key_here
+
+# Optional defaults
 NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 NOTIFYRE_BASE_URL=https://api.notifyre.com
 NOTIFYRE_TIMEOUT=30
 NOTIFYRE_RETRY_TIMES=3
 NOTIFYRE_RETRY_SLEEP=1
+
+# Routes (default prefix /api/notifyre)
 NOTIFYRE_ROUTES_ENABLED=true
 NOTIFYRE_ROUTE_PREFIX=notifyre
 NOTIFYRE_RATE_LIMIT_ENABLED=true
 NOTIFYRE_RATE_LIMIT_MAX=60
 NOTIFYRE_RATE_LIMIT_WINDOW=1
+
+# Persistence & logging
 NOTIFYRE_DB_ENABLED=true
 NOTIFYRE_LOGGING_ENABLED=true
 NOTIFYRE_LOG_PREFIX=notifyre_sms
+
+# Webhook retry behavior
 NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
 NOTIFYRE_WEBHOOK_RETRY_DELAY=1
 ```
 
-### Basic Usage
+### 4) Migrate (for persistence)
+
+```bash
+php artisan migrate
+```
+
+### 5) Send your first SMS
 
 ```php
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
-// Direct SMS
 notifyre()->send(new RequestBody(
     body: 'Hello World!',
     recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')]
 ));
-
-// With sender and additional options
-notifyre()->send(new RequestBody(
-    body: 'Your order has been shipped!',
-    recipients: [new Recipient(NotifyreRecipientTypes::MOBILE_NUMBER->value, '+1234567890')],
-    sender: '+1987654321',
-    scheduledDate: time() + 3600, // Schedule for 1 hour from now
-    addUnsubscribeLink: true
-));
 ```
 
-### Test Your Installation
+Or via Artisan:
 
 ```bash
 php artisan sms:send --message="Hello from Notifyre!" --recipient="+1234567890"
 ```
 
-## Documentation
+## Endpoints (default prefix `/api/notifyre`)
 
-**[Full Documentation](./docs/README.md)** - Complete documentation index and navigation
-
-**Quick Links:**
-
-- **[Installation](./docs/getting-started/INSTALLATION.md)** - How to install and configure the package
-- **[Direct SMS](./docs/usage/DIRECT_SMS.md)** - Send SMS immediately using the helper function
-- **[Notifications](./docs/usage/NOTIFICATIONS.md)** - Send SMS through Laravel notifications
-- **[Commands](./docs/usage/COMMANDS.md)** - Send SMS from the command line
-- **[API Usage](./docs/usage/API.md)** - Use the REST API endpoints
-
-## Architecture
-
-```
-NotifyreService (Direct SMS)
-    ↓
-SmsDriver (Production)
-    ↓
-NotifyreChannel (Notifications)
-    ↓
-NotifyreSmsController (REST API)
-    ↓
-Database Models (Persistence)
-```
-
-## Drivers
-
-- **`sms`** - Sends real SMS via Notifyre API
-- **`log`** - Logs SMS to Laravel logs (for testing)
-
-## API Endpoints
-
-The package provides REST API endpoints for SMS operations:
-
-- `POST /api/notifyre/sms` - Send SMS messages
-- `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
-- `GET /api/notifyre/sms/{id}` - Get specific SMS message
-- `GET /api/notifyre/sms/list-api` - List SMS via Notifyre API
-- `GET /api/notifyre/sms/api/{id}` - Get SMS via Notifyre API
-- `POST /api/notifyre/callback/sms` - Handle delivery callbacks
+- `POST /api/notifyre/sms` — Send SMS (201 on acceptance)
+- `GET /api/notifyre/sms` — List local messages (requires sender on authenticated user)
+- `GET /api/notifyre/sms/{id}` — Get local message
+- `GET /api/notifyre/sms/notifyre` — List via Notifyre API (proxy)
+- `GET /api/notifyre/sms/notifyre/{id}` — Get via Notifyre API (proxy)
+- `POST /api/notifyre/sms/webhook` — Delivery callback handler
 
 ## Commands
 
-- `php artisan sms:send` - Send SMS messages
-- `php artisan sms:list` - List SMS messages with filtering options
-- `php artisan notifyre:publish` - Publish all configuration files
-- `php artisan notifyre:publish-config` - Publish configuration file
-- `php artisan notifyre:publish-env` - Add environment variables to .env
+- `php artisan sms:send` — Send SMS
+- `php artisan sms:list` — List/filter SMS (see `--help`)
+- `php artisan notifyre:publish*` — Publish config/env snippets
 
 ## Requirements
 
 - PHP 8.3+
 - Laravel 12.20+
-- Notifyre API account
+- Notifyre API account (for `sms` driver)
+
+## Docs
+
+See the full documentation: [README](docs/README.md).
 
 ## License
 
-MIT License - see [LICENSE.md](./LICENSE.md) for details.
+MIT License — see [LICENSE](LICENSE.md).
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
+See [CONTRIBUTING](CONTRIBUTING.md) .
 
 ## Support
 
-For issues and questions:
-
-1. Check the [documentation](./docs/README.md)
-2. Review the [examples](./docs/usage/DIRECT_SMS.md)
-3. Open an issue on GitHub
+- Read [docs](docs)
+- Try examples in [usage](docs/usage)
+- Open a GitHub issue if needed
 
 ---
 
-**Built with ❤️ for the Laravel community**
+Built with ❤️ for the Laravel community
 

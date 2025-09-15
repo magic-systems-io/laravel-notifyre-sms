@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1757937932">
-  <project timestamp="1757937932" name="Clover Coverage">
+<coverage generated="1757938221">
+  <project timestamp="1757938221" name="Clover Coverage">
     <package name="MagicSystemsIO\Notifyre\Channels">
       <file name="/home/arbi/Desktop/hirealoo/notifyre-laravel/src/Channels/NotifyreChannel.php">
         <class name="MagicSystemsIO\Notifyre\Channels\NotifyreChannel" namespace="MagicSystemsIO\Notifyre\Channels">

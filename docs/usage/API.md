@@ -4,24 +4,31 @@ The Notifyre Laravel package provides REST API endpoints for SMS operations, inc
 
 ## Quick Start
 
-### Enable API
+### Enable Routes
 
-Make sure the API is enabled in your configuration:
+Ensure routes are enabled in your configuration:
 
 ```env
-NOTIFYRE_API_ENABLED=true
+NOTIFYRE_ROUTES_ENABLED=true
 ```
+
+### Base Prefix
+
+Routes are registered under the prefix configured by `NOTIFYRE_ROUTE_PREFIX` (default `notifyre`). The examples below assume the default prefix and the default `api` middleware group, so the full base path is `/api/notifyre`.
 
 ### Routes
 
-The package automatically registers these API routes:
+The package registers these API routes:
 
-- `POST /api/notifyre/sms` - Send SMS messages
-- `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
-- `GET /api/notifyre/sms/{id}` - Get specific SMS message
-- `GET /api/notifyre/sms/list-api` - List SMS via Notifyre API
-- `GET /api/notifyre/sms/api/{id}` - Get SMS via Notifyre API
-- `POST /api/notifyre/callback/sms` - Handle delivery callbacks
+- `GET /api/notifyre/sms/notifyre` - List SMS via Notifyre API (proxy)
+- `GET /api/notifyre/sms/notifyre/{id}` - Get SMS via Notifyre API (proxy)
+- `GET /api/notifyre/sms` - List local SMS messages for the current sender
+- `POST /api/notifyre/sms` - Send SMS message
+- `GET /api/notifyre/sms/{id}` - Get a specific local SMS message
+- `GET /api/notifyre/recipient/{recipient}` - Show messages sent to a recipient
+- `POST /api/notifyre/sms/webhook` - Handle delivery callbacks
+
+Note: Local routes are available only when database features are enabled (`NOTIFYRE_DB_ENABLED=true`).
 
 ## Sending SMS
 
@@ -35,28 +42,19 @@ POST /api/notifyre/sms
 
 ```json
 {
-    "body": "Hello from the API!",
-    "recipients": [
-        {
-            "type": "mobile_number",
-            "value": "+1234567890"
-        }
-    ],
-    "sender": "+1987654321"
+  "body": "Hello from the API!",
+  "recipients": [
+    { "type": "mobile_number", "value": "+1234567890" }
+  ],
+  "sender": "+1987654321"
 }
 ```
 
-### Parameters
-
-| Parameter            | Type    | Required | Description                                                   |
-|----------------------|---------|----------|---------------------------------------------------------------|
-| `body`               | string  | ✅        | SMS message content                                           |
-| `recipients`         | array   | ✅        | Array of recipient objects                                    |
-| `recipients[].type`  | string  | ✅        | Recipient type: `mobile_number`, `contact`, or `group`        |
-| `recipients[].value` | string  | ✅        | Recipient value (phone number, contact ID, or group ID)       |
-| `sender`             | string  | ❌        | Sender phone number (uses default if not provided)            |
+- `recipients[].type` defaults to `mobile_number` if omitted.
 
 ### Response
+
+Status 201
 
 ```json
 "Message is being sent"
@@ -64,114 +62,102 @@ POST /api/notifyre/sms
 
 ### Error Response
 
+Status 500
+
 ```json
-{
-    "message": "Failed to send SMS"
-}
+{ "message": "Failed to send SMS" }
 ```
 
 ## Retrieving Messages
 
-### List All Messages
+### List Local Messages
+
+Requires the current authenticated user's sender to be available via `Request::user()->getSender()`.
 
 ```
 GET /api/notifyre/sms
 ```
 
-**Note**: This endpoint requires a sender parameter to filter messages by sender.
+#### Failure when sender is missing
 
-#### Query Parameters
+Status 422
 
-| Parameter  | Type    | Required | Description                |
-|------------|---------|----------|----------------------------|
-| `sender`   | string  | ✅        | Sender phone number to filter by |
+```json
+{ "error": "Sender parameter is required" }
+```
 
-#### Response
+#### Success (paginated shape)
 
 ```json
 {
-    "data": [
-        {
-            "id": 1,
-            "messageId": "sms-123",
-            "sender": "+1987654321",
-            "body": "Hello from the API!",
-            "driver": "sms",
-            "created_at": "2024-01-15T10:30:00.000000Z",
-            "updated_at": "2024-01-15T10:30:00.000000Z"
-        }
-    ],
-    "current_page": 1,
-    "per_page": 15,
-    "total": 1
+  "data": [
+    {
+      "id": 1,
+      "messageId": "sms-123",
+      "sender": "+1987654321",
+      "body": "Hello from the API!",
+      "driver": "sms",
+      "created_at": "2024-01-15T10:30:00.000000Z",
+      "updated_at": "2024-01-15T10:30:00.000000Z"
+    }
+  ],
+  "current_page": 1,
+  "per_page": 15,
+  "total": 1
 }
 ```
 
-### Get Specific Message
+### Get Specific Local Message
 
 ```
 GET /api/notifyre/sms/{id}
 ```
 
-#### Response
+- 404 when message is not found.
 
-```json
-{
-    "id": 1,
-    "messageId": "sms-123",
-    "sender": "+1987654321",
-    "body": "Hello from the API!",
-    "driver": "sms",
-    "created_at": "2024-01-15T10:30:00.000000Z",
-    "updated_at": "2024-01-15T10:30:00.000000Z",
-    "messageRecipients": [
-        {
-            "id": 1,
-            "message_id": 1,
-            "recipient_id": 1,
-            "created_at": "2024-01-15T10:30:00.000000Z",
-            "updated_at": "2024-01-15T10:30:00.000000Z",
-            "recipient": {
-                "id": 1,
-                "type": "mobile_number",
-                "value": "+1234567890",
-                "created_at": "2024-01-15T10:30:00.000000Z",
-                "updated_at": "2024-01-15T10:30:00.000000Z"
-            }
-        }
-    ]
-}
+### Show Messages Sent To a Recipient
+
+```
+GET /api/notifyre/recipient/{recipient}
 ```
 
-## Configuration
+- 404 when recipient is not found.
 
-### Environment Variables
+## Notifyre API Proxies
 
-```env
-# API Settings
-NOTIFYRE_API_ENABLED=true
+### List via Notifyre API
 
-# Database Persistence
-NOTIFYRE_DB_ENABLED=true
+```
+GET /api/notifyre/sms/notifyre
 ```
 
-### Rate Limiting
+### Get via Notifyre API
 
-The API includes built-in rate limiting:
+```
+GET /api/notifyre/sms/notifyre/{id}
+```
 
-- **Default**: 60 requests per minute
-- **Configurable**: Via configuration file
-- **Per IP**: Rate limiting is applied per IP address
+Both endpoints proxy to the Notifyre API using your configured credentials and return the upstream response. Failures return status 500 with `{ "message": string }`.
 
-## Authentication
+## Webhook
 
-The API uses Laravel's standard authentication middleware. You can configure custom middleware in the configuration file.
+```
+POST /api/notifyre/sms/webhook
+```
+
+The webhook updates recipient identification and sent status. The controller retries lookup for up to `NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS` with `NOTIFYRE_WEBHOOK_RETRY_DELAY` seconds between attempts when the message is not yet persisted.
+
+- 200 with the updated message and `recipients` on success
+- 404 when the message cannot be found after all attempts
+
+## Authentication and Middleware
+
+- Routes use the `api` middleware by default; add auth middleware via `notifyre.routes.middleware` in `config/notifyre.php` if needed.
+- A throttle is applied when `NOTIFYRE_RATE_LIMIT_ENABLED=true`.
 
 ## Examples
 
-### cURL Examples
-
-#### Send SMS
+### cURL: Send SMS
 
 ```bash
 curl -X POST http://your-app.com/api/notifyre/sms \
@@ -179,111 +165,50 @@ curl -X POST http://your-app.com/api/notifyre/sms \
   -H "Accept: application/json" \
   -d '{
     "body": "Hello from cURL!",
-    "recipients": [
-      {
-        "type": "mobile_number",
-        "value": "+1234567890"
-      }
-    ],
+    "recipients": [ { "type": "mobile_number", "value": "+1234567890" } ],
     "sender": "+1987654321"
   }'
 ```
 
-#### List Messages
+### cURL: List Local Messages (requires sender on user)
 
 ```bash
-curl -X GET "http://your-app.com/api/notifyre/sms?sender=%2B1987654321" \
-  -H "Accept: application/json"
+curl -X GET "http://your-app.com/api/notifyre/sms" -H "Accept: application/json"
 ```
 
-#### Get Specific Message
+### cURL: Get Specific Local Message
 
 ```bash
-curl -X GET http://your-app.com/api/notifyre/sms/1 \
-  -H "Accept: application/json"
+curl -X GET http://your-app.com/api/notifyre/sms/1 -H "Accept: application/json"
 ```
 
-### JavaScript Examples
+### cURL: List via Notifyre API (proxy)
 
-#### Send SMS
-
-```javascript
-const response = await fetch('/api/notifyre/sms', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-  body: JSON.stringify({
-    body: 'Hello from JavaScript!',
-    recipients: [
-      {
-        type: 'mobile_number',
-        value: '+1234567890'
-      }
-    ],
-    sender: '+1987654321'
-  })
-});
-
-const result = await response.json();
-console.log(result);
+```bash
+curl -X GET http://your-app.com/api/notifyre/sms/notifyre -H "Accept: application/json"
 ```
 
-#### List Messages
+### cURL: Get via Notifyre API (proxy)
 
-```javascript
-const response = await fetch('/api/notifyre/sms?sender=%2B1987654321', {
-  headers: {
-    'Accept': 'application/json',
-  }
-});
-
-const messages = await response.json();
-console.log(messages.data);
+```bash
+curl -X GET http://your-app.com/api/notifyre/sms/notifyre/abc123 -H "Accept: application/json"
 ```
 
 ## Error Handling
 
 ### Common Error Responses
 
-#### 422 - Validation Error
-
-```json
-{
-  "message": "The given data was invalid.",
-  "errors": {
-    "body": ["The body field is required."],
-    "recipients": ["The recipients field is required."]
-  }
-}
-```
-
-#### 404 - Message Not Found
-
-```json
-{
-  "error": "Message not found"
-}
-```
-
-#### 500 - Server Error
-
-```json
-{
-  "message": "Failed to send SMS"
-}
-```
+- 422 when sender is missing for local list endpoint
+- 404 when local message or recipient is not found
+- 500 when upstream or send operation fails
 
 ## Response Codes
 
-| Code | Description                    |
-|------|--------------------------------|
-| 200  | Success                        |
-| 201  | Created (SMS sent successfully) |
-| 400  | Bad Request                    |
-| 401  | Unauthorized                   |
-| 404  | Not Found                      |
-| 422  | Validation Error               |
-| 429  | Too Many Requests (Rate Limit) |
-| 500  | Server Error                   |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | Success                                   |
+| 201  | Created (SMS accepted for sending)        |
+| 404  | Not Found                                 |
+| 422  | Validation/Precondition Failed            |
+| 429  | Too Many Requests (Rate Limit)            |
+| 500  | Server Error                              |

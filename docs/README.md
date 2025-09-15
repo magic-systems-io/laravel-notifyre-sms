@@ -8,7 +8,7 @@ This package provides multiple ways to send SMS messages:
 
 1. **Direct SMS** - Send SMS immediately using the `notifyre()` helper function
 2. **Laravel Notifications** - Send SMS through Laravel's notification system via NotifyreChannel
-3. **REST API** - Send SMS via HTTP endpoints with full CRUD operations
+3. **REST API** - Send SMS via HTTP endpoints with rate limiting and database persistence
 4. **CLI Commands** - Send and manage SMS from Artisan commands
 
 ## Documentation
@@ -45,7 +45,16 @@ NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key
 NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 
-# Basic SMS
+# Optional HTTP & routes
+NOTIFYRE_BASE_URL=https://api.notifyre.com
+NOTIFYRE_TIMEOUT=30
+NOTIFYRE_RETRY_TIMES=3
+NOTIFYRE_RETRY_SLEEP=1
+NOTIFYRE_ROUTES_ENABLED=true
+NOTIFYRE_ROUTE_PREFIX=notifyre
+```
+
+```php
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
@@ -83,14 +92,14 @@ notifyre()->send(new RequestBody(
 - `php artisan notifyre:publish-config` - Publish configuration file
 - `php artisan notifyre:publish-env` - Add environment variables to .env
 
-### API Endpoints
+### API Endpoints (default prefix `/api/notifyre`)
 
 - `POST /api/notifyre/sms` - Send SMS messages
-- `GET /api/notifyre/sms` - List SMS messages (requires sender parameter)
-- `GET /api/notifyre/sms/{id}` - Get specific SMS message
-- `GET /api/notifyre/sms/list-api` - List SMS via Notifyre API
-- `GET /api/notifyre/sms/api/{id}` - Get SMS via Notifyre API
-- `POST /api/notifyre/callback/sms` - Handle delivery callbacks
+- `GET /api/notifyre/sms` - List local SMS messages (requires sender from authenticated user)
+- `GET /api/notifyre/sms/{id}` - Get specific local SMS message
+- `GET /api/notifyre/sms/notifyre` - List SMS via Notifyre API (proxy)
+- `GET /api/notifyre/sms/notifyre/{id}` - Get SMS via Notifyre API (proxy)
+- `POST /api/notifyre/sms/webhook` - Handle delivery callbacks
 
 ## Documentation Structure
 
@@ -122,6 +131,9 @@ docs/
 
 - `NOTIFYRE_DEFAULT_NUMBER_PREFIX` - Country code prefix for numbers without country code
 - `NOTIFYRE_BASE_URL` - API base URL (default: https://api.notifyre.com)
-- `NOTIFYRE_API_ENABLED` - Enable/disable API endpoints
 - `NOTIFYRE_DB_ENABLED` - Enable/disable database persistence
 - `NOTIFYRE_LOGGING_ENABLED` - Enable/disable custom logging
+- `NOTIFYRE_ROUTES_ENABLED` - Enable/disable package routes
+- `NOTIFYRE_ROUTE_PREFIX` - Route prefix (default: notifyre)
+- `NOTIFYRE_RATE_LIMIT_ENABLED` - Enable throttle middleware
+- `NOTIFYRE_RATE_LIMIT_MAX` / `NOTIFYRE_RATE_LIMIT_WINDOW` - Throttle settings

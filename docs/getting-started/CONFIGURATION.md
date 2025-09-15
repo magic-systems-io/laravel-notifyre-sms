@@ -195,17 +195,9 @@ The package validates your configuration:
 
 ## Advanced Configuration
 
-### API Features
+### Routes and Rate Limiting
 
-The package provides REST API functionality:
-
-```env
-# Enable REST API endpoints
-NOTIFYRE_API_ENABLED=true
-
-# Database persistence
-NOTIFYRE_DB_ENABLED=true
-```
+Routes are enabled when `NOTIFYRE_ROUTES_ENABLED=true`. Prefix defaults to `notifyre`. Rate limiting is configurable via the `routes.rate_limit` section in `config/notifyre.php`.
 
 ### Database Persistence
 

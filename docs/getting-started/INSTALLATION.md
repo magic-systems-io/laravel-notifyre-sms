@@ -28,7 +28,7 @@ This command will:
 
 ## Step 3: Configure Environment Variables
 
-The publish command adds these variables to your `.env` file:
+Add these variables to your `.env` file:
 
 ```env
 # Required: Choose your driver
@@ -43,10 +43,26 @@ NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
 # Optional: API base URL
 NOTIFYRE_BASE_URL=https://api.notifyre.com
 
+# Optional: HTTP options
+NOTIFYRE_TIMEOUT=30
+NOTIFYRE_RETRY_TIMES=3
+NOTIFYRE_RETRY_SLEEP=1
+
+# Optional: Routes configuration
+NOTIFYRE_ROUTES_ENABLED=true
+NOTIFYRE_ROUTE_PREFIX=notifyre
+NOTIFYRE_RATE_LIMIT_ENABLED=true
+NOTIFYRE_RATE_LIMIT_MAX=60
+NOTIFYRE_RATE_LIMIT_WINDOW=1
+
 # Optional: Feature toggles
-NOTIFYRE_API_ENABLED=true
 NOTIFYRE_DB_ENABLED=true
 NOTIFYRE_LOGGING_ENABLED=true
+NOTIFYRE_LOG_PREFIX=notifyre_sms
+
+# Optional: Webhook configuration
+NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
+NOTIFYRE_WEBHOOK_RETRY_DELAY=1
 ```
 
 ## Step 4: Run Migrations

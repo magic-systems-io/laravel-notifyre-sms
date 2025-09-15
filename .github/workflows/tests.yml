@@ -35,9 +35,17 @@ jobs:
         run: composer test-coverage
 
       - name: Upload coverage to Codecov
+        id: codecov
         uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           files: build/logs/clover.xml
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-
+      - name: Coverage badge unavailable (Codecov upload failed)
+        if: steps.codecov.outcome == 'failure'
+        run: |
+          echo '### Coverage' >> $GITHUB_STEP_SUMMARY
+          echo '![Coverage Unavailable](https://img.shields.io/badge/coverage-unavailable-lightgrey.svg)' >> $GITHUB_STEP_SUMMARY

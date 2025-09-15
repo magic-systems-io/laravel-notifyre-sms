@@ -36,6 +36,14 @@ php artisan sms:send {--r|recipient=* : The number and optional type, e.g. +1234
 | `--recipient` | `-r` | ✅ | Recipient phone number(s) with optional type |
 | `--message` | `-m` | ✅ | SMS message content |
 
+#### Runtime Output
+
+- On start: `Sending SMS...`
+- On success: `SMS is being sent`
+- On failure: `Failed to send SMS: <reason>` followed by `Use --help to see usage information.`
+
+Exit codes follow Symfony's conventions (0 for success, non-zero for failure).
+
 #### Recipient Format
 
 Recipients can be specified in two formats:
@@ -54,31 +62,9 @@ Recipients can be specified in two formats:
 
 ### `sms:list`
 
-Lists SMS messages with filtering options.
+Lists SMS messages with filtering options via the Notifyre API. See API docs for available filters.
 
-#### Signature
-
-```bash
-php artisan sms:list {--queries= : JSON string of query parameters (e.g. {"FromDate":1676253560,"Limit":10}} {--messageId= : The message ID to get specific SMS details} {--day : Filter for the selected number of days back (e.g. --day=4 for last 4 days)} {--week : Filter for the selected number of weeks back (e.g. --week=2 for last 2 weeks)} {--month : Filter for the selected number of months back (e.g. --month=1 for last month)} {--from-date= : Filter from this date (Unix timestamp)} {--to-date= : Filter to this date (Unix timestamp)} {--status= : Filter by status type} {--to-number= : Filter by recipient number} {--from-number= : Filter by sender number} {--search= : Search term} {--sort=desc : Sort order (asc/desc)} {--limit= : Number of results to return (default 10, max 100)}
-```
-
-#### Options
-
-| Option | Description |
-|--------|-------------|
-| `--queries` | JSON string of query parameters |
-| `--messageId` | Get specific SMS by ID |
-| `--day` | Filter for last N days |
-| `--week` | Filter for last N weeks |
-| `--month` | Filter for last N months |
-| `--from-date` | Filter from this date (Unix timestamp) |
-| `--to-date` | Filter to this date (Unix timestamp) |
-| `--status` | Filter by status type |
-| `--to-number` | Filter by recipient number |
-| `--from-number` | Filter by sender number |
-| `--search` | Search term |
-| `--sort` | Sort order (asc/desc) |
-| `--limit` | Number of results (default 10, max 100) |
+> Note: The exact signature and filtering options are subject to change; consult `php artisan sms:list --help` in your project for the up-to-date options.
 
 ### Publishing Commands
 
@@ -150,20 +136,11 @@ php artisan sms:send \
 ### List SMS Messages
 
 ```bash
-# List recent SMS messages
+# Help output for filters
+php artisan sms:list --help | cat
+
+# List recent SMS messages (example; options depend on your version)
 php artisan sms:list
-
-# List messages from last 7 days
-php artisan sms:list --day=7
-
-# List messages with specific status
-php artisan sms:list --status=sent
-
-# List messages to specific number
-php artisan sms:list --to-number="+1234567890"
-
-# Get specific message by ID
-php artisan sms:list --messageId="msg_123456"
 ```
 
 ## Configuration
@@ -230,12 +207,12 @@ $ php artisan sms:send --message="Hello" --recipient="+1234567890"
 Exception: Invalid Notifyre driver ''. Supported drivers are: sms, log
 ```
 
-### Success Response
+### Success Output
 
 ```bash
 $ php artisan sms:send --message="Hello" --recipient="+1234567890"
 Sending SMS...
-SMS sent successfully!
+SMS is being sent
 ```
 
 ## Debugging
@@ -253,7 +230,7 @@ php artisan sms:send --message="Hello" --recipient="+1234567890" -v
 Verify your configuration is correct:
 
 ```bash
-php artisan config:show notifyre
+php artisan config:show notifyre | cat
 ```
 
 ### Test with Log Driver
