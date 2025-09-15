@@ -9,7 +9,7 @@ on:
 jobs:
   validation:
     runs-on: ubuntu-latest
-    name: Code Validation (Pre-commit Checks)
+    name: Code Validation
 
     steps:
       - name: Checkout code
