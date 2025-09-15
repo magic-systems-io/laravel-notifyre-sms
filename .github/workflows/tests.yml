@@ -25,8 +25,14 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Run Formatting and Tests
-        run: composer ci
+      - name: Run Formatting
+        run: composer format-test
+
+      - name: PHPStan Static Analysis
+        run: composer phpstan
+
+      - name: Run Tests
+        run: composer test-coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
