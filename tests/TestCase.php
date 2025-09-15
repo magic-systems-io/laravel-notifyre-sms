@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Illuminate\Support\Facades\Http;
 use MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -23,6 +24,10 @@ abstract class TestCase extends BaseTestCase
             'prefix'   => '',
         ]);
 
-        $app['config']->set('notifyre', require __DIR__ . '/../config/notifyre.php');
+        if (!$app['config']->has('notifyre')) {
+            $app['config']->set('notifyre', require __DIR__ . '/../config/notifyre.php');
+        }
+
+        Http::preventStrayRequests();
     }
 }

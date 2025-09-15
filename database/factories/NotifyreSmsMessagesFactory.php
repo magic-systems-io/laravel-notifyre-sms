@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
 
-class NotifyreSMSMessagesFactory extends Factory
+class NotifyreSmsMessagesFactory extends Factory
 {
     protected $model = NotifyreSmsMessages::class;
 

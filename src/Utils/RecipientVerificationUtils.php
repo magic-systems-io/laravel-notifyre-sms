@@ -45,11 +45,11 @@ class RecipientVerificationUtils
 
     private static function validateContact(string $value): bool
     {
-        return false;
+        return true;
     }
 
     private static function validateGroup(string $value): bool
     {
-        return false;
+        return true;
     }
 }

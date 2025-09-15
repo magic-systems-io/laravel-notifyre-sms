@@ -1,17 +1,9 @@
 <?php
 
-it('registers notifyre commands', function () {
-    // TODO: Add test implementation
-});
+use MagicSystemsIO\Notifyre\Commands\NotifyreSmsListCommand;
+use MagicSystemsIO\Notifyre\Commands\NotifyreSmsSendCommand;
 
-it('registers SMS list command', function () {
-    // TODO: Add test implementation
-});
-
-it('registers SMS send command', function () {
-    // TODO: Add test implementation
-});
-
-it('registers publish commands', function () {
-    // TODO: Add test implementation
+it('registers the sms artisan commands', function () {
+    expect($this->app->bound(NotifyreSmsSendCommand::class))->toBeTrue()
+        ->and($this->app->bound(NotifyreSmsListCommand::class))->toBeTrue();
 });

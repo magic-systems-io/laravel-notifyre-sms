@@ -22,7 +22,7 @@ class NotifyreSmsListCommand extends Command
         {--to-number= : Filter by recipient number}
         {--from-number= : Filter by sender number}
         {--search= : Search term}
-        {--sort=desc : Sort order (asc/desc)}
+        {--sort= : Sort order (asc/desc)}
         {--limit= : Number of results to return (default 10, max 100)}';
 
     public $description = 'List SMS messages or get a specific SMS by ID using Notifyre';
@@ -164,6 +164,8 @@ class NotifyreSmsListCommand extends Command
 
         if ($limit = $this->option('limit')) {
             $params['Limit'] = min((int) $limit, 100);
+        } elseif (isset($params['Limit'])) {
+            $params['Limit'] = min((int) $params['Limit'], 100);
         } else {
             $params['Limit'] = 10;
         }

@@ -3,6 +3,7 @@
 A Laravel package for sending SMS messages through the Notifyre API. Provides direct SMS sending, Laravel notification integration, and REST API endpoints with database persistence.
 
 [![Tests](https://github.com/magic-systems-io/laravel-notifyre-sms/actions/workflows/tests.yml/badge.svg)](https://github.com/magic-systems-io/laravel-notifyre-sms/actions)
+[![Coverage Status](https://codecov.io/gh/magic-systems-io/laravel-notifyre-sms/branch/main/graph/badge.svg)](https://codecov.io/gh/magic-systems-io/laravel-notifyre-sms)
 
 ## Features
 

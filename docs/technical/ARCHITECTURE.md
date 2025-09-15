@@ -4,7 +4,8 @@ How the Notifyre package is structured and designed.
 
 ## Overview
 
-The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application, with database persistence and REST API endpoints.
+The package follows a **driver-based architecture** that separates SMS sending logic from the rest of your application,
+with database persistence and REST API endpoints.
 
 ## Core Components
 
@@ -92,7 +93,7 @@ class NotifyreChannel
     {
         $requestBody = $notification->toNotifyre();
         if (!$requestBody instanceof RequestBody) {
-            throw new InvalidArgumentException('Method `toNotifyre` must return RequestBodyDTO object.');
+            throw new InvalidArgumentException('Method `toNotifyre` must return RequestBody object.');
         }
         NotifyreService::send($requestBody);
     }

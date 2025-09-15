@@ -113,7 +113,7 @@ class NotifyreSmsController extends Controller
                 }
 
                 DB::transaction(function () use ($message, $responseBody) {
-                    $this->updateRecipientIdentStatus($message->recipients()->get()->toArray(), $responseBody->payload->recipients);
+                    $this->updateRecipientIdentStatus($message->recipients()->get()->all(), $responseBody->payload->recipients);
                     $this->updateRecipientSentStatus($message, $responseBody->payload->recipients);
                 });
 
@@ -155,8 +155,9 @@ class NotifyreSmsController extends Controller
                 ['id', 'tmp_id']
             );
 
-            $tmpIds = collect($upsertData)->pluck('tmp_id')->toArray();
-            NotifyreRecipients::whereIn('tmp_id', $tmpIds)->update(['tmp_id' => null]);
+            NotifyreRecipients::query()
+                ->whereIn('tmp_id', collect($upsertData)->pluck('tmp_id')->toArray())
+                ->update(['tmp_id' => null]);
         }
     }
 
@@ -164,14 +165,15 @@ class NotifyreSmsController extends Controller
     {
         $callbackStatusMap = array_column($callbackRecipients, 'status', 'toNumber');
 
+        $recipients = NotifyreRecipients::whereIn('value', array_keys($callbackStatusMap))->get()->all();
+
         $upsertData = array_map(function ($recipient) use ($message, $callbackStatusMap) {
             return [
                 'sms_message_id' => $message->id,
                 'recipient_id' => $recipient->id,
-                'sent' => isset($callbackStatusMap[$recipient->value]) &&
-                    in_array($callbackStatusMap[$recipient->value], ['sent', 'delivered']),
+                'sent' => isset($callbackStatusMap[$recipient->value]) && in_array($callbackStatusMap[$recipient->value], ['sent', 'delivered']),
             ];
-        }, $message->recipients);
+        }, $recipients);
 
         NotifyreSmsMessageRecipient::upsert(
             $upsertData,

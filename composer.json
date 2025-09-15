@@ -36,6 +36,7 @@
     "orchestra/testbench": "^10.6",
     "pestphp/pest": "^4.0",
     "pestphp/pest-plugin-laravel": "^4.0",
+    "phpstan/phpstan": "^1.11",
     "phpunit/phpunit": "^12.3"
   },
   "autoload": {
@@ -87,7 +88,7 @@
       "vendor/bin/pest"
     ],
     "test-coverage": [
-      "vendor/bin/pest --coverage"
+      "vendor/bin/pest --coverage --coverage-clover=build/logs/clover.xml --coverage-text"
     ],
     "format": [
       "vendor/bin/pint"
@@ -95,12 +96,8 @@
     "format-test": [
       "vendor/bin/pint --test"
     ],
-    "ci": [
-      "@format-test",
-      "@test"
-    ],
-    "fresh": [
-      "composer install --no-interaction --prefer-dist --optimize-autoloader"
+    "phpstan": [
+      "vendor/bin/phpstan analyse --memory-limit=1G src"
     ]
   }
 }

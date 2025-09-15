@@ -5,6 +5,7 @@ namespace MagicSystemsIO\Notifyre\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use MagicSystemsIO\Notifyre\Database\Factories\NotifyreSmsMessagesFactory;
 use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSmsMessageRecipient;
 
 class NotifyreSmsMessages extends Model
@@ -41,5 +42,10 @@ class NotifyreSmsMessages extends Model
             'sms_message_id',
             'recipient_id'
         )->withPivot('sent');
+    }
+
+    protected static function newFactory(): NotifyreSmsMessagesFactory
+    {
+        return NotifyreSmsMessagesFactory::new();
     }
 }

@@ -1,18 +1,40 @@
 <?php
 
+use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
-it('can be instantiated', function () {
-    // TODO: Add test implementation
+it('returns the expected values array', function () {
+    expect(NotifyreRecipientTypes::values())->toBe([
+        'mobile_number',
+        'contact',
+        'group',
+    ]);
 });
 
-it('has correct values', function () {
-    // TODO: Add test implementation
+it('validates types correctly', function () {
+    expect(NotifyreRecipientTypes::isValid('mobile_number'))->toBeTrue()
+        ->and(NotifyreRecipientTypes::isValid('contact'))->toBeTrue()
+        ->and(NotifyreRecipientTypes::isValid('group'))->toBeTrue()
+        ->and(NotifyreRecipientTypes::isValid('not_a_type'))->toBeFalse();
 });
 
-it('can be converted to string', function () {
-    // TODO: Add test implementation
+it('can create enum instances from values', function () {
+    $mobile = NotifyreRecipientTypes::from('mobile_number');
+    $contact = NotifyreRecipientTypes::from('contact');
+    $group = NotifyreRecipientTypes::from('group');
+
+    expect($mobile)->toBe(NotifyreRecipientTypes::MOBILE_NUMBER)
+        ->and($contact)->toBe(NotifyreRecipientTypes::CONTACT)
+        ->and($group)->toBe(NotifyreRecipientTypes::GROUP);
 });
 
-it('can be compared', function () {
-    // TODO: Add test implementation
+it('throws when creating from an invalid value', function () {
+    expect(fn () => NotifyreRecipientTypes::from('invalid'))->toThrow(ValueError::class);
+});
+
+it('cases() and values() are consistent', function () {
+    $cases = NotifyreRecipientTypes::cases();
+    $caseValues = array_map(fn ($c) => $c->value, $cases);
+
+    expect(count($cases))->toBe(3)
+        ->and($caseValues)->toBe(NotifyreRecipientTypes::values());
 });

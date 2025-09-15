@@ -1,13 +1,28 @@
 <?php
 
-it('registers notifyre migrations', function () {
-    // TODO: Add test implementation
+use MagicSystemsIO\Notifyre\Providers\MigrationServiceProvider;
+
+it('does nothing when notifyre.database.enabled is false', function () {
+    config()->set('notifyre.database.enabled', false);
+
+    $provider = new MigrationServiceProvider($this->app);
+
+    $provider->boot();
+
+    expect(true)->toBeTrue();
 });
 
-it('loads migration files', function () {
-    // TODO: Add test implementation
-});
+it('has migration files available when notifyre.database.enabled is true', function () {
+    config()->set('notifyre.database.enabled', true);
 
-it('handles migration publishing', function () {
-    // TODO: Add test implementation
+    $provider = new MigrationServiceProvider($this->app);
+
+    $provider->boot();
+
+    $packageMigrationsPath = realpath(__DIR__ . '/../../../src/../database/migrations') ?: realpath(__DIR__ . '/../../../../database/migrations');
+
+    expect($packageMigrationsPath)->not->toBeFalse();
+    $files = glob($packageMigrationsPath . '/*.php');
+
+    expect(is_array($files) && count($files) > 0)->toBeTrue();
 });

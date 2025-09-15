@@ -11,6 +11,17 @@ use MagicSystemsIO\Notifyre\Commands\PublishNotifyreEnvCommand;
 
 class CommandServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->singleton(NotifyreSmsSendCommand::class, function () {
+            return new NotifyreSmsSendCommand();
+        });
+
+        $this->app->singleton(NotifyreSmsListCommand::class, function () {
+            return new NotifyreSmsListCommand();
+        });
+    }
+
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {

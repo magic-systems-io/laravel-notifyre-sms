@@ -7,7 +7,7 @@ use MagicSystemsIO\Notifyre\Models\JunctionTables\NotifyreSmsMessageRecipient;
 use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
 use MagicSystemsIO\Notifyre\Models\NotifyreSmsMessages;
 
-class NotifyreSMSMessageRecipientFactory extends Factory
+class NotifyreSmsMessageRecipientFactory extends Factory
 {
     protected $model = NotifyreSmsMessageRecipient::class;
 
@@ -16,6 +16,7 @@ class NotifyreSMSMessageRecipientFactory extends Factory
         return [
             'recipient_id' => NotifyreRecipients::factory()->create()->id,
             'sms_message_id' => NotifyreSmsMessages::factory()->create()->id,
+            'sent' => $this->faker->boolean,
         ];
     }
 }

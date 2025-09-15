@@ -1,21 +1,16 @@
 <?php
 
-it('can publish all notifyre files', function () {
-    // TODO: Add test implementation
+it('publishes all notifyre files without force', function () {
+    $this->artisan('notifyre:publish')
+        ->expectsConfirmation('Notifyre config file already exists. Do you want to overwrite it?', 'yes')
+        ->expectsOutput('Publishing Notifyre files...')
+        ->expectsOutput('All Notifyre files published successfully!')
+        ->assertExitCode(0);
 });
 
-it('publishes configuration files', function () {
-    // TODO: Add test implementation
-});
-
-it('publishes migration files', function () {
-    // TODO: Add test implementation
-});
-
-it('publishes environment files', function () {
-    // TODO: Add test implementation
-});
-
-it('handles file conflicts', function () {
-    // TODO: Add test implementation
+it('publishes all notifyre files with force option', function () {
+    $this->artisan('notifyre:publish', ['--force' => true])
+        ->expectsOutput('Publishing Notifyre files...')
+        ->expectsOutput('All Notifyre files published successfully!')
+        ->assertExitCode(0);
 });

@@ -1,22 +1,29 @@
 <?php
 
+use MagicSystemsIO\Notifyre\Utils\RecipientVerificationUtils;
 
-it('can be instantiated', function () {
-    // TODO: Add test implementation
+it('validates a correct international mobile number', function () {
+    expect(RecipientVerificationUtils::validateRecipient('+14155552671'))->toBeTrue();
 });
 
-it('can validate phone numbers', function () {
-    // TODO: Add test implementation
+it('returns false for an obviously invalid mobile number', function () {
+    expect(RecipientVerificationUtils::validateRecipient('1234'))->toBeFalse();
 });
 
-it('can format phone numbers', function () {
-    // TODO: Add test implementation
+it('throws when value is empty or whitespace', function () {
+    expect(fn () => RecipientVerificationUtils::validateRecipient(''))->toThrow(InvalidArgumentException::class)
+        ->and(fn () => RecipientVerificationUtils::validateRecipient('   '))->toThrow(InvalidArgumentException::class);
 });
 
-it('can detect invalid numbers', function () {
-    // TODO: Add test implementation
+it('throws for unsupported recipient type', function () {
+    expect(fn () => RecipientVerificationUtils::validateRecipient('+14155552671', 'not_a_type'))
+        ->toThrow(InvalidArgumentException::class);
 });
 
-it('can handle different country codes', function () {
-    // TODO: Add test implementation
+it('accepts contact type without additional validation', function () {
+    expect(RecipientVerificationUtils::validateRecipient('contact-identifier', 'contact'))->toBeTrue();
+});
+
+it('accepts group type without additional validation', function () {
+    expect(RecipientVerificationUtils::validateRecipient('group-identifier', 'group'))->toBeTrue();
 });

@@ -25,7 +25,7 @@ abstract class Controller
         );
 
         return [
-            'items' => $paginator->items(),
+            'items' => array_values($paginator->items()),
             'pagination' => [
                 'firstPage' => 1,
                 'currentPage' => $paginator->currentPage(),

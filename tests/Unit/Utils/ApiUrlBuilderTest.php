@@ -1,22 +1,46 @@
 <?php
 
+use MagicSystemsIO\Notifyre\Utils\ApiUrlBuilder;
 
-it('can be instantiated', function () {
-    // TODO: Add test implementation
+it('builds sms url without message id and handles trailing slash', function () {
+    config(['notifyre.http.base_url' => 'https://api.example.com/']);
+
+    $url = ApiUrlBuilder::buildSmsUrl();
+
+    expect($url)->toBe('https://api.example.com/sms/send');
 });
 
-it('can build API URLs', function () {
-    // TODO: Add test implementation
+it('builds sms url with message id', function () {
+    config(['notifyre.http.base_url' => 'https://api.example.com']);
+
+    $url = ApiUrlBuilder::buildSmsUrl('abc123');
+
+    expect($url)->toBe('https://api.example.com/sms/send/abc123');
 });
 
-it('can handle different endpoints', function () {
-    // TODO: Add test implementation
+it('throws when base url is not configured or is blank', function () {
+    config(['notifyre.http.base_url' => null]);
+
+    expect(fn () => ApiUrlBuilder::buildSmsUrl())->toThrow(InvalidArgumentException::class);
+
+    config(['notifyre.http.base_url' => '   ']);
+
+    expect(fn () => ApiUrlBuilder::buildSmsUrl())->toThrow(InvalidArgumentException::class);
 });
 
-it('can handle query parameters', function () {
-    // TODO: Add test implementation
+it('returns base url unchanged when no query params provided', function () {
+    $base = 'https://api.example.com/resource';
+
+    expect(ApiUrlBuilder::buildUrlWithQuery($base))->toBe($base);
 });
 
-it('can handle base URL configuration', function () {
-    // TODO: Add test implementation
+it('appends query string when params provided', function () {
+    $base = 'https://api.example.com/resource';
+    $params = ['a' => 1, 'b' => 'two'];
+
+    $expected = $base . '?' . http_build_query($params);
+
+    $result = ApiUrlBuilder::buildUrlWithQuery($base, $params);
+
+    expect($result)->toBe($expected);
 });

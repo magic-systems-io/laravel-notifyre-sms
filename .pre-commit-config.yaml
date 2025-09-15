@@ -1,11 +1,29 @@
 repos:
   - repo: local
     hooks:
-      - id: ci
-        name: Run Composer CI
-        description: Run the Composer CI command to ensure code quality and standards.
+      - id: pint
+        name: Run Formatting
+        description: Run the code formatter.
         types: [ php ]
-        entry: composer ci
+        entry: composer format-test
+        language: system
+        pass_filenames: false
+        stages: [ pre-commit ]
+
+      - id: phpstan
+        name: PHPStan Static Analysis
+        description: Run PHPStan static analysis.
+        types: [ php ]
+        entry: composer phpstan
+        language: system
+        pass_filenames: false
+        stages: [ pre-commit ]
+
+      - id: pest
+        name: Run Tests
+        description: Run the test suite.
+        types: [ php ]
+        entry: composer test
         language: system
         pass_filenames: false
         stages: [ pre-commit ]

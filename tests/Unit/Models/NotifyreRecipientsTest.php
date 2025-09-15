@@ -1,25 +1,37 @@
 <?php
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use MagicSystemsIO\Notifyre\Models\NotifyreRecipients;
 
 uses(RefreshDatabase::class);
 
-it('can be instantiated', function () {
-    // TODO: Add test implementation
+it('has a working factory and persists to the database', function () {
+    $recipient = NotifyreRecipients::factory()->create();
+
+    $this->assertDatabaseHas('notifyre_recipients', [
+        'id' => $recipient->id,
+        'value' => $recipient->value,
+    ]);
 });
 
-it('can be created with factory', function () {
-    // TODO: Add test implementation
+it('hides tmp_id when converted to array or json', function () {
+    $recipient = NotifyreRecipients::factory()->create(['tmp_id' => 'tmp_123']);
+
+    $array = $recipient->toArray();
+    expect($array)->not->toHaveKey('tmp_id');
 });
 
-it('has correct fillable attributes', function () {
-    // TODO: Add test implementation
+it('uses string primary key and is not incrementing', function () {
+    $recipient = NotifyreRecipients::factory()->create();
+
+    expect($recipient->getKeyType())->toBe('string')
+        ->and($recipient->getIncrementing())->toBeFalse();
 });
 
-it('has correct casts', function () {
-    // TODO: Add test implementation
-});
+it('defines smsMessages relation as a BelongsToMany', function () {
+    $recipient = NotifyreRecipients::factory()->create();
 
-it('has correct relationships', function () {
-    // TODO: Add test implementation
+    $relation = $recipient->smsMessages();
+    expect($relation)->toBeInstanceOf(BelongsToMany::class);
 });

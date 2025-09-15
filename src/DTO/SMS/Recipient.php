@@ -3,8 +3,8 @@
 namespace MagicSystemsIO\Notifyre\DTO\SMS;
 
 use Illuminate\Contracts\Support\Arrayable;
+use InvalidArgumentException;
 use MagicSystemsIO\Notifyre\Utils\RecipientVerificationUtils;
-use Symfony\Component\Mime\Exception\InvalidArgumentException;
 
 class Recipient implements Arrayable
 {
@@ -20,6 +20,10 @@ class Recipient implements Arrayable
 
     private function normalizeCountryCode(): void
     {
+        if ($this->type !== 'mobile_number') {
+            return;
+        }
+
         if (!str_starts_with($this->value, '+')) {
             $defaultPrefix = config('notifyre.default_number_prefix');
             if (empty($defaultPrefix)) {

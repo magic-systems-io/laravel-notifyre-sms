@@ -16,9 +16,12 @@ class NotifyreLoggingServiceProvider extends ServiceProvider
         $this->app->singleton(NotifyreLogger::class, function () {
             return new NotifyreLogger();
         });
+    }
 
-        $this->app->make('log')->extend('notifyre', function () {
-            return new NotifyreLogger();
+    public function boot(): void
+    {
+        $this->app->make('log')->extend('notifyre', function ($app, $config) {
+            return (new NotifyreLogger())($config);
         });
     }
 }

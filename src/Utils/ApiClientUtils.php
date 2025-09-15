@@ -18,7 +18,7 @@ class ApiClientUtils
      * @throws ConnectionException
      * @throws InvalidArgumentException
      */
-    public static function request(string $url, RequestBody $body = null, string $method = 'GET'): PromiseInterface|Response
+    public static function request(string $url, ?RequestBody $body = null, string $method = 'GET'): PromiseInterface|Response
     {
         $httpClient = self::createHttpClient();
 

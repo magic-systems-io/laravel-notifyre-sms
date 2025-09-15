@@ -4,6 +4,7 @@ namespace MagicSystemsIO\Notifyre\Models\JunctionTables;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use MagicSystemsIO\Notifyre\Database\Factories\Junction\NotifyreSmsMessageRecipientFactory;
 
 class NotifyreSmsMessageRecipient extends Model
 {
@@ -11,7 +12,9 @@ class NotifyreSmsMessageRecipient extends Model
 
     public $timestamps = false;
 
-    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $primaryKey = null;
 
     protected $fillable = [
         'sms_message_id',
@@ -24,4 +27,9 @@ class NotifyreSmsMessageRecipient extends Model
         'recipient_id' => 'string',
         'sent' => 'boolean',
     ];
+
+    protected static function newFactory(): NotifyreSmsMessageRecipientFactory
+    {
+        return NotifyreSmsMessageRecipientFactory::new();
+    }
 }
