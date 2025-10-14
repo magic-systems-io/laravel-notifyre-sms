@@ -14,50 +14,39 @@ integration, CLI commands, and REST API endpoints with optional database persist
 composer require magic-systems-io/laravel-notifyre-sms
 ```
 
-### 2) Publish config
+### 2) (Optional) Publish config
 
 ```bash
-php artisan notifyre:publish
+php artisan notifyre:publish-config
 ```
 
 ### 3) Configure `.env`
 
+````bash
+php artisan notifyre:publish-env
+````
+
+Then edit your `.env` file:
+
 ```env
-# Driver: sms (real API) or log (testing)
-NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key_here
-
-# Optional defaults
-NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
-NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
-NOTIFYRE_RETRY_TIMES=3
-NOTIFYRE_RETRY_SLEEP=1
-
-# Routes (default prefix /api/notifyre)
-NOTIFYRE_ROUTES_ENABLED=true
-NOTIFYRE_ROUTE_PREFIX=notifyre
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX=60
-NOTIFYRE_RATE_LIMIT_WINDOW=1
-
-# Persistence & logging
-NOTIFYRE_DB_ENABLED=true
-NOTIFYRE_LOGGING_ENABLED=true
-NOTIFYRE_LOG_PREFIX=notifyre_sms
-
-# Webhook retry behavior
-NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
-NOTIFYRE_WEBHOOK_RETRY_DELAY=1
+NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
+# NOTIFYRE_LOG_LEVEL=debug  # Optional: emergency|alert|critical|error|warning|notice|info|debug
 ```
 
-### 4) Migrate (for persistence)
+### 4) (Optional) Publish migration
+
+```bash
+php artisan notifyre:publish-migration
+```
+
+### 5) Migrate (for persistence)
 
 ```bash
 php artisan migrate
 ```
 
-### 5) Send your first SMS
+### 6) Send your first SMS
 
 ```php
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
@@ -73,7 +62,7 @@ notifyre()->send(new RequestBody(
 Or via Artisan:
 
 ```bash
-php artisan sms:send --message="Hello from Notifyre!" --recipient="+1234567890"
+php artisan sms:send --message "Hello from Notifyre!" --recipient "+1234567890"
 ```
 
 ## Endpoints (default prefix `/api/notifyre`)
@@ -90,6 +79,14 @@ php artisan sms:send --message="Hello from Notifyre!" --recipient="+1234567890"
 - `php artisan sms:send` — Send SMS
 - `php artisan sms:list` — List/filter SMS (see `--help`)
 - `php artisan notifyre:publish*` — Publish config/env snippets
+
+## Logging
+
+The package creates a dedicated log channel (`notifyre`) that:
+- Respects `APP_DEBUG` - defaults to `info` in production, `debug` in development
+- Can be customized via `NOTIFYRE_LOG_LEVEL` in `.env`
+- Falls back to your app's `LOG_LEVEL` if set
+- Logs to `storage/logs/notifyre_sms.log` (or `.log` files based on your default channel config)
 
 ## Requirements
 
@@ -115,7 +112,17 @@ See [CONTRIBUTING](CONTRIBUTING.md) .
 - Try examples in [usage](docs/usage)
 - Open a GitHub issue if needed
 
+## Troubleshooting
+
+**Provider not auto-discovered?** If the package isn't working, manually register it in `bootstrap/providers.php`:
+
+```php
+return [
+    // Other Service Providers...
+    MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider::class,
+];
+```
+
 ---
 
-Built with ❤️ for the Laravel community
-
+Made with ❤️ by [Magic Systems](https://magicsystems.io)

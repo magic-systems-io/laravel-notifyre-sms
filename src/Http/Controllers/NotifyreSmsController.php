@@ -5,6 +5,7 @@ namespace MagicSystemsIO\Notifyre\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
@@ -23,10 +24,14 @@ class NotifyreSmsController extends Controller
     {
         $sender = $request->user()?->getSender();
         if (empty($sender) || (empty(trim($sender)))) {
+            Log::channel('notifyre')->error('Notifyre SMS index messages', ['error' => 'Sender parameter is required']);
+
             return response()->json(['error' => 'Sender parameter is required'], 422);
         }
 
         $messages = NotifyreSmsMessages::where('sender', $sender)->get()->toArray();
+
+        Log::channel('notifyre')->info('Notifyre SMS index messages', ['messages' => $messages]);
 
         return response()->json($this->paginate($request, $messages));
     }
@@ -36,8 +41,12 @@ class NotifyreSmsController extends Controller
         try {
             app(NotifyreManager::class)->send($this->buildMessageData($request));
 
+            Log::channel('notifyre')->info('Notifyre SMS send message', ['request' => $request]);
+
             return response()->json('Message is being sent', 201);
         } catch (Throwable $e) {
+            Log::channel('notifyre')->error('Notifyre SMS send message', ['error' => $e]);
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
@@ -59,8 +68,12 @@ class NotifyreSmsController extends Controller
     public function showMessage(string $sms): JsonResponse
     {
         if (!$message = NotifyreSmsMessages::with('recipients')->find($sms)) {
+            Log::channel('notifyre')->error('Message not found', ['sms' => $sms]);
+
             return response()->json(['error' => 'Message not found'], 404);
         }
+
+        Log::channel('notifyre')->info('Notifyre SMS show', ['message' => $message]);
 
         return response()->json($message);
     }
@@ -68,8 +81,12 @@ class NotifyreSmsController extends Controller
     public function showMessagesSentToRecipient(string $recipient): JsonResponse
     {
         if (!$recipient = NotifyreRecipients::with('smsMessages')->find($recipient)) {
+            Log::channel('notifyre')->error('Message not found', ['recipient' => $recipient]);
+
             return response()->json('Recipient not found', 404);
         }
+
+        Log::channel('notifyre')->info('Notifyre SMS show messages sent to recipient', ['recipient' => $recipient]);
 
         return response()->json($recipient);
     }
@@ -78,9 +95,12 @@ class NotifyreSmsController extends Controller
     {
         try {
             $response = app(NotifyreManager::class)->get($sms);
+            Log::channel('notifyre')->info('Notifyre SMS get', ['response' => $response]);
 
             return response()->json($response);
         } catch (Throwable $e) {
+            Log::channel('notifyre')->error('Failed to get message from Notifyre', ['error' => $e]);
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
@@ -89,15 +109,20 @@ class NotifyreSmsController extends Controller
     {
         try {
             $response = app(NotifyreManager::class)->list($request->query());
+            Log::channel('notifyre')->info('Notifyre SMS list', ['response' => $response]);
 
             return response()->json($response);
         } catch (Throwable $e) {
+            Log::channel('notifyre')->error('Failed to list messages from Notifyre', ['error' => $e]);
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
     public function handleWebhook(NotifyreSmsCallbackRequest $request): JsonResponse
     {
+        Log::channel('notifyre')->info('Notifyre SMS handle', ['request' => $request]);
+
         try {
             $maxRetries = config('notifyre.webhook.retry_attempts');
             $delaySeconds = config('notifyre.webhook.retry_delay');
@@ -117,12 +142,20 @@ class NotifyreSmsController extends Controller
                     $this->updateRecipientSentStatus($message, $responseBody->payload->recipients);
                 });
 
-                return response()->json($message->fresh('recipients'));
+                $message = $message->fresh('recipients');
+
+                Log::channel('notifyre')->info('Message updated', ['message' => $message]);
+
+                return response()->json($message);
             }
 
-            return response()->json(['message' => 'Message not found after ' . $maxRetries . ' attempts'], 404);
+            Log::channel('notifyre')->error("Message not found after $maxRetries attempts");
+
+            return response()->json(['message' => "Message not found after $maxRetries attempts"], 404);
 
         } catch (Throwable $e) {
+            Log::channel('notifyre')->error('Failed to process Notifyre webhook', ['error' => $e]);
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

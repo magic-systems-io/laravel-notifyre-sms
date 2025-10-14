@@ -3,6 +3,7 @@
 namespace MagicSystemsIO\Notifyre\Services\Drivers;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Log;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
 use MagicSystemsIO\Notifyre\Utils\ApiClientUtils;
@@ -20,6 +21,8 @@ readonly class SmsDriver
     {
         $response = ApiClientUtils::request(ApiUrlBuilder::buildSmsUrl(), $request, 'POST');
 
+        Log::channel('notifyre')->info('Notifyre SMS send', ['response' => $response]);
+
         return ResponseParser::parseSmsResponse($response->json(), $response->status());
     }
 
@@ -31,6 +34,7 @@ readonly class SmsDriver
     public function get(string $messageId): ?ResponseBody
     {
         $response = ApiClientUtils::request(ApiUrlBuilder::buildSmsUrl($messageId));
+        Log::channel('notifyre')->info('Notifyre SMS get', ['response' => $response]);
 
         return ResponseParser::parseSmsResponse($response->json(), $response->status());
     }
@@ -51,6 +55,7 @@ readonly class SmsDriver
                 queryParams: $queryParams
             )
         );
+        Log::channel('notifyre')->info('Notifyre SMS list', ['response' => $response]);
 
         $payload = $response->json('payload', []);
         $smsMessages = $payload['smsMessages'] ?? [];

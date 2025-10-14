@@ -17,31 +17,14 @@ NOTIFYRE_API_KEY=your_api_key_here
 ### Optional
 
 ```env
-# Country code prefix for numbers without country code
-NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
+# Webhook secret for delivery callbacks
+NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 
-# API settings
-NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
-NOTIFYRE_RETRY_TIMES=3
-NOTIFYRE_RETRY_SLEEP=1
-
-# Routes configuration
-NOTIFYRE_ROUTES_ENABLED=true
-NOTIFYRE_ROUTE_PREFIX=notifyre
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX=60
-NOTIFYRE_RATE_LIMIT_WINDOW=1
-
-# Feature toggles
-NOTIFYRE_DB_ENABLED=true
-NOTIFYRE_LOGGING_ENABLED=true
-NOTIFYRE_LOG_PREFIX=notifyre_sms
-
-# Webhook configuration
-NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
-NOTIFYRE_WEBHOOK_RETRY_DELAY=1
+# Log level (optional - defaults to 'debug' in dev, 'info' in production)
+# NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```
+
+**Note:** Most configuration options are set in `config/notifyre.php` and require publishing the config file to customize. Only the driver, API key, webhook secret, and log level can be set via environment variables.
 
 ## Configuration File
 
@@ -57,62 +40,81 @@ The package creates `config/notifyre.php` with these sections:
 ### Default Settings
 
 ```php
-'default_number_prefix' => env('NOTIFYRE_DEFAULT_NUMBER_PREFIX', ''),
+'default_number_prefix' => '+1',
 ```
+
+**Note:** This is hardcoded in the config file. To change it, publish and edit `config/notifyre.php`.
 
 ### HTTP Configuration
 
 ```php
 'http' => [
-    'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
-    'timeout' => env('NOTIFYRE_TIMEOUT', 30), // seconds
+    'base_url' => 'https://api.notifyre.com',
+    'timeout' => 30, // seconds
     'retry' => [
-        'times' => env('NOTIFYRE_RETRY_TIMES', 3),
-        'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1), // seconds between retries
+        'times' => 3,
+        'sleep' => 1, // seconds between retries
     ],
 ],
 ```
+
+**Note:** These are hardcoded. To change them, publish and edit `config/notifyre.php`.
 
 ### Routes Configuration
 
 ```php
 'routes' => [
-    'enabled' => env('NOTIFYRE_ROUTES_ENABLED', true),
-    'prefix' => env('NOTIFYRE_ROUTE_PREFIX', 'notifyre'),
+    'enabled' => true,
+    'prefix' => 'notifyre',
     'middleware' => ['api'],
     'rate_limit' => [
-        'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
-        'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX', 60), // per minute
-        'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_WINDOW', 1),
+        'enabled' => true,
+        'max_requests' => 60, // per minute
+        'decay_minutes' => 1,
     ],
 ],
 ```
+
+**Note:** These are hardcoded. To change them, publish and edit `config/notifyre.php`.
 
 ### Database Configuration
 
 ```php
 'database' => [
-    'enabled' => env('NOTIFYRE_DB_ENABLED', true),
+    'enabled' => true,
 ],
 ```
+
+**Note:** This is hardcoded. To disable database persistence, publish and edit `config/notifyre.php`.
 
 ### Logging Configuration
 
 ```php
 'logging' => [
-    'enabled' => env('NOTIFYRE_LOGGING_ENABLED', true),
-    'prefix' => env('NOTIFYRE_LOG_PREFIX', 'notifyre_sms'),
+    'enabled' => true,
+    'prefix' => 'notifyre_sms',
+    'level' => env('NOTIFYRE_LOG_LEVEL', env('LOG_LEVEL', 'debug')),
 ],
 ```
+
+The log level can be customized via `NOTIFYRE_LOG_LEVEL` environment variable:
+- Falls back to `LOG_LEVEL`, then `debug`
+- Automatically uses `info` in production when `APP_DEBUG=false` and no explicit level is set
+- Logs to `storage/logs/notifyre_sms.log`
+
+**Note:** To disable logging or change the prefix, publish and edit `config/notifyre.php`.
 
 ### Webhook Configuration
 
 ```php
 'webhook' => [
-    'retry_attempts' => env('NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS', 3),
-    'retry_delay' => env('NOTIFYRE_WEBHOOK_RETRY_DELAY', 1), // seconds between retries
+    'secret' => env('NOTIFYRE_WEBHOOK_SECRET'),
+    'retry_attempts' => 3,
+    'retry_delay' => 1, // seconds between retries
 ],
 ```
+
+**Note:** Only the webhook secret can be set via `NOTIFYRE_WEBHOOK_SECRET`. To change retry settings, publish and edit `config/notifyre.php`.
 
 ## Driver-Specific Configuration
 
@@ -121,15 +123,13 @@ The package creates `config/notifyre.php` with these sections:
 ```env
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key
-NOTIFYRE_BASE_URL=https://api.notifyre.com
+NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret
 ```
 
 ### Log Driver
 
 ```env
 NOTIFYRE_DRIVER=log
-# No additional configuration needed
-# Logs messages to Laravel logs for testing
 ```
 
 ## Publishing Configuration
@@ -160,22 +160,11 @@ NOTIFYRE_LOGGING_ENABLED=true
 ```env
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_production_key
-NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
-NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
-NOTIFYRE_RETRY_TIMES=3
-NOTIFYRE_RETRY_SLEEP=1
-NOTIFYRE_ROUTES_ENABLED=true
-NOTIFYRE_ROUTE_PREFIX=notifyre
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX=60
-NOTIFYRE_RATE_LIMIT_WINDOW=1
-NOTIFYRE_DB_ENABLED=true
-NOTIFYRE_LOGGING_ENABLED=true
-NOTIFYRE_LOG_PREFIX=notifyre_sms
-NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
-NOTIFYRE_WEBHOOK_RETRY_DELAY=1
+NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret
+# NOTIFYRE_LOG_LEVEL=info  # Optional: Set to 'info' for production
 ```
+
+**Note:** Most settings are configured in `config/notifyre.php`. Publish the config file to customize routes, timeouts, database, etc.
 
 ### Testing
 
@@ -197,16 +186,17 @@ The package validates your configuration:
 
 ### Routes and Rate Limiting
 
-Routes are enabled when `NOTIFYRE_ROUTES_ENABLED=true`. Prefix defaults to `notifyre`. Rate limiting is configurable via the `routes.rate_limit` section in `config/notifyre.php`.
+Routes are enabled by default with prefix `notifyre`. To customize routes or rate limiting:
+
+1. Publish the config: `php artisan notifyre:publish-config`
+2. Edit the `routes` section in `config/notifyre.php`
 
 ### Database Persistence
 
-Store SMS messages and recipients in your database:
+Database persistence is enabled by default in `config/notifyre.php`. To disable it:
 
-```env
-# Enable database storage
-NOTIFYRE_DB_ENABLED=true
-```
+1. Publish the config: `php artisan notifyre:publish-config`
+2. Edit `config/notifyre.php` and set `'database' => ['enabled' => false]`
 
 ### Logging
 
@@ -215,7 +205,15 @@ Custom logging for Notifyre operations:
 ```env
 # Enable custom logging
 NOTIFYRE_LOGGING_ENABLED=true
+
+# Set log level (optional)
+NOTIFYRE_LOG_LEVEL=info  # emergency|alert|critical|error|warning|notice|info|debug
 ```
+
+The logging system:
+- Respects `APP_DEBUG` - defaults to `info` in production, `debug` in development
+- Falls back to your app's `LOG_LEVEL` if set
+- Can be customized per-package via `NOTIFYRE_LOG_LEVEL`
 
 ## Response Handling
 

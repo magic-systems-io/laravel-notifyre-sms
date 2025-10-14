@@ -20,7 +20,7 @@ return new class () extends Migration
 
         Schema::create('notifyre_recipients', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->uuid('tmp_id')->nullable()->unique()->index();
+            $table->string('tmp_id', 40)->nullable()->unique()->index(); // UUID + batch ID for temporary recipients
             $table->string('type', 255)->default(NotifyreRecipientTypes::MOBILE_NUMBER->value)->index();
             $table->string('value', 255);
             $table->timestamps();

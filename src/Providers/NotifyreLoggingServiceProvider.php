@@ -8,9 +8,6 @@ use MagicSystemsIO\Notifyre\Services\NotifyreLogger;
 
 class NotifyreLoggingServiceProvider extends ServiceProvider
 {
-    /**
-     * @throws BindingResolutionException
-     */
     public function register(): void
     {
         $this->app->singleton(NotifyreLogger::class, function () {
@@ -18,10 +15,21 @@ class NotifyreLoggingServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function boot(): void
     {
         $this->app->make('log')->extend('notifyre', function ($app, $config) {
             return (new NotifyreLogger())($config);
         });
+
+        if (!config('logging.channels.notifyre')) {
+            config([
+                'logging.channels.notifyre' => [
+                    'driver' => 'notifyre',
+                ],
+            ]);
+        }
     }
 }

@@ -155,22 +155,10 @@ NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key_here
 
 # Optional
-NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
-NOTIFYRE_BASE_URL=https://api.notifyre.com
-NOTIFYRE_TIMEOUT=30
-NOTIFYRE_RETRY_TIMES=3
-NOTIFYRE_RETRY_SLEEP=1
-NOTIFYRE_ROUTES_ENABLED=true
-NOTIFYRE_ROUTE_PREFIX=notifyre
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX=60
-NOTIFYRE_RATE_LIMIT_WINDOW=1
-NOTIFYRE_DB_ENABLED=true
-NOTIFYRE_LOGGING_ENABLED=true
-NOTIFYRE_LOG_PREFIX=notifyre_sms
-NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
-NOTIFYRE_WEBHOOK_RETRY_DELAY=1
+# NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```
+
+**Note:** Most settings are configured in `config/notifyre.php`. Publish the config to customize.
 
 ### Testing Mode
 
@@ -245,6 +233,8 @@ export NOTIFYRE_DRIVER=log
 php artisan sms:send --message="Test message" --recipient="+1234567890"
 
 # Check logs
+tail -f storage/logs/notifyre_sms.log
+# Or
 tail -f storage/logs/laravel.log
 ```
 

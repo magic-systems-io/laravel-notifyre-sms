@@ -126,14 +126,10 @@ docs/
 
 - `NOTIFYRE_DRIVER` - Driver type (sms/log)
 - `NOTIFYRE_API_KEY` - Your Notifyre API key
+- `NOTIFYRE_WEBHOOK_SECRET` - Webhook secret for delivery callbacks
 
 ### Optional
 
-- `NOTIFYRE_DEFAULT_NUMBER_PREFIX` - Country code prefix for numbers without country code
-- `NOTIFYRE_BASE_URL` - API base URL (default: https://api.notifyre.com)
-- `NOTIFYRE_DB_ENABLED` - Enable/disable database persistence
-- `NOTIFYRE_LOGGING_ENABLED` - Enable/disable custom logging
-- `NOTIFYRE_ROUTES_ENABLED` - Enable/disable package routes
-- `NOTIFYRE_ROUTE_PREFIX` - Route prefix (default: notifyre)
-- `NOTIFYRE_RATE_LIMIT_ENABLED` - Enable throttle middleware
-- `NOTIFYRE_RATE_LIMIT_MAX` / `NOTIFYRE_RATE_LIMIT_WINDOW` - Throttle settings
+- `NOTIFYRE_LOG_LEVEL` - Log level for Notifyre (emergency|alert|critical|error|warning|notice|info|debug)
+
+**Note:** Most configuration options (routes, timeouts, database, rate limiting, etc.) are set in `config/notifyre.php`. Publish the config file to customize these settings.

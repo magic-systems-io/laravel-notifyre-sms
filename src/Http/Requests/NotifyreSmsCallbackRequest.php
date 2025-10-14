@@ -24,15 +24,29 @@ class NotifyreSmsCallbackRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $base = [
             'success' => ['required', 'boolean'],
             'status_code' => ['required', 'integer'],
             'message' => ['required', 'string'],
+            'errors' => ['array'],
+        ];
+
+        $payload = [
             'payload' => ['required', 'array'],
             'payload.id' => ['required', 'string'],
             'payload.friendly_id' => ['required', 'string'],
             'payload.account_id' => ['required', 'string'],
             'payload.created_by' => ['required', 'string'],
+            'payload.status' => ['required', 'string'],
+            'payload.total_cost' => ['required', 'numeric'],
+            'payload.created_date_utc' => ['required', 'integer'],
+            'payload.submitted_date_utc' => ['required', 'integer'],
+            'payload.completed_date_utc' => ['nullable', 'integer'],
+            'payload.last_modified_date_utc' => ['required', 'integer'],
+            'payload.campaign_name' => ['required', 'string'],
+        ];
+
+        $recipients = [
             'payload.recipients' => ['required', 'array'],
             'payload.recipients.*.id' => ['required', 'string'],
             'payload.recipients.*.friendly_id' => ['required', 'string'],
@@ -46,21 +60,22 @@ class NotifyreSmsCallbackRequest extends FormRequest
             'payload.recipients.*.delivery_status' => ['nullable', 'string'],
             'payload.recipients.*.queued_date_utc' => ['required', 'integer'],
             'payload.recipients.*.completed_date_utc' => ['required', 'integer'],
-            'payload.status' => ['required', 'string'],
-            'payload.total_cost' => ['required', 'numeric'],
+        ];
+
+        $metadata = [
             'payload.metadata' => ['required', 'array'],
             'payload.metadata.requesting_user_id' => ['required', 'string'],
             'payload.metadata.requesting_user_email' => ['required', 'string'],
-            'payload.created_date_utc' => ['required', 'integer'],
-            'payload.submitted_date_utc' => ['required', 'integer'],
-            'payload.completed_date_utc' => ['nullable', 'integer'],
-            'payload.last_modified_date_utc' => ['required', 'integer'],
-            'payload.campaign_name' => ['required', 'string'],
+
+        ];
+
+        $invalidToNumbers = [
             'payload.invalid_to_numbers' => ['array'],
             'payload.invalid_to_numbers.*.number' => ['required', 'string'],
             'payload.invalid_to_numbers.*.message' => ['required', 'string'],
-            'errors' => ['array'],
         ];
+
+        return array_merge($base, $payload, $recipients, $metadata, $invalidToNumbers);
     }
 
     /**

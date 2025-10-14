@@ -37,33 +37,14 @@ NOTIFYRE_DRIVER=log
 # Required for SMS driver (production)
 NOTIFYRE_API_KEY=your_api_token_here
 
-# Optional: Default country code prefix
-NOTIFYRE_DEFAULT_NUMBER_PREFIX=+1
+# Required for webhooks
+NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 
-# Optional: API base URL
-NOTIFYRE_BASE_URL=https://api.notifyre.com
-
-# Optional: HTTP options
-NOTIFYRE_TIMEOUT=30
-NOTIFYRE_RETRY_TIMES=3
-NOTIFYRE_RETRY_SLEEP=1
-
-# Optional: Routes configuration
-NOTIFYRE_ROUTES_ENABLED=true
-NOTIFYRE_ROUTE_PREFIX=notifyre
-NOTIFYRE_RATE_LIMIT_ENABLED=true
-NOTIFYRE_RATE_LIMIT_MAX=60
-NOTIFYRE_RATE_LIMIT_WINDOW=1
-
-# Optional: Feature toggles
-NOTIFYRE_DB_ENABLED=true
-NOTIFYRE_LOGGING_ENABLED=true
-NOTIFYRE_LOG_PREFIX=notifyre_sms
-
-# Optional: Webhook configuration
-NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS=3
-NOTIFYRE_WEBHOOK_RETRY_DELAY=1
+# Optional: Log level (defaults to 'debug' in dev, 'info' in production)
+# NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```
+
+**Note:** Most configuration options are set in `config/notifyre.php`. Run `php artisan notifyre:publish-config` to customize routes, timeouts, database, rate limiting, etc.
 
 ## Step 4: Run Migrations
 
@@ -103,8 +84,9 @@ Messages are sent through the Notifyre API and return real response data with de
 
 ## What Gets Installed
 
-- **Service Providers**: Automatically registered
+- **Service Providers**: Automatically registered via package auto-discovery
 - **Helper Function**: `notifyre()` function available
+- **Log Channel**: `notifyre` channel for package-specific logging
 - **Commands**: 
   - `sms:send` - Send SMS messages
   - `sms:list` - List SMS messages with filtering
@@ -187,7 +169,20 @@ export NOTIFYRE_DRIVER=log
 php artisan sms:send --message="Test message" --recipient="+1234567890"
 
 # Check logs
+tail -f storage/logs/notifyre_sms.log
+# Or
 tail -f storage/logs/laravel.log
+```
+
+### Provider Not Auto-Discovered
+
+If the package isn't working, manually register it in `bootstrap/providers.php`:
+
+```php
+return [
+    // Other Service Providers...
+    MagicSystemsIO\Notifyre\Providers\NotifyreServiceProvider::class,
+];
 ```
 
 ## Next Steps

@@ -161,12 +161,14 @@ Make sure you have the required environment variables set:
 NOTIFYRE_DRIVER=sms
 NOTIFYRE_API_KEY=your_api_key_here
 NOTIFYRE_BASE_URL=https://api.notifyre.com
+# NOTIFYRE_LOG_LEVEL=info  # Optional: Set log level
 ```
 
 For testing, use the log driver:
 
 ```env
 NOTIFYRE_DRIVER=log
+# NOTIFYRE_LOG_LEVEL=debug  # Use debug for development
 ```
 
 ## Database Persistence

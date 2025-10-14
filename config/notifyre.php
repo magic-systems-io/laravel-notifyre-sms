@@ -37,7 +37,7 @@ return [
     |
     */
 
-    'default_number_prefix' => env('NOTIFYRE_DEFAULT_NUMBER_PREFIX', ''),
+    'default_number_prefix' => '+1',
 
     /*
     |--------------------------------------------------------------------------
@@ -50,11 +50,11 @@ return [
     */
 
     'http' => [
-        'base_url' => env('NOTIFYRE_BASE_URL', 'https://api.notifyre.com'),
-        'timeout' => env('NOTIFYRE_TIMEOUT', 30), // seconds
+        'base_url' => 'https://api.notifyre.com',
+        'timeout' => 30, // seconds
         'retry' => [
-            'times' => env('NOTIFYRE_RETRY_TIMES', 3),
-            'sleep' => env('NOTIFYRE_RETRY_SLEEP', 1), // seconds between retries
+            'times' => 3,
+            'sleep' => 1, // seconds between retries
         ],
     ],
 
@@ -70,13 +70,13 @@ return [
     */
 
     'routes' => [
-        'enabled' => env('NOTIFYRE_ROUTES_ENABLED', true),
-        'prefix' => env('NOTIFYRE_ROUTE_PREFIX', 'notifyre'),
+        'enabled' => true,
+        'prefix' => 'notifyre',
         'middleware' => ['api'],
         'rate_limit' => [
-            'enabled' => env('NOTIFYRE_RATE_LIMIT_ENABLED', true),
-            'max_requests' => env('NOTIFYRE_RATE_LIMIT_MAX', 60), // per minute
-            'decay_minutes' => env('NOTIFYRE_RATE_LIMIT_WINDOW', 1),
+            'enabled' => true,
+            'max_requests' => 60, // per minute
+            'decay_minutes' => 1,
         ],
     ],
 
@@ -91,7 +91,7 @@ return [
     */
 
     'database' => [
-        'enabled' => env('NOTIFYRE_DB_ENABLED', true),
+        'enabled' => true,
     ],
 
     /*
@@ -103,11 +103,17 @@ return [
     | The logger uses your application's default logging configuration but
     | adds a prefix to make it easier to identify Notifyre-related logs.
     |
+    | 'level' - Set the minimum log level for Notifyre logs. Defaults to
+    | NOTIFYRE_LOG_LEVEL, then LOG_LEVEL, then 'debug'. When APP_DEBUG is
+    | false and no explicit level is set, it defaults to 'info'.
+    | Options: emergency, alert, critical, error, warning, notice, info, debug
+    |
     */
 
     'logging' => [
-        'enabled' => env('NOTIFYRE_LOGGING_ENABLED', true),
-        'prefix' => env('NOTIFYRE_LOG_PREFIX', 'notifyre_sms'),
+        'enabled' => true,
+        'prefix' => 'notifyre_sms',
+        'level' => env('NOTIFYRE_LOG_LEVEL', env('LOG_LEVEL', 'debug')),
     ],
 
     /*
@@ -122,8 +128,9 @@ return [
     */
 
     'webhook' => [
-        'retry_attempts' => env('NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS', 3),
-        'retry_delay' => env('NOTIFYRE_WEBHOOK_RETRY_DELAY', 1), // seconds between retries
+        'secret' => env('NOTIFYRE_WEBHOOK_SECRET'),
+        'retry_attempts' => 3,
+        'retry_delay' => 1, // seconds between retries
     ],
 
 ];

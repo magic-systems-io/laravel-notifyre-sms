@@ -4,6 +4,7 @@ namespace MagicSystemsIO\Notifyre\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
@@ -38,8 +39,12 @@ class NotifyreMessagePersister
         ]);
 
         if (!$message->wasRecentlyCreated) {
+            Log::channel('notifyre')->error('Failed to create SMS message', ['message' => $message]);
+
             throw new RuntimeException('Failed to create SMS message');
         }
+
+        Log::channel('notifyre')->info('Created SMS message', ['message' => $message]);
 
         return $message;
     }
@@ -69,11 +74,15 @@ class NotifyreMessagePersister
         $expectedRows = count($recipientData);
 
         if ($affectedRows !== $expectedRows) {
+            Log::channel('notifyre')->error("Failed to process all recipients. Expected $expectedRows but got $affectedRows");
+
             throw new RuntimeException(
                 'Failed to process all recipients. Expected ' . $expectedRows .
                 ', but got ' . $affectedRows
             );
         }
+
+        Log::channel('notifyre')->info("Processed all recipients. Expected $expectedRows and affected $affectedRows rows");
 
         return NotifyreRecipients::where('tmp_id', 'LIKE', $batchId . '-%')->get();
     }
@@ -99,10 +108,14 @@ class NotifyreMessagePersister
         $expectedRows = count($messageRecipients);
 
         if ($affectedRows !== $expectedRows) {
+            Log::channel('notifyre')->error("Failed to create all message-recipient relationships. Expected $expectedRows but affected $affectedRows rows");
+
             throw new RuntimeException(
                 'Failed to create all message-recipient relationships. Expected ' .
                 $expectedRows . ', but affected ' . $affectedRows . ' rows'
             );
         }
+
+        Log::channel('notifyre')->info("Created all message-recipient relationships. Expected $expectedRows and affected $affectedRows rows");
     }
 }
