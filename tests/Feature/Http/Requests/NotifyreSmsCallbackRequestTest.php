@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 
 it('validates and processes a webhook callback', function () {
     $timestamp = time();
-    
+
     $data = [
         'Event' => 'sms_sent',
         'Timestamp' => $timestamp,
