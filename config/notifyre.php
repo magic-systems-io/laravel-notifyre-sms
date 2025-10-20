@@ -125,10 +125,20 @@ return [
     | Notifyre. You can set the number of retry attempts and the delay between
     | retries in case of failures.
     |
+    | 'secret' - The unique signing secret for your webhook endpoint. This is
+    | used to verify that webhook events are sent by Notifyre and not a third
+    | party. You can find this in Notifyre under Settings -> Developer ->
+    | Webhooks by clicking the 'Reveal' button for your endpoint.
+    |
+    | 'signature_tolerance' - The maximum time difference (in seconds) between
+    | the webhook signature timestamp and the current time. This prevents
+    | replay attacks. Default is 300 seconds (5 minutes).
+    |
     */
 
     'webhook' => [
         'secret' => env('NOTIFYRE_WEBHOOK_SECRET'),
+        'signature_tolerance' => 300, // seconds
         'retry_attempts' => 3,
         'retry_delay' => 1, // seconds between retries
     ],

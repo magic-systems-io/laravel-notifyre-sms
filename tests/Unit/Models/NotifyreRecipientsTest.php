@@ -15,13 +15,6 @@ it('has a working factory and persists to the database', function () {
     ]);
 });
 
-it('hides tmp_id when converted to array or json', function () {
-    $recipient = NotifyreRecipients::factory()->create(['tmp_id' => 'tmp_123']);
-
-    $array = $recipient->toArray();
-    expect($array)->not->toHaveKey('tmp_id');
-});
-
 it('uses string primary key and is not incrementing', function () {
     $recipient = NotifyreRecipients::factory()->create();
 

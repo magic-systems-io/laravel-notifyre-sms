@@ -54,21 +54,18 @@ class NotifyreMessagePersister
      */
     private static function createRecipients(array $recipients): Collection
     {
-        $batchId = Str::uuid()->toString();
-
-        $recipientData = array_map(function (Recipient $recipient, int $index) use ($batchId) {
+        $recipientData = array_map(function (Recipient $recipient) {
             return [
                 'id' => Str::uuid()->toString(),
-                'tmp_id' => $batchId . '-' . $index,
                 'type' => $recipient->type,
                 'value' => $recipient->value,
             ];
-        }, $recipients, array_keys($recipients));
+        }, $recipients);
 
         $affectedRows = NotifyreRecipients::upsert(
             values: $recipientData,
             uniqueBy: ['type', 'value'],
-            update: ['tmp_id']
+            update: []
         );
 
         $expectedRows = count($recipientData);
@@ -84,7 +81,10 @@ class NotifyreMessagePersister
 
         Log::channel('notifyre')->info("Processed all recipients. Expected $expectedRows and affected $affectedRows rows");
 
-        return NotifyreRecipients::where('tmp_id', 'LIKE', $batchId . '-%')->get();
+        return NotifyreRecipients::query()
+            ->whereIn('type', array_column($recipientData, 'type'))
+            ->whereIn('value', array_column($recipientData, 'value'))
+            ->get();
     }
 
     private static function linkMessageToRecipients(

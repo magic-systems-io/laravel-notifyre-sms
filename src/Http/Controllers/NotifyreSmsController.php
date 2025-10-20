@@ -10,6 +10,7 @@ use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
+use MagicSystemsIO\Notifyre\Enums\NotifyProcessedStatus;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsCallbackRequest;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsMessagesRequest;
@@ -119,99 +120,110 @@ class NotifyreSmsController extends Controller
         }
     }
 
-    public function handleWebhook(NotifyreSmsCallbackRequest $request): JsonResponse
+    public function handleCallback(NotifyreSmsCallbackRequest $request): JsonResponse
     {
-        Log::channel('notifyre')->info('Notifyre SMS handle', ['request' => $request]);
+        $messageId = $request->validated('Payload.ID');
 
         try {
-            $maxRetries = config('notifyre.webhook.retry_attempts');
-            $delaySeconds = config('notifyre.webhook.retry_delay');
-
-            for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
-                $responseBody = $request->toResponseBody();
-                $message = NotifyreSmsMessages::find($responseBody->payload->id);
-
-                if (!$message) {
-                    sleep($delaySeconds);
-
-                    continue;
-                }
-
-                DB::transaction(function () use ($message, $responseBody) {
-                    $this->updateRecipientIdentStatus($message->recipients()->get()->all(), $responseBody->payload->recipients);
-                    $this->updateRecipientSentStatus($message, $responseBody->payload->recipients);
-                });
-
-                $message = $message->fresh('recipients');
-
-                Log::channel('notifyre')->info('Message updated', ['message' => $message]);
-
-                return response()->json($message);
+            $message = $this->findMessageWithRetry($messageId);
+            if (!$message) {
+                return response()->json(['message' => 'Message not found'], 404);
             }
 
-            Log::channel('notifyre')->error("Message not found after $maxRetries attempts");
+            $recipient = $request->getRecipient();
+            $result = $this->handleRecipient($messageId, $recipient);
 
-            return response()->json(['message' => "Message not found after $maxRetries attempts"], 404);
+            if ($result !== true) {
+                return $result;
+            }
 
+            Log::channel('notifyre')->info('Webhook processed successfully', [
+                'message_id' => $messageId,
+                'recipient' => $recipient->toNumber,
+                'status' => $recipient->status,
+                'delivery_status' => $recipient->deliveryStatus,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Webhook processed']);
         } catch (Throwable $e) {
-            Log::channel('notifyre')->error('Failed to process Notifyre webhook', ['error' => $e]);
+            Log::channel('notifyre')->error('Failed to process webhook', [
+                'message_id' => $messageId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
-    /**
-     * @param NotifyreRecipients[] $recipients
-     * @param SmsRecipient[] $payloadRecipients
-     */
-    private function updateRecipientIdentStatus(array $recipients, array $payloadRecipients): void
+    private function findMessageWithRetry(string $messageId): ?NotifyreSmsMessages
     {
-        $payloadMap = collect($payloadRecipients)->keyBy('toNumber');
+        $maxRetries = config('notifyre.webhook.retry_attempts', 3);
+        $delaySeconds = config('notifyre.webhook.retry_delay', 1);
 
-        $upsertData = array_filter(array_map(function ($recipient) use ($payloadMap) {
-            if (!$payloadRecipient = $payloadMap->get($recipient->value)) {
-                return null;
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+
+            $message = NotifyreSmsMessages::find($messageId);
+            if ($message) {
+                return $message;
             }
 
-            return [
-                'id' => $payloadRecipient->id,
-                'tmp_id' => $recipient->tmp_id,
-                'type' => $recipient->type,
-                'value' => $recipient->value,
-            ];
-        }, $recipients));
-
-        if (!empty($upsertData)) {
-            NotifyreRecipients::upsert(
-                $upsertData,
-                ['tmp_id'],
-                ['id', 'tmp_id']
-            );
-
-            NotifyreRecipients::query()
-                ->whereIn('tmp_id', collect($upsertData)->pluck('tmp_id')->toArray())
-                ->update(['tmp_id' => null]);
+            if ($attempt < $maxRetries) {
+                Log::channel('notifyre')->debug("Message not found, retry attempt $attempt/$maxRetries");
+                sleep($delaySeconds);
+            }
         }
+
+        Log::channel('notifyre')->warning('Message not found after retries', [
+            'message_id' => $messageId,
+            'attempts' => $maxRetries,
+        ]);
+
+        return null;
     }
 
-    private function updateRecipientSentStatus(NotifyreSmsMessages $message, array $callbackRecipients): void
+    /**
+     * @throws Throwable
+     */
+    private function handleRecipient(string $messageId, SmsRecipient $recipient): JsonResponse|bool
     {
-        $callbackStatusMap = array_column($callbackRecipients, 'status', 'toNumber');
+        return DB::transaction(function () use ($messageId, $recipient) {
 
-        $recipients = NotifyreRecipients::whereIn('value', array_keys($callbackStatusMap))->get()->all();
+            $localRecipient = NotifyreRecipients::where('value', $recipient->toNumber)->first();
 
-        $upsertData = array_map(function ($recipient) use ($message, $callbackStatusMap) {
-            return [
-                'sms_message_id' => $message->id,
-                'recipient_id' => $recipient->id,
-                'sent' => isset($callbackStatusMap[$recipient->value]) && in_array($callbackStatusMap[$recipient->value], ['sent', 'delivered']),
-            ];
-        }, $recipients);
+            if (!$localRecipient) {
+                Log::channel('notifyre')->warning('Recipient not found', [
+                    'message_id' => $messageId,
+                    'recipient' => $recipient->toNumber,
+                ]);
 
-        NotifyreSmsMessageRecipient::upsert(
-            $upsertData,
-            ['sms_message_id', 'recipient_id'],
-            ['sent']
-        );
+                return response()->json(['message' => 'Recipient not found'], 404);
+            }
+
+            $pivot = NotifyreSmsMessageRecipient::where('sms_message_id', $messageId)
+                ->where('recipient_id', $localRecipient->id)
+                ->first();
+
+            if ($pivot && $pivot->sent) {
+                Log::channel('notifyre')->debug('Webhook already processed (idempotent)', [
+                    'message_id' => $messageId,
+                    'recipient' => $recipient->toNumber,
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Webhook already processed']);
+            }
+
+            if ($localRecipient->id !== $recipient->id) {
+                $localRecipient->id = $recipient->id;
+                $localRecipient->save();
+            }
+
+            NotifyreSmsMessageRecipient::updateOrCreate(
+                ['sms_message_id' => $messageId, 'recipient_id' => $recipient->id],
+                ['sent' => NotifyProcessedStatus::isStatusSuccessful($recipient->deliveryStatus)]
+            );
+
+            return true;
+        });
     }
 }

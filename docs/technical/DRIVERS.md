@@ -1,6 +1,7 @@
 # Drivers
 
-Drivers determine how SMS messages are processed - either sent to the Notifyre API or logged for testing. Each driver has different behavior and return values.
+Drivers determine how SMS messages are processed - either sent to the Notifyre API or logged for testing. Each driver
+has different behavior and return values.
 
 ## Available Drivers
 

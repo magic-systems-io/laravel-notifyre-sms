@@ -31,10 +31,10 @@ php artisan sms:send {--r|recipient=* : The number and optional type, e.g. +1234
 
 #### Options
 
-| Option | Short | Required | Description |
-|--------|-------|----------|-------------|
-| `--recipient` | `-r` | ✅ | Recipient phone number(s) with optional type |
-| `--message` | `-m` | ✅ | SMS message content |
+| Option        | Short | Required | Description                                  |
+|---------------|-------|----------|----------------------------------------------|
+| `--recipient` | `-r`  | ✅        | Recipient phone number(s) with optional type |
+| `--message`   | `-m`  | ✅        | SMS message content                          |
 
 #### Runtime Output
 
@@ -64,7 +64,8 @@ Recipients can be specified in two formats:
 
 Lists SMS messages with filtering options via the Notifyre API. See API docs for available filters.
 
-> Note: The exact signature and filtering options are subject to change; consult `php artisan sms:list --help` in your project for the up-to-date options.
+> Note: The exact signature and filtering options are subject to change; consult `php artisan sms:list --help` in your
+> project for the up-to-date options.
 
 ### Publishing Commands
 

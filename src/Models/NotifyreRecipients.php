@@ -18,21 +18,20 @@ class NotifyreRecipients extends Model
 
     protected $fillable = [
         'id',
-        'tmp_id',
         'type',
         'value',
     ];
 
     protected $casts = [
         'id' => 'string',
-        'tmp_id' => 'string',
         'type' => 'string',
         'value' => 'string',
     ];
 
-    protected $hidden = [
-        'tmp_id',
-    ];
+    protected static function newFactory(): NotifyreRecipientsFactory
+    {
+        return NotifyreRecipientsFactory::new();
+    }
 
     public function smsMessages(): BelongsToMany
     {
@@ -42,10 +41,5 @@ class NotifyreRecipients extends Model
             'recipient_id',
             'sms_message_id',
         )->withPivot('sent');
-    }
-
-    protected static function newFactory(): NotifyreRecipientsFactory
-    {
-        return NotifyreRecipientsFactory::new();
     }
 }

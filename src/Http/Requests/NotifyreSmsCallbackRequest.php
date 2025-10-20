@@ -3,140 +3,156 @@
 namespace MagicSystemsIO\Notifyre\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use MagicSystemsIO\Notifyre\DTO\SMS\InvalidNumber;
-use MagicSystemsIO\Notifyre\DTO\SMS\Metadata;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
+use Illuminate\Support\Facades\Log;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
 
 class NotifyreSmsCallbackRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
+        return $this->verifySignature();
+    }
+
+    /**
+     * Verify the webhook signature from Notifyre.
+     *
+     * The Notifyre-Signature header contains: t=<timestamp>,v=<signature>
+     *
+     * Steps:
+     * 1. Extract timestamp (t) and signature (v) from header
+     * 2. Create signed payload: timestamp + "." + request body (JSON)
+     * 3. Compute HMAC-SHA256 using webhook secret
+     * 4. Compare computed signature with received signature
+     * 5. Verify timestamp is within tolerance (default 5 minutes)
+     */
+    protected function verifySignature(): bool
+    {
+        $webhookSecret = config('notifyre.webhook.secret');
+
+        if (empty($webhookSecret)) {
+            Log::channel('notifyre')->warning('Webhook signature verification skipped: no secret configured');
+
+            return true;
+        }
+
+        $signatureHeader = $this->header('Notifyre-Signature');
+
+        if (empty($signatureHeader)) {
+            Log::channel('notifyre')->error('Webhook signature verification failed: missing Notifyre-Signature header');
+
+            return false;
+        }
+
+        $elements = explode(',', $signatureHeader);
+        $timestamp = null;
+        $signature = null;
+
+        foreach ($elements as $element) {
+            [$key, $value] = explode('=', $element, 2);
+            if ($key === 't') {
+                $timestamp = $value;
+            } elseif ($key === 'v') {
+                $signature = $value;
+            }
+        }
+
+        if (empty($timestamp) || empty($signature)) {
+            Log::channel('notifyre')->error('Webhook signature verification failed: invalid signature format');
+
+            return false;
+        }
+
+        $tolerance = config('notifyre.webhook.signature_tolerance', 300);
+        $currentTime = time();
+
+        if (abs($currentTime - (int) $timestamp) > $tolerance) {
+            Log::channel('notifyre')->error('Webhook signature verification failed: timestamp outside tolerance', [
+                'received_timestamp' => $timestamp,
+                'current_timestamp' => $currentTime,
+                'tolerance' => $tolerance,
+            ]);
+
+            return false;
+        }
+
+        $payload = $timestamp . '.' . $this->getContent();
+
+        $expectedSignature = hash_hmac('sha256', $payload, $webhookSecret);
+
+        if (!hash_equals($expectedSignature, $signature)) {
+            Log::channel('notifyre')->error('Webhook signature verification failed: signature mismatch');
+
+            return false;
+        }
+
+        Log::channel('notifyre')->debug('Webhook signature verified successfully');
+
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
         $base = [
-            'success' => ['required', 'boolean'],
-            'status_code' => ['required', 'integer'],
-            'message' => ['required', 'string'],
-            'errors' => ['array'],
+            'Event' => ['required', 'string', 'in:sms_sent,sms_received,fax_sent,fax_received,mms_received'],
+            'Timestamp' => ['required', 'integer'],
+            'Payload' => ['required', 'array'],
         ];
 
         $payload = [
-            'payload' => ['required', 'array'],
-            'payload.id' => ['required', 'string'],
-            'payload.friendly_id' => ['required', 'string'],
-            'payload.account_id' => ['required', 'string'],
-            'payload.created_by' => ['required', 'string'],
-            'payload.status' => ['required', 'string'],
-            'payload.total_cost' => ['required', 'numeric'],
-            'payload.created_date_utc' => ['required', 'integer'],
-            'payload.submitted_date_utc' => ['required', 'integer'],
-            'payload.completed_date_utc' => ['nullable', 'integer'],
-            'payload.last_modified_date_utc' => ['required', 'integer'],
-            'payload.campaign_name' => ['required', 'string'],
+            'Payload.ID' => ['required', 'string'],
+            'Payload.FriendlyID' => ['nullable', 'string'],
+            'Payload.AccountID' => ['required', 'string'],
+            'Payload.CreatedBy' => ['required', 'string'],
+            'Payload.Status' => ['required', 'string', 'in:draft,queued,completed,Failed,warning'],
+            'Payload.TotalCost' => ['required', 'numeric'],
+            'Payload.CreatedDateUtc' => ['required', 'integer'],
+            'Payload.SubmittedDateUtc' => ['required', 'integer'],
+            'Payload.CompletedDateUtc' => ['nullable', 'integer'],
+            'Payload.LastModifiedDateUtc' => ['nullable', 'integer'],
         ];
 
-        $recipients = [
-            'payload.recipients' => ['required', 'array'],
-            'payload.recipients.*.id' => ['required', 'string'],
-            'payload.recipients.*.friendly_id' => ['required', 'string'],
-            'payload.recipients.*.to_number' => ['required', 'string'],
-            'payload.recipients.*.from_number' => ['required', 'string'],
-            'payload.recipients.*.cost' => ['required', 'numeric'],
-            'payload.recipients.*.message_parts' => ['required', 'integer'],
-            'payload.recipients.*.cost_per_part' => ['required', 'numeric'],
-            'payload.recipients.*.status' => ['required', 'string'],
-            'payload.recipients.*.status_message' => ['required', 'string'],
-            'payload.recipients.*.delivery_status' => ['nullable', 'string'],
-            'payload.recipients.*.queued_date_utc' => ['required', 'integer'],
-            'payload.recipients.*.completed_date_utc' => ['required', 'integer'],
+        $recipient = [
+            'Payload.Recipient' => ['required', 'array'],
+            'Payload.Recipient.ID' => ['required', 'string'],
+            'Payload.Recipient.ToNumber' => ['required', 'string'],
+            'Payload.Recipient.FromNumber' => ['required', 'string'],
+            'Payload.Recipient.Message' => ['nullable', 'string'],
+            'Payload.Recipient.Cost' => ['required', 'numeric'],
+            'Payload.Recipient.MessageParts' => ['required', 'integer'],
+            'Payload.Recipient.CostPerPart' => ['required', 'numeric'],
+            'Payload.Recipient.Status' => ['required', 'string'],
+            'Payload.Recipient.StatusMessage' => ['nullable', 'string'],
+            'Payload.Recipient.DeliveryStatus' => ['nullable', 'string'],
+            'Payload.Recipient.QueuedDateUtc' => ['nullable', 'integer'],
+            'Payload.Recipient.CompletedDateUtc' => ['nullable', 'integer'],
         ];
 
         $metadata = [
-            'payload.metadata' => ['required', 'array'],
-            'payload.metadata.requesting_user_id' => ['required', 'string'],
-            'payload.metadata.requesting_user_email' => ['required', 'string'],
-
+            'Payload.Metadata' => ['nullable', 'array'],
+            'Payload.Metadata.requestingUserId' => ['nullable', 'string'],
+            'Payload.Metadata.requestingUserEmail' => ['nullable', 'string'],
         ];
 
-        $invalidToNumbers = [
-            'payload.invalid_to_numbers' => ['array'],
-            'payload.invalid_to_numbers.*.number' => ['required', 'string'],
-            'payload.invalid_to_numbers.*.message' => ['required', 'string'],
-        ];
-
-        return array_merge($base, $payload, $recipients, $metadata, $invalidToNumbers);
+        return [...$base, ...$payload, ...$recipient, ...$metadata];
     }
 
-    /**
-     * Get the validated data and convert it to ResponseBody DTO.
-     */
-    public function toResponseBody(): ResponseBody
+    public function getRecipient(): SmsRecipient
     {
-        $validated = $this->validated();
+        $recipient = $this->validated('Payload.Recipient');
 
-        $recipients = array_map(function ($recipient) {
-            return new SmsRecipient(
-                id: $recipient['id'],
-                friendlyID: $recipient['friendly_id'],
-                toNumber: $recipient['to_number'],
-                fromNumber: $recipient['from_number'],
-                cost: $recipient['cost'],
-                messageParts: $recipient['message_parts'],
-                costPerPart: $recipient['cost_per_part'],
-                status: $recipient['status'],
-                statusMessage: $recipient['status_message'],
-                deliveryStatus: $recipient['delivery_status'] ?? null,
-                queuedDateUtc: $recipient['queued_date_utc'],
-                completedDateUtc: $recipient['completed_date_utc'],
-            );
-        }, $validated['payload']['recipients']);
-
-        $invalidNumbers = array_map(function ($invalidNumber) {
-            return new InvalidNumber(
-                number: $invalidNumber['number'],
-                message: $invalidNumber['message'],
-            );
-        }, $validated['payload']['invalid_to_numbers'] ?? []);
-
-        $metadata = new Metadata(
-            requestingUserId: $validated['payload']['metadata']['requesting_user_id'],
-            requestingUserEmail: $validated['payload']['metadata']['requesting_user_email'],
-        );
-
-        $payload = new ResponsePayload(
-            id: $validated['payload']['id'],
-            friendlyID: $validated['payload']['friendly_id'],
-            accountID: $validated['payload']['account_id'],
-            createdBy: $validated['payload']['created_by'],
-            recipients: $recipients,
-            status: $validated['payload']['status'],
-            totalCost: $validated['payload']['total_cost'],
-            metadata: $metadata,
-            createdDateUtc: $validated['payload']['created_date_utc'],
-            submittedDateUtc: $validated['payload']['submitted_date_utc'],
-            completedDateUtc: $validated['payload']['completed_date_utc'] ?? null,
-            lastModifiedDateUtc: $validated['payload']['last_modified_date_utc'],
-            campaignName: $validated['payload']['campaign_name'],
-            invalidToNumbers: $invalidNumbers,
-        );
-
-        return new ResponseBody(
-            success: $validated['success'],
-            statusCode: $validated['status_code'],
-            message: $validated['message'],
-            payload: $payload,
-            errors: $validated['errors'] ?? [],
+        return new SmsRecipient(
+            id: $recipient['ID'],
+            friendlyID: $this->validated('Payload.FriendlyID') ?? $this->validated('Payload.ID'),
+            toNumber: $recipient['ToNumber'],
+            fromNumber: $recipient['FromNumber'],
+            cost: $recipient['Cost'],
+            messageParts: $recipient['MessageParts'],
+            costPerPart: $recipient['CostPerPart'],
+            status: $recipient['Status'],
+            statusMessage: $recipient['StatusMessage'] ?? '',
+            deliveryStatus: $recipient['DeliveryStatus'] ?? null,
+            queuedDateUtc: $recipient['QueuedDateUtc'] ?? 0,
+            completedDateUtc: $recipient['CompletedDateUtc'] ?? 0,
         );
     }
 }

@@ -20,12 +20,12 @@ return new class () extends Migration
 
         Schema::create('notifyre_recipients', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('tmp_id', 40)->nullable()->unique()->index(); // UUID + batch ID for temporary recipients
-            $table->string('type', 255)->default(NotifyreRecipientTypes::MOBILE_NUMBER->value)->index();
+            $table->string('type', 255)->default(NotifyreRecipientTypes::MOBILE_NUMBER->value);
             $table->string('value', 255);
             $table->timestamps();
 
             $table->unique(['type', 'value']);
+            $table->index(['value', 'type']);
         });
 
         Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
@@ -35,7 +35,6 @@ return new class () extends Migration
 
             $table->foreign('sms_message_id')->references('id')->on('notifyre_sms_messages')->cascadeOnDelete();
             $table->foreign('recipient_id')->references('id')->on('notifyre_recipients')->cascadeOnDelete();
-
             $table->unique(['sms_message_id', 'recipient_id']);
         });
 

@@ -83,6 +83,7 @@ notifyre()->send(new RequestBody(
 - **Configuration Management** - Extensive configuration options
 - **Message Tracking** - Track SMS delivery status with callbacks
 - **Recipient Types** - Support for mobile numbers, contacts, and groups
+- **Delivery Status Tracking** - Track message delivery with status enums (sent, delivered, failed, etc.)
 
 ### Available Commands
 
@@ -132,4 +133,5 @@ docs/
 
 - `NOTIFYRE_LOG_LEVEL` - Log level for Notifyre (emergency|alert|critical|error|warning|notice|info|debug)
 
-**Note:** Most configuration options (routes, timeouts, database, rate limiting, etc.) are set in `config/notifyre.php`. Publish the config file to customize these settings.
+**Note:** Most configuration options (routes, timeouts, database, rate limiting, etc.) are set in `config/notifyre.php`.
+Publish the config file to customize these settings.

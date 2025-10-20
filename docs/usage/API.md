@@ -1,6 +1,7 @@
 # REST API Usage
 
-The Notifyre Laravel package provides REST API endpoints for SMS operations, including sending messages and retrieving message history.
+The Notifyre Laravel package provides REST API endpoints for SMS operations, including sending messages and retrieving
+message history.
 
 ## Quick Start
 
@@ -14,7 +15,8 @@ NOTIFYRE_ROUTES_ENABLED=true
 
 ### Base Prefix
 
-Routes are registered under the prefix configured by `NOTIFYRE_ROUTE_PREFIX` (default `notifyre`). The examples below assume the default prefix and the default `api` middleware group, so the full base path is `/api/notifyre`.
+Routes are registered under the prefix configured by `NOTIFYRE_ROUTE_PREFIX` (default `notifyre`). The examples below
+assume the default prefix and the default `api` middleware group, so the full base path is `/api/notifyre`.
 
 ### Routes
 
@@ -137,7 +139,8 @@ GET /api/notifyre/sms/notifyre
 GET /api/notifyre/sms/notifyre/{id}
 ```
 
-Both endpoints proxy to the Notifyre API using your configured credentials and return the upstream response. Failures return status 500 with `{ "message": string }`.
+Both endpoints proxy to the Notifyre API using your configured credentials and return the upstream response. Failures
+return status 500 with `{ "message": string }`.
 
 ## Webhook
 
@@ -145,14 +148,44 @@ Both endpoints proxy to the Notifyre API using your configured credentials and r
 POST /api/notifyre/sms/webhook
 ```
 
-The webhook updates recipient identification and sent status. The controller retries lookup for up to `NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS` with `NOTIFYRE_WEBHOOK_RETRY_DELAY` seconds between attempts when the message is not yet persisted.
+The webhook endpoint handles delivery status callbacks from Notifyre:
 
-- 200 with the updated message and `recipients` on success
-- 404 when the message cannot be found after all attempts
+### Features
+
+- **Signature Verification**: HMAC-SHA256 signature verification for security
+- **Status Tracking**: Uses `NotifyPreprocessedStatus` enum to determine delivery success
+- **Retry Logic**: Retries message lookup for up to `NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS` attempts
+- **Idempotency**: Prevents duplicate processing of the same webhook
+- **Database Updates**: Updates recipient ID and sent status atomically
+
+### Delivery Status
+
+The webhook uses the `NotifyPreprocessedStatus` enum to determine if a message was successfully sent:
+
+- **Successful**: `sent`, `delivered`
+- **Unsuccessful**: `queued`, `failed`, `pending`, `undelivered`
+
+### Responses
+
+- **200**: Webhook processed successfully
+- **200**: Webhook already processed (idempotent)
+- **404**: Message not found after all retry attempts
+- **404**: Recipient not found
+- **401**: Signature verification failed (invalid or missing signature)
+- **500**: Processing error
+
+### Security
+
+Webhook requests are verified using the `Notifyre-Signature` header. Configure your webhook secret in the environment:
+
+```env
+NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
+```
 
 ## Authentication and Middleware
 
-- Routes use the `api` middleware by default; add auth middleware via `notifyre.routes.middleware` in `config/notifyre.php` if needed.
+- Routes use the `api` middleware by default; add auth middleware via `notifyre.routes.middleware` in
+  `config/notifyre.php` if needed.
 - A throttle is applied when `NOTIFYRE_RATE_LIMIT_ENABLED=true`.
 
 ## Examples
@@ -204,11 +237,11 @@ curl -X GET http://your-app.com/api/notifyre/sms/notifyre/abc123 -H "Accept: app
 
 ## Response Codes
 
-| Code | Description                               |
-|------|-------------------------------------------|
-| 200  | Success                                   |
-| 201  | Created (SMS accepted for sending)        |
-| 404  | Not Found                                 |
-| 422  | Validation/Precondition Failed            |
-| 429  | Too Many Requests (Rate Limit)            |
-| 500  | Server Error                              |
+| Code | Description                        |
+|------|------------------------------------|
+| 200  | Success                            |
+| 201  | Created (SMS accepted for sending) |
+| 404  | Not Found                          |
+| 422  | Validation/Precondition Failed     |
+| 429  | Too Many Requests (Rate Limit)     |
+| 500  | Server Error                       |

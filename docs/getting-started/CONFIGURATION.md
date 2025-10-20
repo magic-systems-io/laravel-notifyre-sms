@@ -24,7 +24,8 @@ NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 # NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```
 
-**Note:** Most configuration options are set in `config/notifyre.php` and require publishing the config file to customize. Only the driver, API key, webhook secret, and log level can be set via environment variables.
+**Note:** Most configuration options are set in `config/notifyre.php` and require publishing the config file to
+customize. Only the driver, API key, webhook secret, and log level can be set via environment variables.
 
 ## Configuration File
 
@@ -98,6 +99,7 @@ The package creates `config/notifyre.php` with these sections:
 ```
 
 The log level can be customized via `NOTIFYRE_LOG_LEVEL` environment variable:
+
 - Falls back to `LOG_LEVEL`, then `debug`
 - Automatically uses `info` in production when `APP_DEBUG=false` and no explicit level is set
 - Logs to `storage/logs/notifyre_sms.log`
@@ -111,10 +113,19 @@ The log level can be customized via `NOTIFYRE_LOG_LEVEL` environment variable:
     'secret' => env('NOTIFYRE_WEBHOOK_SECRET'),
     'retry_attempts' => 3,
     'retry_delay' => 1, // seconds between retries
+    'signature_tolerance' => 300, // 5 minutes
 ],
 ```
 
-**Note:** Only the webhook secret can be set via `NOTIFYRE_WEBHOOK_SECRET`. To change retry settings, publish and edit `config/notifyre.php`.
+The webhook system provides:
+
+- **Signature Verification**: HMAC-SHA256 signature verification using webhook secret
+- **Delivery Status Tracking**: Uses `NotifyPreprocessedStatus` enum to track message delivery
+- **Retry Logic**: Configurable retry attempts for message lookup
+- **Idempotency**: Prevents duplicate webhook processing
+- **Timestamp Validation**: Rejects webhooks outside the tolerance window (default 5 minutes)
+
+**Note:** Only the webhook secret can be set via `NOTIFYRE_WEBHOOK_SECRET`. To change retry settings or signature tolerance, publish and edit `config/notifyre.php`.
 
 ## Driver-Specific Configuration
 
@@ -164,7 +175,8 @@ NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret
 # NOTIFYRE_LOG_LEVEL=info  # Optional: Set to 'info' for production
 ```
 
-**Note:** Most settings are configured in `config/notifyre.php`. Publish the config file to customize routes, timeouts, database, etc.
+**Note:** Most settings are configured in `config/notifyre.php`. Publish the config file to customize routes, timeouts,
+database, etc.
 
 ### Testing
 
@@ -211,6 +223,7 @@ NOTIFYRE_LOG_LEVEL=info  # emergency|alert|critical|error|warning|notice|info|de
 ```
 
 The logging system:
+
 - Respects `APP_DEBUG` - defaults to `info` in production, `debug` in development
 - Falls back to your app's `LOG_LEVEL` if set
 - Can be customized per-package via `NOTIFYRE_LOG_LEVEL`

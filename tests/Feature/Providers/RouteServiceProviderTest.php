@@ -7,7 +7,7 @@ use MagicSystemsIO\Notifyre\Providers\RouteServiceProvider;
 it('registers package routes when routes are enabled', function () {
     config()->set('notifyre.routes.enabled', true);
 
-    $route = Route::getRoutes()->getByName('notifyre.sms.api.index');
+    $route = Route::getRoutes()->getByName('notifyre.sms.remote.index');
 
     expect($route)->not->toBeNull()
         ->and($route->uri())->toContain('notifyre');
@@ -22,13 +22,13 @@ it('does not register package routes when routes are disabled', function () {
     $provider->boot();
     $this->app->boot();
 
-    expect(Route::has('notifyre.sms.api.index'))->toBeFalse();
+    expect(Route::has('notifyre.sms.remote.index'))->toBeFalse();
 });
 
 it('applies throttle middleware when rate limiting is enabled', function () {
     config()->set('notifyre.routes.rate_limit.enabled', true);
 
-    $route = Route::getRoutes()->getByName('notifyre.sms.api.index');
+    $route = Route::getRoutes()->getByName('notifyre.sms.remote.index');
     expect($route)->not->toBeNull();
 
     $middleware = $route->gatherMiddleware();

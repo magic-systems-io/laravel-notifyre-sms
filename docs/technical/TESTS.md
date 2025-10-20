@@ -1,6 +1,7 @@
 # Notifyre Laravel Package Testing
 
-This document outlines the testing approach and structure for the Notifyre Laravel package using Pest PHP testing framework with Orchestra Testbench.
+This document outlines the testing approach and structure for the Notifyre Laravel package using Pest PHP testing
+framework with Orchestra Testbench.
 
 ## Testing Philosophy
 
@@ -23,7 +24,7 @@ Unit tests focus on testing individual classes and methods in isolation:
 - **Channels/**: Test the NotifyreChannel for Laravel notifications
 - **Contracts/**: Test the NotifyreManager contract
 - **DTO/SMS/**: Test data transfer objects for SMS requests and responses (7 files)
-- **Enums/**: Test enum classes (NotifyreDriver, NotifyreRecipientTypes)
+- **Enums/**: Test enum classes (NotifyreDriver, NotifyreRecipientTypes, NotifyPreprocessedStatus)
 - **Facades/**: Test the Notifyre facade
 - **Models/**: Test Eloquent models and relationships (3 files)
 - **Services/**: Test core services and drivers (4 files)
@@ -164,38 +165,47 @@ The `tests/Pest.php` file provides global helper functions:
 ### Unit Testing Strategy
 
 **Models**: Test Eloquent models with database interactions
+
 - Factory creation and relationships
 - Fillable attributes and casts
 - Model methods and scopes
 
 **Services**: Test business logic in isolation
+
 - Mock external dependencies
 - Test error handling and edge cases
 - Verify configuration usage
 
 **DTOs**: Test data transfer objects
+
 - Constructor validation
 - Array conversion methods
 - Serialization/deserialization
 
 **Enums**: Test enum values and methods
+
 - Value validation
 - String conversion
 - Comparison operations
+- Status success detection (for NotifyPreprocessedStatus)
+- Null-safe operations
 
 ### Feature Testing Strategy
 
 **Commands**: Test Artisan commands end-to-end
+
 - Argument and option handling
 - Service integration
 - Output formatting
 
 **Controllers**: Test HTTP endpoints
+
 - Request validation
 - Response formatting
 - Error handling
 
 **Providers**: Test service provider registration
+
 - Service binding
 - Configuration publishing
 - Command registration
@@ -240,6 +250,24 @@ it('can be created with factory', function () {
     ]);
     
     expect($recipient->phone_number)->toBe('+1234567890');
+});
+```
+
+### Enum Test Example
+
+```php
+// tests/Unit/Enums/NotifyPreprocessedStatusTest.php
+it('identifies successful statuses correctly', function () {
+    expect(NotifyPreprocessedStatus::SENT->isSuccessful())->toBeTrue()
+        ->and(NotifyPreprocessedStatus::DELIVERED->isSuccessful())->toBeTrue()
+        ->and(NotifyPreprocessedStatus::FAILED->isSuccessful())->toBeFalse();
+});
+
+it('checks if status string is successful', function () {
+    expect(NotifyPreprocessedStatus::isStatusSuccessful('sent'))->toBeTrue()
+        ->and(NotifyPreprocessedStatus::isStatusSuccessful('delivered'))->toBeTrue()
+        ->and(NotifyPreprocessedStatus::isStatusSuccessful('failed'))->toBeFalse()
+        ->and(NotifyPreprocessedStatus::isStatusSuccessful(null))->toBeFalse();
 });
 ```
 
@@ -302,7 +330,8 @@ vendor/bin/pest --verbose
 
 ## Testing GitHub Actions Workflow Locally
 
-You can test the GitHub Actions workflow locally using tools like `act` to ensure your CI/CD pipeline works correctly before pushing changes.
+You can test the GitHub Actions workflow locally using tools like `act` to ensure your CI/CD pipeline works correctly
+before pushing changes.
 
 ### Prerequisites
 
@@ -361,6 +390,7 @@ act pull_request
 ### Workflow Configuration
 
 The workflow is configured to run on:
+
 - **Push to main branch**
 - **Pull requests to main branch**
 
@@ -390,6 +420,7 @@ act --rm=false
 ### Troubleshooting Act
 
 #### Docker Issues
+
 ```bash
 # Ensure Docker is running
 docker --version
@@ -399,6 +430,7 @@ act --list
 ```
 
 #### Permission Issues
+
 ```bash
 # Run with sudo if needed (Linux)
 sudo act
@@ -408,6 +440,7 @@ sudo usermod -aG docker $USER
 ```
 
 #### Workflow Not Found
+
 ```bash
 # Specify workflow file explicitly
 act -W .github/workflows/tests.yml
@@ -441,6 +474,7 @@ jobs:
 ```
 
 Then run with:
+
 ```bash
 act -W .github/workflows/tests-local.yml
 ```

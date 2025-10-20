@@ -34,6 +34,11 @@ class NotifyreSmsMessages extends Model
         'driver',
     ];
 
+    protected static function newFactory(): NotifyreSmsMessagesFactory
+    {
+        return NotifyreSmsMessagesFactory::new();
+    }
+
     public function recipients(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -42,10 +47,5 @@ class NotifyreSmsMessages extends Model
             'sms_message_id',
             'recipient_id'
         )->withPivot('sent');
-    }
-
-    protected static function newFactory(): NotifyreSmsMessagesFactory
-    {
-        return NotifyreSmsMessagesFactory::new();
     }
 }

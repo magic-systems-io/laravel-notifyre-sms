@@ -107,23 +107,39 @@ Provide REST API endpoints:
 ```php
 class NotifyreSmsController extends Controller
 {
-    public function store(NotifyreSmsMessagesRequest $request): JsonResponse
+    public function sendMessage(NotifyreSmsMessagesRequest $request): JsonResponse
     {
-        NotifyreService::send($this->buildMessageData($request));
+        app(NotifyreManager::class)->send($this->buildMessageData($request));
         return response()->json('Message is being sent', 201);
     }
     
-    public function index(Request $request): JsonResponse
+    public function indexMessages(Request $request): JsonResponse
     {
         $sender = $request->user()?->getSender();
         $messages = NotifyreSmsMessages::where('sender', $sender)->get()->toArray();
         return response()->json($this->paginate($request, $messages));
     }
     
-    public function show(string $sms): JsonResponse
+    public function showMessage(string $sms): JsonResponse
     {
-        $message = NotifyreSmsMessages::with('messageRecipients.recipient')->find($sms);
+        $message = NotifyreSmsMessages::with('recipients')->find($sms);
         return response()->json($message);
+    }
+    
+    public function handleCallback(NotifyreSmsCallbackRequest $request): JsonResponse
+    {
+        // Webhook handling with signature verification
+        $messageId = $request->validated('Payload.ID');
+        $message = $this->findMessageWithRetry($messageId);
+        $recipient = $request->getRecipient();
+        
+        // Update recipient status using NotifyPreprocessedStatus enum
+        NotifyreSmsMessageRecipient::updateOrCreate(
+            ['sms_message_id' => $messageId, 'recipient_id' => $recipient->id],
+            ['sent' => NotifyPreprocessedStatus::isStatusSuccessful($recipient->deliveryStatus)]
+        );
+        
+        return response()->json(['success' => true]);
     }
 }
 ```
@@ -252,6 +268,40 @@ class Recipient implements Arrayable
 - `contact` - Contact from Notifyre account
 - `group` - Group from Notifyre account
 
+### NotifyPreprocessedStatus Enum
+
+Delivery status tracking for SMS messages:
+
+```php
+enum NotifyPreprocessedStatus: string
+{
+    case SENT = 'sent';
+    case DELIVERED = 'delivered';
+    case QUEUED = 'queued';
+    case FAILED = 'failed';
+    case PENDING = 'pending';
+    case UNDELIVERED = 'undelivered';
+    
+    public function isSuccessful(): bool
+    {
+        return in_array($this, [self::SENT, self::DELIVERED]);
+    }
+    
+    public static function isStatusSuccessful(?string $status): bool
+    {
+        $enumStatus = self::fromNullableString($status);
+        return $enumStatus?->isSuccessful() ?? false;
+    }
+}
+```
+
+**Features:**
+
+- **Type-Safe Status Checks**: Enum provides compile-time type safety
+- **Success Detection**: Built-in `isSuccessful()` method identifies successful deliveries
+- **Null-Safe Operations**: Handles null status values gracefully
+- **Case-Insensitive**: Accepts both uppercase and lowercase status strings
+
 ## Data Flow
 
 ### Direct SMS
@@ -334,6 +384,14 @@ The package registers itself through:
 - **`CommandServiceProvider`**: Artisan commands
 - **`RouteServiceProvider`**: API routes
 - **`NotifyreLoggingServiceProvider`**: Logging configuration
+
+## Enums
+
+The package uses enums for type-safe value management:
+
+- **`NotifyreDriver`**: Available drivers (sms, log)
+- **`NotifyreRecipientTypes`**: Recipient types (mobile_number, contact, group)  
+- **`NotifyPreprocessedStatus`**: Delivery statuses (sent, delivered, queued, failed, pending, undelivered)
 
 ## Contracts
 

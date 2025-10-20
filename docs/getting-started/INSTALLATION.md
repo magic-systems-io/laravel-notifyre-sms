@@ -23,6 +23,7 @@ php artisan notifyre:publish
 ```
 
 This command will:
+
 - Publish the configuration file to `config/notifyre.php`
 - Add environment variables to your `.env` file
 
@@ -44,7 +45,8 @@ NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 # NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```
 
-**Note:** Most configuration options are set in `config/notifyre.php`. Run `php artisan notifyre:publish-config` to customize routes, timeouts, database, rate limiting, etc.
+**Note:** Most configuration options are set in `config/notifyre.php`. Run `php artisan notifyre:publish-config` to
+customize routes, timeouts, database, rate limiting, etc.
 
 ## Step 4: Run Migrations
 
@@ -70,7 +72,8 @@ php artisan sms:send --message="Hello from Notifyre!" --recipient="+1234567890"
 NOTIFYRE_DRIVER=log
 ```
 
-Messages are logged to `storage/logs/laravel.log` instead of being sent. The log driver returns a mock response for testing
+Messages are logged to `storage/logs/laravel.log` instead of being sent. The log driver returns a mock response for
+testing
 purposes.
 
 ### Production
@@ -87,12 +90,12 @@ Messages are sent through the Notifyre API and return real response data with de
 - **Service Providers**: Automatically registered via package auto-discovery
 - **Helper Function**: `notifyre()` function available
 - **Log Channel**: `notifyre` channel for package-specific logging
-- **Commands**: 
-  - `sms:send` - Send SMS messages
-  - `sms:list` - List SMS messages with filtering
-  - `notifyre:publish` - Publish all configuration files
-  - `notifyre:publish-config` - Publish configuration file
-  - `notifyre:publish-env` - Add environment variables
+- **Commands**:
+    - `sms:send` - Send SMS messages
+    - `sms:list` - List SMS messages with filtering
+    - `notifyre:publish` - Publish all configuration files
+    - `notifyre:publish-config` - Publish configuration file
+    - `notifyre:publish-env` - Add environment variables
 - **Configuration**: `config/notifyre.php` available
 - **DTOs**: Rich data transfer objects with Arrayable interface
 - **Database Models**: SMS messages and recipients storage

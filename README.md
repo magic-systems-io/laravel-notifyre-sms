@@ -83,6 +83,7 @@ php artisan sms:send --message "Hello from Notifyre!" --recipient "+1234567890"
 ## Logging
 
 The package creates a dedicated log channel (`notifyre`) that:
+
 - Respects `APP_DEBUG` - defaults to `info` in production, `debug` in development
 - Can be customized via `NOTIFYRE_LOG_LEVEL` in `.env`
 - Falls back to your app's `LOG_LEVEL` if set

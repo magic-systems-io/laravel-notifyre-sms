@@ -2,56 +2,49 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponseBody;
-use MagicSystemsIO\Notifyre\DTO\SMS\ResponsePayload;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsCallbackRequest;
 
 uses(RefreshDatabase::class);
 
-it('validates and converts a full callback payload to ResponseBody DTO', function () {
+it('validates and processes a webhook callback', function () {
+    $timestamp = time();
+    
     $data = [
-        'success' => true,
-        'status_code' => 200,
-        'message' => 'OK',
-        'payload' => [
-            'id' => 'payload_123',
-            'friendly_id' => 'friendly_payload_123',
-            'account_id' => 'account_123',
-            'created_by' => 'user_123',
-            'recipients' => [
-                [
-                    'id' => 'sms_123',
-                    'friendly_id' => 'friendly_123',
-                    'to_number' => '+12345678901',
-                    'from_number' => '+09876543210',
-                    'cost' => 0.05,
-                    'message_parts' => 1,
-                    'cost_per_part' => 0.05,
-                    'status' => 'sent',
-                    'status_message' => 'Message sent successfully',
-                    'delivery_status' => null,
-                    'queued_date_utc' => time(),
-                    'completed_date_utc' => time() + 60,
-                ],
+        'Event' => 'sms_sent',
+        'Timestamp' => $timestamp,
+        'Payload' => [
+            'ID' => 'payload_123',
+            'FriendlyID' => 'friendly_payload_123',
+            'AccountID' => 'account_123',
+            'CreatedBy' => 'user_123',
+            'Status' => 'completed',
+            'TotalCost' => 0.05,
+            'CreatedDateUtc' => $timestamp,
+            'SubmittedDateUtc' => $timestamp + 10,
+            'CompletedDateUtc' => $timestamp + 60,
+            'LastModifiedDateUtc' => $timestamp + 60,
+            'Recipient' => [
+                'ID' => 'sms_123',
+                'ToNumber' => '+12345678901',
+                'FromNumber' => '+09876543210',
+                'Cost' => 0.05,
+                'MessageParts' => 1,
+                'CostPerPart' => 0.05,
+                'Status' => 'sent',
+                'StatusMessage' => 'Message sent successfully',
+                'DeliveryStatus' => null,
+                'QueuedDateUtc' => $timestamp,
+                'CompletedDateUtc' => $timestamp + 60,
             ],
-            'status' => 'completed',
-            'total_cost' => 0.05,
-            'metadata' => [
-                'requesting_user_id' => 'user123',
-                'requesting_user_email' => 'test@example.com',
-            ],
-            'created_date_utc' => time(),
-            'submitted_date_utc' => time() + 10,
-            'completed_date_utc' => time() + 60,
-            'last_modified_date_utc' => time() + 60,
-            'campaign_name' => 'Test Campaign',
-            'invalid_to_numbers' => [
-                ['number' => '+0000000000', 'message' => 'Invalid phone number format'],
+            'Metadata' => [
+                'requestingUserId' => 'user123',
+                'requestingUserEmail' => 'test@example.com',
             ],
         ],
-        'errors' => [],
     ];
+
+    config(['notifyre.webhook.secret' => null]);
 
     $request = new NotifyreSmsCallbackRequest();
     $request->setContainer(app());
@@ -60,21 +53,23 @@ it('validates and converts a full callback payload to ResponseBody DTO', functio
     $request->replace($data);
     $request->validateResolved();
 
-    $dto = $request->toResponseBody();
+    $recipient = $request->getRecipient();
 
-    expect($dto)->toBeInstanceOf(ResponseBody::class)
-        ->and($dto->payload)->toBeInstanceOf(ResponsePayload::class)
-        ->and(count($dto->payload->recipients))->toBe(1)
-        ->and($dto->payload->recipients[0])->toBeInstanceOf(SmsRecipient::class)
-        ->and($dto->payload->id)->toBe('payload_123')
-        ->and($dto->success)->toBeTrue();
+    expect($request->validated('Event'))->toBe('sms_sent')
+        ->and($request->validated('Timestamp'))->toBe($timestamp)
+        ->and($request->validated('Payload.ID'))->toBe('payload_123')
+        ->and($recipient)->toBeInstanceOf(SmsRecipient::class)
+        ->and($recipient->id)->toBe('sms_123')
+        ->and($recipient->toNumber)->toBe('+12345678901');
 });
 
 it('throws a ValidationException when required fields are missing', function () {
     $data = [
-        'success' => true,
-        'status_code' => 200,
+        'Event' => 'sms_sent',
+        'Timestamp' => time(),
     ];
+
+    config(['notifyre.webhook.secret' => null]);
 
     $request = new NotifyreSmsCallbackRequest();
     $request->setContainer(app());
