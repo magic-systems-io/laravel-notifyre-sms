@@ -39,21 +39,8 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NOTIFYRE_DRIVER" value="sms"/>
         <env name="NOTIFYRE_API_KEY" value="test-api-key"/>
-        <env name="NOTIFYRE_DEFAULT_NUMBER_PREFIX" value=""/>
-        <env name="NOTIFYRE_BASE_URL" value="https://api.notifyre.com"/>
-        <env name="NOTIFYRE_TIMEOUT" value="30"/>
-        <env name="NOTIFYRE_RETRY_TIMES" value="3"/>
-        <env name="NOTIFYRE_RETRY_SLEEP" value="1"/>
-        <env name="NOTIFYRE_ROUTES_ENABLED" value="true"/>
-        <env name="NOTIFYRE_ROUTE_PREFIX" value="notifyre"/>
-        <env name="NOTIFYRE_RATE_LIMIT_ENABLED" value="true"/>
-        <env name="NOTIFYRE_RATE_LIMIT_MAX" value="60"/>
-        <env name="NOTIFYRE_RATE_LIMIT_WINDOW" value="1"/>
-        <env name="NOTIFYRE_DB_ENABLED" value="true"/>
-        <env name="NOTIFYRE_LOGGING_ENABLED" value="true"/>
-        <env name="NOTIFYRE_LOG_PREFIX" value="notifyre_sms"/>
-        <env name="NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS" value="3"/>
-        <env name="NOTIFYRE_WEBHOOK_RETRY_DELAY" value="1"/>
+        <env name="NOTIFYRE_USE_UUID" value="true"/>
+        <env name="NOTIFYRE_LOG_LEVEL" value="debug"/>
     </php>
 </phpunit>
 

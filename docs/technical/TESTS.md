@@ -94,22 +94,11 @@ The `tests/TestCase.php` extends Orchestra Testbench and provides:
 Tests use the following environment variables (defined in `phpunit.xml`):
 
 - `NOTIFYRE_DRIVER`: Test driver (set to 'sms')
-- `NOTIFYRE_API_KEY`: Test API key
-- `NOTIFYRE_DEFAULT_NUMBER_PREFIX`: Empty string for testing
-- `NOTIFYRE_BASE_URL`: Test API URL
-- `NOTIFYRE_TIMEOUT`: 30 seconds
-- `NOTIFYRE_RETRY_TIMES`: 3 retries
-- `NOTIFYRE_RETRY_SLEEP`: 1 second between retries
-- `NOTIFYRE_ROUTES_ENABLED`: true
-- `NOTIFYRE_ROUTE_PREFIX`: 'notifyre'
-- `NOTIFYRE_RATE_LIMIT_ENABLED`: true
-- `NOTIFYRE_RATE_LIMIT_MAX`: 60 requests per minute
-- `NOTIFYRE_RATE_LIMIT_WINDOW`: 1 minute window
-- `NOTIFYRE_DB_ENABLED`: true
-- `NOTIFYRE_LOGGING_ENABLED`: true
-- `NOTIFYRE_LOG_PREFIX`: 'notifyre_sms'
-- `NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS`: 3 attempts
-- `NOTIFYRE_WEBHOOK_RETRY_DELAY`: 1 second delay
+- `NOTIFYRE_API_KEY`: Test API key (set to 'test-api-key')
+- `NOTIFYRE_USE_UUID`: Use UUIDs for junction table (set to 'true')
+- `NOTIFYRE_LOG_LEVEL`: Log level for testing (set to 'debug')
+
+**Note:** All other configuration options use their default values from `config/notifyre.php`. This simplified approach reduces test configuration overhead and ensures tests run with production-like settings.
 
 ## Running Tests
 

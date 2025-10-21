@@ -233,8 +233,9 @@ class NotifyreSmsController extends Controller
                 return response()->json(['success' => true, 'message' => 'Webhook already processed']);
             }
 
-            $pivot->delivery_status = $recipient->deliveryStatus ?? 'unknown';
-            $pivot->save();
+            $pivot->update([
+                'delivery_status' => $recipient->deliveryStatus ?? 'unknown',
+            ]);
 
             Log::channel('notifyre')->debug('Updated recipient delivery status', [
                 'message_id' => $messageId,

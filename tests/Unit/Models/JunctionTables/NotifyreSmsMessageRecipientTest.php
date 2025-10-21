@@ -23,11 +23,22 @@ it('casts delivery_status to string', function () {
         ->and($junction->delivery_status)->toBe('delivered');
 });
 
-it('has no primary key and timestamps', function () {
+it('has primary key based on config and no timestamps', function () {
     $junction = NotifyreSmsMessageRecipient::factory()->create();
 
-    expect($junction->getKey())->toBeNull()
-        ->and($junction->timestamps)->toBeFalse();
+    $useUuid = config('notifyre.database.use_uuid', true);
+
+    if ($useUuid) {
+        expect($junction->getKey())->toBeString()
+            ->and($junction->getKeyType())->toBe('string')
+            ->and($junction->getIncrementing())->toBeFalse();
+    } else {
+        expect($junction->getKey())->toBeInt()
+            ->and($junction->getKeyType())->toBe('int')
+            ->and($junction->getIncrementing())->toBeTrue();
+    }
+
+    expect($junction->timestamps)->toBeFalse();
 });
 
 it('enforces unique composite key and throws on duplicate', function () {

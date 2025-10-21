@@ -20,12 +20,15 @@ NOTIFYRE_API_KEY=your_api_key_here
 # Webhook secret for delivery callbacks
 NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 
+# Use UUIDs for junction table primary keys (defaults to true)
+NOTIFYRE_USE_UUID=true
+
 # Log level (optional - defaults to 'debug' in dev, 'info' in production)
 # NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```
 
 **Note:** Most configuration options are set in `config/notifyre.php` and require publishing the config file to
-customize. Only the driver, API key, webhook secret, and log level can be set via environment variables.
+customize. Only the driver, API key, webhook secret, UUID mode, and log level can be set via environment variables.
 
 ## Configuration File
 
@@ -67,7 +70,7 @@ The package creates `config/notifyre.php` with these sections:
 'routes' => [
     'enabled' => true,
     'prefix' => 'notifyre',
-    'middleware' => ['api'],
+    'middleware' => [], // Add middleware as needed (e.g., ['api'], ['auth:sanctum'])
     'rate_limit' => [
         'enabled' => true,
         'max_requests' => 60, // per minute
@@ -76,17 +79,23 @@ The package creates `config/notifyre.php` with these sections:
 ],
 ```
 
-**Note:** These are hardcoded. To change them, publish and edit `config/notifyre.php`.
+**Note:** By default, routes have no middleware to ensure webhook endpoints work out of the box. Add middleware as needed for your authenticated routes. To change these settings, publish and edit `config/notifyre.php`.
 
 ### Database Configuration
 
 ```php
 'database' => [
     'enabled' => true,
+    'use_uuid' => env('NOTIFYRE_USE_UUID', true),
 ],
 ```
 
-**Note:** This is hardcoded. To disable database persistence, publish and edit `config/notifyre.php`.
+**Use UUID Mode:**
+- When `true` (default): Junction table uses UUID for its primary key
+- When `false`: Junction table uses auto-incrementing integer for its primary key
+- Note: Messages and recipients tables always use string IDs from Notifyre API
+
+**Note:** Database persistence is hardcoded as enabled. To disable it, publish and edit `config/notifyre.php`.
 
 ### Logging Configuration
 

@@ -41,6 +41,9 @@ NOTIFYRE_API_KEY=your_api_token_here
 # Required for webhooks
 NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 
+# Optional: Use UUIDs for junction table (defaults to true)
+# NOTIFYRE_USE_UUID=true
+
 # Optional: Log level (defaults to 'debug' in dev, 'info' in production)
 # NOTIFYRE_LOG_LEVEL=debug  # emergency|alert|critical|error|warning|notice|info|debug
 ```

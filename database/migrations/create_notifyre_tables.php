@@ -8,6 +8,17 @@ use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 
 return new class () extends Migration
 {
+    /**
+     * Whether to use UUIDs for the notifyre_sms_message_recipients table primary key.
+     * Read from config at migration instantiation time.
+     */
+    private bool $use_uuid;
+
+    public function __construct()
+    {
+        $this->use_uuid = config('notifyre.database.use_uuid', true);
+    }
+
     public function up(): void
     {
         Schema::create('notifyre_sms_messages', function (Blueprint $table) {
@@ -29,6 +40,12 @@ return new class () extends Migration
         });
 
         Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
+            if ($this->use_uuid) {
+                $table->uuid('id')->primary();
+            } else {
+                $table->id();
+            }
+
             $table->string('sms_message_id');
             $table->string('recipient_id');
             $table->string('delivery_status')->default('pending')->index();

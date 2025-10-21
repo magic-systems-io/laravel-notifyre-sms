@@ -105,7 +105,16 @@ class NotifyreSmsCallbackRequest extends FormRequest
             'Payload.FriendlyID' => ['nullable', 'string'],
             'Payload.AccountID' => ['required', 'string'],
             'Payload.CreatedBy' => ['required', 'string'],
-            'Payload.Status' => ['required', 'string', 'in:draft,queued,completed,Failed,warning'],
+            'Payload.Status' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $allowed = ['draft', 'queued', 'completed', 'failed', 'warning'];
+                    if (!in_array(strtolower($value), $allowed, true)) {
+                        $fail("The $attribute must be one of: " . implode(', ', $allowed));
+                    }
+                },
+            ],
             'Payload.TotalCost' => ['required', 'numeric'],
             'Payload.CreatedDateUtc' => ['required', 'integer'],
             'Payload.SubmittedDateUtc' => ['required', 'integer'],

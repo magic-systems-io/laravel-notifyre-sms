@@ -88,10 +88,20 @@ return [
     | Control whether the package should store SMS messages and recipients
     | in the database for tracking and webhook processing.
     |
+    | 'use_uuid' - When true, the junction table (notifyre_sms_message_recipients)
+    | will use UUIDs for its primary key. When false, it will use auto-incrementing
+    | integers. Note: The messages and recipients tables always use string IDs
+    | provided by the Notifyre API, regardless of this setting.
+    |
+    | IMPORTANT: Set this value BEFORE running migrations. The migration reads
+    | this config to determine the database schema. Changing it after migrations
+    | have run will cause inconsistencies between your schema and application logic.
+    |
     */
 
     'database' => [
         'enabled' => true,
+        'use_uuid' => env('NOTIFYRE_USE_UUID', true),
     ],
 
     /*

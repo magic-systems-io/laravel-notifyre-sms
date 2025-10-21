@@ -5,16 +5,14 @@ namespace MagicSystemsIO\Notifyre\Models\JunctionTables;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use MagicSystemsIO\Notifyre\Database\Factories\Junction\NotifyreSmsMessageRecipientFactory;
+use MagicSystemsIO\Notifyre\Models\Traits\HasConfigurableKey;
 
 class NotifyreSmsMessageRecipient extends Model
 {
     use HasFactory;
+    use HasConfigurableKey;
 
     public $timestamps = false;
-
-    public $incrementing = false;
-
-    protected $primaryKey = null;
 
     protected $fillable = [
         'sms_message_id',

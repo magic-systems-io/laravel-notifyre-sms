@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Str;
 use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
@@ -134,7 +135,11 @@ it('returns message with recipients when showing an existing message', function 
     $message = NotifyreSmsMessages::factory()->create(['sender' => 'S']);
     $recipient = NotifyreRecipients::factory()->create(['value' => '+19998887766', 'type' => 'mobile_number']);
 
-    $message->recipients()->attach($recipient->id, ['delivery_status' => 'pending']);
+    $pivotData = ['delivery_status' => 'pending'];
+    if (config('notifyre.database.use_uuid', true)) {
+        $pivotData['id'] = (string) Str::uuid();
+    }
+    $message->recipients()->attach($recipient->id, $pivotData);
 
     $controller = new NotifyreSmsController();
     $response = $controller->showMessage($message->id);
@@ -150,7 +155,11 @@ it('returns message with recipients when showing an existing message', function 
 it('returns recipient history when recipient exists', function () {
     $message = NotifyreSmsMessages::factory()->create(['sender' => 'S']);
     $recipient = NotifyreRecipients::factory()->create(['value' => '+17770001111', 'type' => 'mobile_number']);
-    $message->recipients()->attach($recipient->id, ['delivery_status' => 'delivered']);
+    $pivotData = ['delivery_status' => 'delivered'];
+    if (config('notifyre.database.use_uuid', true)) {
+        $pivotData['id'] = Str::uuid()->toString();
+    }
+    $message->recipients()->attach($recipient->id, $pivotData);
 
     $controller = new NotifyreSmsController();
     $response = $controller->showMessagesSentToRecipient($recipient->id);
@@ -172,7 +181,11 @@ it('handles webhook callback and updates delivery status', function () {
         'type' => 'mobile_number',
     ]);
 
-    $message->recipients()->attach($recipient->id, ['delivery_status' => 'pending']);
+    $pivotData = ['delivery_status' => 'pending'];
+    if (config('notifyre.database.use_uuid', true)) {
+        $pivotData['id'] = Str::uuid()->toString();
+    }
+    $message->recipients()->attach($recipient->id, $pivotData);
 
     [
         'Event' => 'sms_sent',
@@ -250,7 +263,11 @@ it('matches recipient by value only in webhook callback', function () {
         'type' => 'mobile_number',
     ]);
 
-    $message->recipients()->attach($recipient->id, ['delivery_status' => 'pending']);
+    $pivotData = ['delivery_status' => 'pending'];
+    if (config('notifyre.database.use_uuid', true)) {
+        $pivotData['id'] = Str::uuid()->toString();
+    }
+    $message->recipients()->attach($recipient->id, $pivotData);
 
     $smsRecipient = new SmsRecipient(
         id: 'real_notifyre_id_456',
@@ -301,14 +318,17 @@ it('handles multiple recipients with same value but different types', function (
         'type' => 'mobile_number',
     ]);
 
-    // Create a contact recipient with same value but different type - should not be matched by SMS webhook
     $contactRecipient = NotifyreRecipients::factory()->create([
         'id' => 'contact_temp_id',
         'value' => '+14155552222',
         'type' => 'contact',
     ]);
 
-    $message->recipients()->attach($mobileRecipient->id, ['delivery_status' => 'pending']);
+    $pivotData = ['delivery_status' => 'pending'];
+    if (config('notifyre.database.use_uuid', true)) {
+        $pivotData['id'] = Str::uuid()->toString();
+    }
+    $message->recipients()->attach($mobileRecipient->id, $pivotData);
 
     $smsRecipient = new SmsRecipient(
         id: 'real_id_789',
@@ -368,8 +388,14 @@ it('handles multiple recipients with different values correctly', function () {
         'type' => 'mobile_number',
     ]);
 
-    $message->recipients()->attach($recipient1->id, ['delivery_status' => 'pending']);
-    $message->recipients()->attach($recipient2->id, ['delivery_status' => 'pending']);
+    $pivotData1 = ['delivery_status' => 'pending'];
+    $pivotData2 = ['delivery_status' => 'pending'];
+    if (config('notifyre.database.use_uuid', true)) {
+        $pivotData1['id'] = Str::uuid()->toString();
+        $pivotData2['id'] = Str::uuid()->toString();
+    }
+    $message->recipients()->attach($recipient1->id, $pivotData1);
+    $message->recipients()->attach($recipient2->id, $pivotData2);
 
     $smsRecipient1 = new SmsRecipient(
         id: 'real_id_001',

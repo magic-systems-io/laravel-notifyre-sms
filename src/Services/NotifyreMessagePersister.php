@@ -102,11 +102,17 @@ class NotifyreMessagePersister
         Collection $recipients
     ): void {
         $messageRecipients = $recipients->map(function (NotifyreRecipients $recipient) use ($message) {
-            return [
+            $data = [
                 'sms_message_id' => $message->id,
                 'recipient_id' => $recipient->id,
                 'delivery_status' => 'pending',
             ];
+
+            if (config('notifyre.database.use_uuid', true)) {
+                $data['id'] = (string) Str::uuid();
+            }
+
+            return $data;
         })->toArray();
 
         $affectedRows = NotifyreSmsMessageRecipient::upsert(
