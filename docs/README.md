@@ -131,7 +131,7 @@ docs/
 
 ### Optional
 
-- `NOTIFYRE_USE_UUID` - Use UUIDs for junction table primary keys (default: true)
+- `NOTIFYRE_USE_UUID` - Use UUIDs for junction table primary keys (default: true). **Set BEFORE running migrations.**
 - `NOTIFYRE_LOG_LEVEL` - Log level for Notifyre (emergency|alert|critical|error|warning|notice|info|debug)
 
 **Note:** Most configuration options (routes, timeouts, database, rate limiting, etc.) are set in `config/notifyre.php`.

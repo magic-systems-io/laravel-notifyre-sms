@@ -21,6 +21,7 @@ NOTIFYRE_API_KEY=your_api_key_here
 NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 
 # Use UUIDs for junction table primary keys (defaults to true)
+# IMPORTANT: Set this BEFORE running migrations
 NOTIFYRE_USE_UUID=true
 
 # Log level (optional - defaults to 'debug' in dev, 'info' in production)
@@ -94,6 +95,8 @@ The package creates `config/notifyre.php` with these sections:
 - When `true` (default): Junction table uses UUID for its primary key
 - When `false`: Junction table uses auto-incrementing integer for its primary key
 - Note: Messages and recipients tables always use string IDs from Notifyre API
+
+**IMPORTANT:** Set `NOTIFYRE_USE_UUID` in your `.env` file BEFORE running migrations. The migration reads this config value when it runs to determine the database schema. Changing it after migrations have been run will cause inconsistencies between your schema and application logic.
 
 **Note:** Database persistence is hardcoded as enabled. To disable it, publish and edit `config/notifyre.php`.
 

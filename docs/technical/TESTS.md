@@ -95,7 +95,7 @@ Tests use the following environment variables (defined in `phpunit.xml`):
 
 - `NOTIFYRE_DRIVER`: Test driver (set to 'sms')
 - `NOTIFYRE_API_KEY`: Test API key (set to 'test-api-key')
-- `NOTIFYRE_USE_UUID`: Use UUIDs for junction table (set to 'true')
+- `NOTIFYRE_USE_UUID`: Use UUIDs for junction table (set to 'true'). Must be set before migrations run.
 - `NOTIFYRE_LOG_LEVEL`: Log level for testing (set to 'debug')
 
 **Note:** All other configuration options use their default values from `config/notifyre.php`. This simplified approach reduces test configuration overhead and ensures tests run with production-like settings.

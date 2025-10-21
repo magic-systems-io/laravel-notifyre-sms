@@ -42,6 +42,7 @@ NOTIFYRE_API_KEY=your_api_token_here
 NOTIFYRE_WEBHOOK_SECRET=your_webhook_secret_here
 
 # Optional: Use UUIDs for junction table (defaults to true)
+# IMPORTANT: Set this BEFORE running migrations
 # NOTIFYRE_USE_UUID=true
 
 # Optional: Log level (defaults to 'debug' in dev, 'info' in production)
