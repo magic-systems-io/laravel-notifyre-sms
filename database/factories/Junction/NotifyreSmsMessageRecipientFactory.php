@@ -16,7 +16,37 @@ class NotifyreSmsMessageRecipientFactory extends Factory
         return [
             'recipient_id' => NotifyreRecipients::factory()->create()->id,
             'sms_message_id' => NotifyreSmsMessages::factory()->create()->id,
-            'sent' => $this->faker->boolean,
+            'delivery_status' => 'pending',
         ];
+    }
+
+    /**
+     * State for a delivered webhook callback
+     */
+    public function delivered(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'delivery_status' => 'delivered',
+        ]);
+    }
+
+    /**
+     * State for a sent webhook callback
+     */
+    public function sentToCarrier(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'delivery_status' => 'sent',
+        ]);
+    }
+
+    /**
+     * State for an undeliverable webhook callback
+     */
+    public function undeliverable(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'delivery_status' => 'undeliverable',
+        ]);
     }
 }

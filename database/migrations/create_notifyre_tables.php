@@ -31,7 +31,7 @@ return new class () extends Migration
         Schema::create('notifyre_sms_message_recipients', function (Blueprint $table) {
             $table->string('sms_message_id');
             $table->string('recipient_id');
-            $table->boolean('sent')->default(false);
+            $table->string('delivery_status')->default('pending')->index();
 
             $table->foreign('sms_message_id')->references('id')->on('notifyre_sms_messages')->cascadeOnDelete();
             $table->foreign('recipient_id')->references('id')->on('notifyre_recipients')->cascadeOnDelete();

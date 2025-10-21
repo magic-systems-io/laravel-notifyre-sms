@@ -12,15 +12,15 @@ it('has a working factory and persists to the database', function () {
     $this->assertDatabaseHas('notifyre_sms_message_recipients', [
         'sms_message_id' => $junction->sms_message_id,
         'recipient_id' => $junction->recipient_id,
-        'sent' => $junction->sent,
+        'delivery_status' => $junction->delivery_status,
     ]);
 });
 
-it('casts sent to boolean', function () {
-    $junction = NotifyreSmsMessageRecipient::factory()->create(['sent' => 1]);
+it('casts delivery_status to string', function () {
+    $junction = NotifyreSmsMessageRecipient::factory()->create(['delivery_status' => 'delivered']);
 
-    expect(is_bool($junction->sent))->toBeTrue()
-        ->and($junction->sent)->toBeTrue();
+    expect(is_string($junction->delivery_status))->toBeTrue()
+        ->and($junction->delivery_status)->toBe('delivered');
 });
 
 it('has no primary key and timestamps', function () {

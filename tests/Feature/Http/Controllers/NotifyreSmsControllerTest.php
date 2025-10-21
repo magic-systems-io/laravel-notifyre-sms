@@ -134,7 +134,7 @@ it('returns message with recipients when showing an existing message', function 
     $message = NotifyreSmsMessages::factory()->create(['sender' => 'S']);
     $recipient = NotifyreRecipients::factory()->create(['value' => '+19998887766', 'type' => 'mobile_number']);
 
-    $message->recipients()->attach($recipient->id, ['sent' => false]);
+    $message->recipients()->attach($recipient->id, ['delivery_status' => 'pending']);
 
     $controller = new NotifyreSmsController();
     $response = $controller->showMessage($message->id);
@@ -150,7 +150,7 @@ it('returns message with recipients when showing an existing message', function 
 it('returns recipient history when recipient exists', function () {
     $message = NotifyreSmsMessages::factory()->create(['sender' => 'S']);
     $recipient = NotifyreRecipients::factory()->create(['value' => '+17770001111', 'type' => 'mobile_number']);
-    $message->recipients()->attach($recipient->id, ['sent' => true]);
+    $message->recipients()->attach($recipient->id, ['delivery_status' => 'delivered']);
 
     $controller = new NotifyreSmsController();
     $response = $controller->showMessagesSentToRecipient($recipient->id);
@@ -164,7 +164,7 @@ it('returns recipient history when recipient exists', function () {
         ->and($data[$collectionKey])->toBeArray()->and(count($data[$collectionKey]))->toBe(1);
 });
 
-it('handles webhook callback and updates recipient id and sent status', function () {
+it('handles webhook callback and updates delivery status', function () {
     $message = NotifyreSmsMessages::factory()->create(['id' => 'sms_callback_1']);
 
     $recipient = NotifyreRecipients::factory()->create([
@@ -172,7 +172,7 @@ it('handles webhook callback and updates recipient id and sent status', function
         'type' => 'mobile_number',
     ]);
 
-    $message->recipients()->attach($recipient->id, ['sent' => false]);
+    $message->recipients()->attach($recipient->id, ['delivery_status' => 'pending']);
 
     [
         'Event' => 'sms_sent',
@@ -232,13 +232,13 @@ it('handles webhook callback and updates recipient id and sent status', function
 
     $updated = NotifyreRecipients::where('value', $recipient->value)->first();
     expect($updated)->not->toBeNull()
-        ->and($updated->id)->toBe('new_real_id_1');
+        ->and($updated->id)->toBe($recipient->id);
 
     $pivot = NotifyreSmsMessageRecipient::where('sms_message_id', $message->id)
-        ->where('recipient_id', $updated->id)->first();
+        ->where('recipient_id', $recipient->id)->first();
 
     expect($pivot)->not->toBeNull()
-        ->and((bool) $pivot->sent)->toBeTrue();
+        ->and($pivot->delivery_status)->toBe('delivered');
 });
 
 it('matches recipient by value only in webhook callback', function () {
@@ -250,7 +250,7 @@ it('matches recipient by value only in webhook callback', function () {
         'type' => 'mobile_number',
     ]);
 
-    $message->recipients()->attach($recipient->id, ['sent' => false]);
+    $message->recipients()->attach($recipient->id, ['delivery_status' => 'pending']);
 
     $smsRecipient = new SmsRecipient(
         id: 'real_notifyre_id_456',
@@ -281,9 +281,15 @@ it('matches recipient by value only in webhook callback', function () {
         ->first();
 
     expect($updated)->not->toBeNull()
-        ->and($updated->id)->toBe('real_notifyre_id_456')
+        ->and($updated->id)->toBe('temp_uuid_123')
         ->and($updated->value)->toBe('+14155551111')
         ->and($updated->type)->toBe('mobile_number');
+
+    $pivot = NotifyreSmsMessageRecipient::where('sms_message_id', $message->id)
+        ->where('recipient_id', $recipient->id)->first();
+
+    expect($pivot)->not->toBeNull()
+        ->and($pivot->delivery_status)->toBe('delivered');
 });
 
 it('handles multiple recipients with same value but different types', function () {
@@ -295,13 +301,14 @@ it('handles multiple recipients with same value but different types', function (
         'type' => 'mobile_number',
     ]);
 
-    NotifyreRecipients::factory()->create([
+    // Create a contact recipient with same value but different type - should not be matched by SMS webhook
+    $contactRecipient = NotifyreRecipients::factory()->create([
         'id' => 'contact_temp_id',
         'value' => '+14155552222',
         'type' => 'contact',
     ]);
 
-    $message->recipients()->attach($mobileRecipient->id, ['sent' => false]);
+    $message->recipients()->attach($mobileRecipient->id, ['delivery_status' => 'pending']);
 
     $smsRecipient = new SmsRecipient(
         id: 'real_id_789',
@@ -330,9 +337,20 @@ it('handles multiple recipients with same value but different types', function (
     $allRecipients = NotifyreRecipients::where('value', '+14155552222')->get();
     expect($allRecipients->count())->toBe(2);
 
-    $updatedRecipient = NotifyreRecipients::find('real_id_789');
+    $updatedRecipient = NotifyreRecipients::find('mobile_temp_id');
     expect($updatedRecipient)->not->toBeNull()
-        ->and($updatedRecipient->value)->toBe('+14155552222');
+        ->and($updatedRecipient->value)->toBe('+14155552222')
+        ->and($updatedRecipient->type)->toBe('mobile_number');
+
+    $pivot = NotifyreSmsMessageRecipient::where('sms_message_id', $message->id)
+        ->where('recipient_id', $mobileRecipient->id)->first();
+
+    expect($pivot)->not->toBeNull()
+        ->and($pivot->delivery_status)->toBe('delivered');
+
+    $contactStillExists = NotifyreRecipients::find('contact_temp_id');
+    expect($contactStillExists)->not->toBeNull()
+        ->and($contactStillExists->type)->toBe('contact');
 });
 
 it('handles multiple recipients with different values correctly', function () {
@@ -350,8 +368,8 @@ it('handles multiple recipients with different values correctly', function () {
         'type' => 'mobile_number',
     ]);
 
-    $message->recipients()->attach($recipient1->id, ['sent' => false]);
-    $message->recipients()->attach($recipient2->id, ['sent' => false]);
+    $message->recipients()->attach($recipient1->id, ['delivery_status' => 'pending']);
+    $message->recipients()->attach($recipient2->id, ['delivery_status' => 'pending']);
 
     $smsRecipient1 = new SmsRecipient(
         id: 'real_id_001',
@@ -379,7 +397,13 @@ it('handles multiple recipients with different values correctly', function () {
 
     $updated1 = NotifyreRecipients::where('value', '+14155553333')->first();
     expect($updated1)->not->toBeNull()
-        ->and($updated1->id)->toBe('real_id_001');
+        ->and($updated1->id)->toBe('temp_id_001');
+
+    $pivot1 = NotifyreSmsMessageRecipient::where('sms_message_id', $message->id)
+        ->where('recipient_id', $recipient1->id)->first();
+
+    expect($pivot1)->not->toBeNull()
+        ->and($pivot1->delivery_status)->toBe('delivered');
 
     $unchanged = NotifyreRecipients::where('value', '+14155554444')->first();
     expect($unchanged)->not->toBeNull()

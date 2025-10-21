@@ -62,29 +62,39 @@ class NotifyreMessagePersister
             ];
         }, $recipients);
 
-        $affectedRows = NotifyreRecipients::upsert(
+        NotifyreRecipients::upsert(
             values: $recipientData,
             uniqueBy: ['type', 'value'],
             update: []
         );
 
-        $expectedRows = count($recipientData);
-
-        if ($affectedRows !== $expectedRows) {
-            Log::channel('notifyre')->error("Failed to process all recipients. Expected $expectedRows but got $affectedRows");
-
-            throw new RuntimeException(
-                'Failed to process all recipients. Expected ' . $expectedRows .
-                ', but got ' . $affectedRows
-            );
+        $groupedByType = [];
+        foreach ($recipientData as $data) {
+            $groupedByType[$data['type']][] = $data['value'];
         }
 
-        Log::channel('notifyre')->info("Processed all recipients. Expected $expectedRows and affected $affectedRows rows");
+        $query = NotifyreRecipients::query();
+        foreach ($groupedByType as $type => $values) {
+            $query->orWhere(function ($q) use ($type, $values) {
+                $q->where('type', $type)->whereIn('value', $values);
+            });
+        }
 
-        return NotifyreRecipients::query()
-            ->whereIn('type', array_column($recipientData, 'type'))
-            ->whereIn('value', array_column($recipientData, 'value'))
-            ->get();
+        $foundRecipients = $query->get()->keyBy(function ($recipient) {
+            return $recipient->type . '|' . $recipient->value;
+        });
+
+        $orderedRecipients = [];
+        foreach ($recipientData as $data) {
+            $key = $data['type'] . '|' . $data['value'];
+            $orderedRecipients[] = $foundRecipients[$key];
+        }
+
+        Log::channel('notifyre')->info('Processed all recipients', [
+            'count' => count($orderedRecipients),
+        ]);
+
+        return new Collection($orderedRecipients);
     }
 
     private static function linkMessageToRecipients(
@@ -95,14 +105,14 @@ class NotifyreMessagePersister
             return [
                 'sms_message_id' => $message->id,
                 'recipient_id' => $recipient->id,
-                'sent' => false,
+                'delivery_status' => 'pending',
             ];
         })->toArray();
 
         $affectedRows = NotifyreSmsMessageRecipient::upsert(
             values: $messageRecipients,
             uniqueBy: ['sms_message_id', 'recipient_id'],
-            update: ['sent']
+            update: ['delivery_status']
         );
 
         $expectedRows = count($messageRecipients);

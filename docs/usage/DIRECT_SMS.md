@@ -188,7 +188,7 @@ $message = NotifyreSmsMessages::latest()->first();
 
 ## Delivery Status Tracking
 
-The package tracks delivery status using the `NotifyPreprocessedStatus` enum:
+The package tracks delivery status using the `NotifyProcessedStatus` enum:
 
 ```php
 use MagicSystemsIO\Notifyre\Enums\NotifyProcessedStatus;
@@ -198,7 +198,7 @@ NotifyProcessedStatus::isStatusSuccessful('sent');      // true
 NotifyProcessedStatus::isStatusSuccessful('delivered'); // true
 NotifyProcessedStatus::isStatusSuccessful('failed');    // false
 
-// Available statuses: sent, delivered, queued, failed, pending, undelivered
+// Available statuses: sent, delivered, queued, failed, pending, undelivered, undeliverable
 ```
 
 Status updates are automatically handled via webhooks when configured. See the [API documentation](./API.md#webhook) for webhook setup.

@@ -10,6 +10,7 @@ it('returns the expected values array', function () {
         'failed',
         'pending',
         'undelivered',
+        'undeliverable',
     ]);
 });
 
@@ -20,6 +21,7 @@ it('validates status values correctly', function () {
         ->and(NotifyProcessedStatus::isValid('failed'))->toBeTrue()
         ->and(NotifyProcessedStatus::isValid('pending'))->toBeTrue()
         ->and(NotifyProcessedStatus::isValid('undelivered'))->toBeTrue()
+        ->and(NotifyProcessedStatus::isValid('undeliverable'))->toBeTrue()
         ->and(NotifyProcessedStatus::isValid('invalid'))->toBeFalse()
         ->and(NotifyProcessedStatus::isValid('unknown'))->toBeFalse();
 });
@@ -31,13 +33,15 @@ it('can create enum instances from values', function () {
     $failed = NotifyProcessedStatus::from('failed');
     $pending = NotifyProcessedStatus::from('pending');
     $undelivered = NotifyProcessedStatus::from('undelivered');
+    $undeliverable = NotifyProcessedStatus::from('undeliverable');
 
     expect($sent)->toBe(NotifyProcessedStatus::SENT)
         ->and($delivered)->toBe(NotifyProcessedStatus::DELIVERED)
         ->and($queued)->toBe(NotifyProcessedStatus::QUEUED)
         ->and($failed)->toBe(NotifyProcessedStatus::FAILED)
         ->and($pending)->toBe(NotifyProcessedStatus::PENDING)
-        ->and($undelivered)->toBe(NotifyProcessedStatus::UNDELIVERED);
+        ->and($undelivered)->toBe(NotifyProcessedStatus::UNDELIVERED)
+        ->and($undeliverable)->toBe(NotifyProcessedStatus::UNDELIVERABLE);
 });
 
 it('throws when creating from an invalid value', function () {
@@ -48,7 +52,7 @@ it('cases() and values() are consistent', function () {
     $cases = NotifyProcessedStatus::cases();
     $caseValues = array_map(fn ($c) => $c->value, $cases);
 
-    expect(count($cases))->toBe(6)
+    expect(count($cases))->toBe(7)
         ->and($caseValues)->toBe(NotifyProcessedStatus::values());
 });
 
@@ -58,7 +62,8 @@ it('identifies successful statuses correctly', function () {
         ->and(NotifyProcessedStatus::QUEUED->isSuccessful())->toBeFalse()
         ->and(NotifyProcessedStatus::FAILED->isSuccessful())->toBeFalse()
         ->and(NotifyProcessedStatus::PENDING->isSuccessful())->toBeFalse()
-        ->and(NotifyProcessedStatus::UNDELIVERED->isSuccessful())->toBeFalse();
+        ->and(NotifyProcessedStatus::UNDELIVERED->isSuccessful())->toBeFalse()
+        ->and(NotifyProcessedStatus::UNDELIVERABLE->isSuccessful())->toBeFalse();
 });
 
 it('creates enum from nullable string correctly', function () {
@@ -79,6 +84,7 @@ it('checks if status string is successful', function () {
         ->and(NotifyProcessedStatus::isStatusSuccessful('failed'))->toBeFalse()
         ->and(NotifyProcessedStatus::isStatusSuccessful('pending'))->toBeFalse()
         ->and(NotifyProcessedStatus::isStatusSuccessful('undelivered'))->toBeFalse()
+        ->and(NotifyProcessedStatus::isStatusSuccessful('undeliverable'))->toBeFalse()
         ->and(NotifyProcessedStatus::isStatusSuccessful(null))->toBeFalse()
         ->and(NotifyProcessedStatus::isStatusSuccessful('invalid'))->toBeFalse();
 });

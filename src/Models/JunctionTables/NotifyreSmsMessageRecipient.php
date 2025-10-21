@@ -19,13 +19,13 @@ class NotifyreSmsMessageRecipient extends Model
     protected $fillable = [
         'sms_message_id',
         'recipient_id',
-        'sent',
+        'delivery_status',
     ];
 
     protected $casts = [
         'sms_message_id' => 'string',
         'recipient_id' => 'string',
-        'sent' => 'boolean',
+        'delivery_status' => 'string',
     ];
 
     protected static function newFactory(): NotifyreSmsMessageRecipientFactory

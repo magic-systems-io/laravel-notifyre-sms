@@ -10,7 +10,6 @@ use MagicSystemsIO\Notifyre\Contracts\NotifyreManager;
 use MagicSystemsIO\Notifyre\DTO\SMS\Recipient;
 use MagicSystemsIO\Notifyre\DTO\SMS\RequestBody;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
-use MagicSystemsIO\Notifyre\Enums\NotifyProcessedStatus;
 use MagicSystemsIO\Notifyre\Enums\NotifyreRecipientTypes;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsCallbackRequest;
 use MagicSystemsIO\Notifyre\Http\Requests\NotifyreSmsMessagesRequest;
@@ -158,25 +157,32 @@ class NotifyreSmsController extends Controller
 
     private function findMessageWithRetry(string $messageId): ?NotifyreSmsMessages
     {
-        $maxRetries = config('notifyre.webhook.retry_attempts', 3);
-        $delaySeconds = config('notifyre.webhook.retry_delay', 1);
+        $message = NotifyreSmsMessages::find($messageId);
+        if ($message) {
+            return $message;
+        }
 
-        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+        if ($recentMessage = NotifyreSmsMessages::where('created_at', '>', now()->subSeconds(30))->exists()) {
+            $maxRetries = config('notifyre.webhook.retry_attempts', 2);
+            $delaySeconds = config('notifyre.webhook.retry_delay', 1);
 
-            $message = NotifyreSmsMessages::find($messageId);
-            if ($message) {
-                return $message;
-            }
+            for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+                Log::channel('notifyre')->debug("Message not found, retry attempt $attempt/$maxRetries", [
+                    'message_id' => $messageId,
+                ]);
 
-            if ($attempt < $maxRetries) {
-                Log::channel('notifyre')->debug("Message not found, retry attempt $attempt/$maxRetries");
                 sleep($delaySeconds);
+
+                $message = NotifyreSmsMessages::find($messageId);
+                if ($message) {
+                    return $message;
+                }
             }
         }
 
-        Log::channel('notifyre')->warning('Message not found after retries', [
+        Log::channel('notifyre')->warning('Message not found', [
             'message_id' => $messageId,
-            'attempts' => $maxRetries,
+            'had_recent_activity' => $recentMessage ?? false,
         ]);
 
         return null;
@@ -189,12 +195,15 @@ class NotifyreSmsController extends Controller
     {
         return DB::transaction(function () use ($messageId, $recipient) {
 
-            $localRecipient = NotifyreRecipients::where('value', $recipient->toNumber)->first();
+            $localRecipient = NotifyreRecipients::where('value', $recipient->toNumber)
+                ->where('type', NotifyreRecipientTypes::MOBILE_NUMBER->value)
+                ->first();
 
             if (!$localRecipient) {
                 Log::channel('notifyre')->warning('Recipient not found', [
                     'message_id' => $messageId,
                     'recipient' => $recipient->toNumber,
+                    'type' => NotifyreRecipientTypes::MOBILE_NUMBER->value,
                 ]);
 
                 return response()->json(['message' => 'Recipient not found'], 404);
@@ -204,24 +213,36 @@ class NotifyreSmsController extends Controller
                 ->where('recipient_id', $localRecipient->id)
                 ->first();
 
-            if ($pivot && $pivot->sent) {
+            if (!$pivot) {
+                Log::channel('notifyre')->warning('Junction record not found', [
+                    'message_id' => $messageId,
+                    'recipient_id' => $localRecipient->id,
+                    'recipient' => $recipient->toNumber,
+                ]);
+
+                return response()->json(['message' => 'Junction record not found'], 404);
+            }
+
+            if ($pivot->delivery_status === $recipient->deliveryStatus) {
                 Log::channel('notifyre')->debug('Webhook already processed (idempotent)', [
                     'message_id' => $messageId,
                     'recipient' => $recipient->toNumber,
+                    'delivery_status' => $recipient->deliveryStatus,
                 ]);
 
                 return response()->json(['success' => true, 'message' => 'Webhook already processed']);
             }
 
-            if ($localRecipient->id !== $recipient->id) {
-                $localRecipient->id = $recipient->id;
-                $localRecipient->save();
-            }
+            $pivot->delivery_status = $recipient->deliveryStatus ?? 'unknown';
+            $pivot->save();
 
-            NotifyreSmsMessageRecipient::updateOrCreate(
-                ['sms_message_id' => $messageId, 'recipient_id' => $recipient->id],
-                ['sent' => NotifyProcessedStatus::isStatusSuccessful($recipient->deliveryStatus)]
-            );
+            Log::channel('notifyre')->debug('Updated recipient delivery status', [
+                'message_id' => $messageId,
+                'local_recipient_id' => $localRecipient->id,
+                'notifyre_recipient_id' => $recipient->id,
+                'recipient_number' => $recipient->toNumber,
+                'delivery_status' => $pivot->delivery_status,
+            ]);
 
             return true;
         });

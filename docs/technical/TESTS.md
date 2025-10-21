@@ -24,7 +24,7 @@ Unit tests focus on testing individual classes and methods in isolation:
 - **Channels/**: Test the NotifyreChannel for Laravel notifications
 - **Contracts/**: Test the NotifyreManager contract
 - **DTO/SMS/**: Test data transfer objects for SMS requests and responses (7 files)
-- **Enums/**: Test enum classes (NotifyreDriver, NotifyreRecipientTypes, NotifyPreprocessedStatus)
+- **Enums/**: Test enum classes (NotifyreDriver, NotifyreRecipientTypes, NotifyProcessedStatus)
 - **Facades/**: Test the Notifyre facade
 - **Models/**: Test Eloquent models and relationships (3 files)
 - **Services/**: Test core services and drivers (4 files)
@@ -187,7 +187,7 @@ The `tests/Pest.php` file provides global helper functions:
 - Value validation
 - String conversion
 - Comparison operations
-- Status success detection (for NotifyPreprocessedStatus)
+- Status success detection (for NotifyProcessedStatus)
 - Null-safe operations
 
 ### Feature Testing Strategy
@@ -256,18 +256,20 @@ it('can be created with factory', function () {
 ### Enum Test Example
 
 ```php
-// tests/Unit/Enums/NotifyPreprocessedStatusTest.php
+// tests/Unit/Enums/NotifyProcessedStatusTest.php
 it('identifies successful statuses correctly', function () {
-    expect(NotifyPreprocessedStatus::SENT->isSuccessful())->toBeTrue()
-        ->and(NotifyPreprocessedStatus::DELIVERED->isSuccessful())->toBeTrue()
-        ->and(NotifyPreprocessedStatus::FAILED->isSuccessful())->toBeFalse();
+    expect(NotifyProcessedStatus::SENT->isSuccessful())->toBeTrue()
+        ->and(NotifyProcessedStatus::DELIVERED->isSuccessful())->toBeTrue()
+        ->and(NotifyProcessedStatus::FAILED->isSuccessful())->toBeFalse()
+        ->and(NotifyProcessedStatus::UNDELIVERABLE->isSuccessful())->toBeFalse();
 });
 
 it('checks if status string is successful', function () {
-    expect(NotifyPreprocessedStatus::isStatusSuccessful('sent'))->toBeTrue()
-        ->and(NotifyPreprocessedStatus::isStatusSuccessful('delivered'))->toBeTrue()
-        ->and(NotifyPreprocessedStatus::isStatusSuccessful('failed'))->toBeFalse()
-        ->and(NotifyPreprocessedStatus::isStatusSuccessful(null))->toBeFalse();
+    expect(NotifyProcessedStatus::isStatusSuccessful('sent'))->toBeTrue()
+        ->and(NotifyProcessedStatus::isStatusSuccessful('delivered'))->toBeTrue()
+        ->and(NotifyProcessedStatus::isStatusSuccessful('failed'))->toBeFalse()
+        ->and(NotifyProcessedStatus::isStatusSuccessful('undeliverable'))->toBeFalse()
+        ->and(NotifyProcessedStatus::isStatusSuccessful(null))->toBeFalse();
 });
 ```
 

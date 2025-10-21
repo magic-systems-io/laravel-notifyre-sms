@@ -10,10 +10,11 @@ enum NotifyProcessedStatus: string
     case FAILED = 'failed';
     case PENDING = 'pending';
     case UNDELIVERED = 'undelivered';
+    case UNDELIVERABLE = 'undeliverable';
 
     public static function values(): array
     {
-        return array_map(fn (self $case) => $case->value, self::cases());
+        return array_column(self::cases(), 'value');
     }
 
     public static function isValid(string $value): bool

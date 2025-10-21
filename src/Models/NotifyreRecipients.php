@@ -40,6 +40,6 @@ class NotifyreRecipients extends Model
             NotifyreSmsMessageRecipient::class,
             'recipient_id',
             'sms_message_id',
-        )->withPivot('sent');
+        )->withPivot('delivery_status');
     }
 }

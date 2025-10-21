@@ -29,12 +29,12 @@ it('uses string primary key and is not incrementing', function () {
         ->and($message->getIncrementing())->toBeFalse();
 });
 
-it('defines recipients relation as a BelongsToMany with pivot field sent', function () {
+it('defines recipients relation as a BelongsToMany with pivot field delivery_status', function () {
     $message = NotifyreSmsMessages::factory()->create();
 
     $relation = $message->recipients();
     expect($relation)->toBeInstanceOf(BelongsToMany::class);
 
     $pivot = $relation->getPivotColumns();
-    expect(in_array('sent', $pivot))->toBeTrue();
+    expect(in_array('delivery_status', $pivot))->toBeTrue();
 });

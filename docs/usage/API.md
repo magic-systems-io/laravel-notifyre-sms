@@ -153,17 +153,17 @@ The webhook endpoint handles delivery status callbacks from Notifyre:
 ### Features
 
 - **Signature Verification**: HMAC-SHA256 signature verification for security
-- **Status Tracking**: Uses `NotifyPreprocessedStatus` enum to determine delivery success
+- **Status Tracking**: Uses `NotifyProcessedStatus` enum to determine delivery success
 - **Retry Logic**: Retries message lookup for up to `NOTIFYRE_WEBHOOK_RETRY_ATTEMPTS` attempts
 - **Idempotency**: Prevents duplicate processing of the same webhook
 - **Database Updates**: Updates recipient ID and sent status atomically
 
 ### Delivery Status
 
-The webhook uses the `NotifyPreprocessedStatus` enum to determine if a message was successfully sent:
+The webhook uses the `NotifyProcessedStatus` enum to determine if a message was successfully sent:
 
 - **Successful**: `sent`, `delivered`
-- **Unsuccessful**: `queued`, `failed`, `pending`, `undelivered`
+- **Unsuccessful**: `queued`, `failed`, `pending`, `undelivered`, `undeliverable`
 
 ### Responses
 

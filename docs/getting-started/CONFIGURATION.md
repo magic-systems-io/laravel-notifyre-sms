@@ -120,7 +120,7 @@ The log level can be customized via `NOTIFYRE_LOG_LEVEL` environment variable:
 The webhook system provides:
 
 - **Signature Verification**: HMAC-SHA256 signature verification using webhook secret
-- **Delivery Status Tracking**: Uses `NotifyPreprocessedStatus` enum to track message delivery
+- **Delivery Status Tracking**: Uses `NotifyProcessedStatus` enum to track message delivery
 - **Retry Logic**: Configurable retry attempts for message lookup
 - **Idempotency**: Prevents duplicate webhook processing
 - **Timestamp Validation**: Rejects webhooks outside the tolerance window (default 5 minutes)

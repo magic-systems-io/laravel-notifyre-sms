@@ -199,5 +199,5 @@ it('handles batch recipient creation with mixed types efficiently', function () 
 
     $junction = NotifyreSmsMessageRecipient::where('sms_message_id', 'msg-batch-mixed')->get();
     expect($junction->count())->toBe(6)
-        ->and($junction->every(fn ($j) => $j->sent === false))->toBeTrue();
+        ->and($junction->every(fn ($j) => $j->delivery_status === 'pending'))->toBeTrue();
 });

@@ -4,7 +4,9 @@ namespace MagicSystemsIO\Notifyre\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use MagicSystemsIO\Notifyre\DTO\SMS\SmsRecipient;
+use MagicSystemsIO\Notifyre\Enums\NotifyreEvenType;
 
 class NotifyreSmsCallbackRequest extends FormRequest
 {
@@ -93,7 +95,7 @@ class NotifyreSmsCallbackRequest extends FormRequest
     public function rules(): array
     {
         $base = [
-            'Event' => ['required', 'string', 'in:sms_sent,sms_received,fax_sent,fax_received,mms_received'],
+            'Event' => ['required', 'string', Rule::enum(NotifyreEvenType::class)],
             'Timestamp' => ['required', 'integer'],
             'Payload' => ['required', 'array'],
         ];

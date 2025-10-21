@@ -133,11 +133,17 @@ class NotifyreSmsController extends Controller
         $message = $this->findMessageWithRetry($messageId);
         $recipient = $request->getRecipient();
         
-        // Update recipient status using NotifyPreprocessedStatus enum
-        NotifyreSmsMessageRecipient::updateOrCreate(
-            ['sms_message_id' => $messageId, 'recipient_id' => $recipient->id],
-            ['sent' => NotifyPreprocessedStatus::isStatusSuccessful($recipient->deliveryStatus)]
-        );
+        // Update recipient delivery status using NotifyProcessedStatus enum
+        $localRecipient = NotifyreRecipients::where('value', $recipient->toNumber)
+            ->where('type', NotifyreRecipientTypes::MOBILE_NUMBER->value)
+            ->first();
+            
+        $pivot = NotifyreSmsMessageRecipient::where('sms_message_id', $messageId)
+            ->where('recipient_id', $localRecipient->id)
+            ->first();
+            
+        $pivot->delivery_status = $recipient->deliveryStatus ?? 'unknown';
+        $pivot->save();
         
         return response()->json(['success' => true]);
     }
@@ -268,12 +274,12 @@ class Recipient implements Arrayable
 - `contact` - Contact from Notifyre account
 - `group` - Group from Notifyre account
 
-### NotifyPreprocessedStatus Enum
+### NotifyProcessedStatus Enum
 
 Delivery status tracking for SMS messages:
 
 ```php
-enum NotifyPreprocessedStatus: string
+enum NotifyProcessedStatus: string
 {
     case SENT = 'sent';
     case DELIVERED = 'delivered';
@@ -281,6 +287,7 @@ enum NotifyPreprocessedStatus: string
     case FAILED = 'failed';
     case PENDING = 'pending';
     case UNDELIVERED = 'undelivered';
+    case UNDELIVERABLE = 'undeliverable';
     
     public function isSuccessful(): bool
     {
@@ -391,7 +398,7 @@ The package uses enums for type-safe value management:
 
 - **`NotifyreDriver`**: Available drivers (sms, log)
 - **`NotifyreRecipientTypes`**: Recipient types (mobile_number, contact, group)  
-- **`NotifyPreprocessedStatus`**: Delivery statuses (sent, delivered, queued, failed, pending, undelivered)
+- **`NotifyProcessedStatus`**: Delivery statuses (sent, delivered, queued, failed, pending, undelivered, undeliverable)
 
 ## Contracts
 
