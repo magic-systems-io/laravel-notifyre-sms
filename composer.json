@@ -1,103 +1,103 @@
 {
-  "name": "magic-systems-io/laravel-notifyre-sms",
-  "description": "A Notifyre wrapper for laravel",
-  "version": "0.2.6",
-  "type": "library",
-  "license": "MIT",
-  "keywords": [
-    "notifyre",
-    "sms",
-    "laravel"
-  ],
-  "support": {
-    "issues": "https://github.com/magic-systems-io/laravel-notifyre-sms/issues",
-    "source": "https://github.com/magic-systems-io/laravel-notifyre-sms"
-  },
-  "readme": "README.md",
-  "authors": [
-    {
-      "name": "Arbi Kullakshi",
-      "email": "arbikullakshi0@gmail.com"
+    "name": "magic-systems-io/laravel-notifyre-sms",
+    "description": "A Notifyre wrapper for laravel",
+    "version": "0.3.0",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "notifyre",
+        "sms",
+        "laravel"
+    ],
+    "support": {
+        "issues": "https://github.com/magic-systems-io/laravel-notifyre-sms/issues",
+        "source": "https://github.com/magic-systems-io/laravel-notifyre-sms"
     },
-    {
-      "name": "Magic Systems IO",
-      "email": "guy@hirealoo.com.au",
-      "homepage": "https://magicsystems.io"
-    }
-  ],
-  "require": {
-    "php": "^8.3",
-    "giggsey/libphonenumber-for-php": "^9.0",
-    "laravel/framework": "^12.20.0"
-  },
-  "require-dev": {
-    "laravel/pint": "^1.24.0",
-    "mockery/mockery": "^1.6",
-    "orchestra/testbench": "^10.6",
-    "pestphp/pest": "^4.0",
-    "pestphp/pest-plugin-laravel": "^4.0",
-    "phpstan/phpstan": "^1.11",
-    "phpunit/phpunit": "^12.3"
-  },
-  "autoload": {
-    "psr-4": {
-      "MagicSystemsIO\\Notifyre\\": "src/",
-      "MagicSystemsIO\\Notifyre\\Database\\Factories\\": "database/factories/"
+    "readme": "README.md",
+    "authors": [
+        {
+            "name": "Arbi Kullakshi",
+            "email": "arbikullakshi0@gmail.com"
+        },
+        {
+            "name": "Magic Systems IO",
+            "email": "guy@hirealoo.com.au",
+            "homepage": "https://magicsystems.io"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "giggsey/libphonenumber-for-php": "^9.0",
+        "laravel/framework": "^12.20.0"
     },
-    "files": [
-      "src/helpers.php"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
+    "require-dev": {
+        "laravel/pint": "^1.24.0",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^10.6",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/phpstan": "^1.11",
+        "phpunit/phpunit": "^12.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "MagicSystemsIO\\Notifyre\\": "src/",
+            "MagicSystemsIO\\Notifyre\\Database\\Factories\\": "database/factories/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MagicSystemsIO\\Notifyre\\Providers\\NotifyreServiceProvider"
+            ],
+            "config": {
+                "notifyre": "config/notifyre.php"
+            },
+            "aliases": {
+                "Notifyre": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "version-patch": [
+            "php -f scripts/version.php patch"
+        ],
+        "version-minor": [
+            "php -f scripts/version.php minor"
+        ],
+        "version-major": [
+            "php -f scripts/version.php major"
+        ],
+        "test": [
+            "vendor/bin/pest"
+        ],
+        "test-coverage": [
+            "vendor/bin/pest --coverage --coverage-clover=build/logs/clover.xml --coverage-text"
+        ],
+        "format": [
+            "vendor/bin/pint"
+        ],
+        "format-test": [
+            "vendor/bin/pint --test"
+        ],
+        "phpstan": [
+            "vendor/bin/phpstan analyse --memory-limit=1G src"
+        ]
     }
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "MagicSystemsIO\\Notifyre\\Providers\\NotifyreServiceProvider"
-      ],
-      "config": {
-        "notifyre": "config/notifyre.php"
-      },
-      "aliases": {
-        "Notifyre": "MagicSystemsIO\\Notifyre\\Facades\\Notifyre"
-      }
-    }
-  },
-  "config": {
-    "sort-packages": true,
-    "allow-plugins": {
-      "pestphp/pest-plugin": true
-    }
-  },
-  "minimum-stability": "stable",
-  "prefer-stable": true,
-  "scripts": {
-    "version-patch": [
-      "php -f scripts/version.php patch"
-    ],
-    "version-minor": [
-      "php -f scripts/version.php minor"
-    ],
-    "version-major": [
-      "php -f scripts/version.php major"
-    ],
-    "test": [
-      "vendor/bin/pest"
-    ],
-    "test-coverage": [
-      "vendor/bin/pest --coverage --coverage-clover=build/logs/clover.xml --coverage-text"
-    ],
-    "format": [
-      "vendor/bin/pint"
-    ],
-    "format-test": [
-      "vendor/bin/pint --test"
-    ],
-    "phpstan": [
-      "vendor/bin/phpstan analyse --memory-limit=1G src"
-    ]
-  }
 }
